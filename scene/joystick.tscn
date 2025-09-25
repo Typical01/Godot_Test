@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://bqy81lkdmhp8e"]
+
+[ext_resource type="Texture2D" uid="uid://d0ev8hauc0wyj" path="res://icon.svg" id="1_c05vv"]
+[ext_resource type="Script" uid="uid://bt07x7nmptx78" path="res://script/joystick.gd" id="2_fhlmr"]
+
+[node name="background" type="Sprite2D"]
+self_modulate = Color(1, 1, 1, 0.392157)
+texture = ExtResource("1_c05vv")
+script = ExtResource("2_fhlmr")
+
+[node name="joystick" type="Sprite2D" parent="."]
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_c05vv")
+
+[node name="point" type="Sprite2D" parent="."]
+scale = Vector2(0.08, 0.08)
+texture = ExtResource("1_c05vv")

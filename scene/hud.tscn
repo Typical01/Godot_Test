@@ -1,0 +1,182 @@
+[gd_scene load_steps=12 format=3 uid="uid://d0iutcw00kjwr"]
+
+[ext_resource type="Script" uid="uid://5qrfpqx5sia2" path="res://script/hud.gd" id="1_o8u2p"]
+[ext_resource type="FontFile" uid="uid://by4wvcswqftf" path="res://dodge_the_creeps_2d_assets/fonts/Xolonium-Regular.ttf" id="1_s3k51"]
+[ext_resource type="PackedScene" uid="uid://bqy81lkdmhp8e" path="res://scene/joystick.tscn" id="3_pvgpj"]
+[ext_resource type="PackedScene" uid="uid://bmpeyi8ef1s3j" path="res://scene/settings.tscn" id="4_nhyt6"]
+[ext_resource type="PackedScene" uid="uid://g1btnqk4tij4" path="res://scene/close.tscn" id="5_ry2h7"]
+
+[sub_resource type="InputEventAction" id="InputEventAction_o8u2p"]
+action = &"start_game"
+
+[sub_resource type="Shortcut" id="Shortcut_pvgpj"]
+events = [SubResource("InputEventAction_o8u2p")]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6ut0m"]
+
+[sub_resource type="Animation" id="Animation_nhyt6"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(24, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-84, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="Animation" id="Animation_pvgpj"]
+resource_name = "new_animation"
+length = 16.0001
+step = 1.0
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(24, -0.25, 0, 0.25, 0, 48, -0.25, 0, 0.25, 0, 24, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 8, 16)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(-84, -0.25, 0, 0.25, 0, -84, -0.25, 0, 0.25, 0, -84, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 8, 16)
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ry2h7"]
+_data = {
+&"RESET": SubResource("Animation_nhyt6"),
+&"new_animation": SubResource("Animation_pvgpj")
+}
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_o8u2p")
+
+[node name="ScoreLabel" type="Label" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -22.5
+offset_right = 22.5
+offset_bottom = 78.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("1_s3k51")
+theme_override_font_sizes/font_size = 128
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Message" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -120.0
+offset_right = 240.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("1_s3k51")
+theme_override_font_sizes/font_size = 128
+text = "真高手就坚持100秒!"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="StartButton" type="Button" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -132.0
+offset_top = -578.0
+offset_right = 132.0
+offset_bottom = -400.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/font = ExtResource("1_s3k51")
+theme_override_font_sizes/font_size = 128
+shortcut = SubResource("Shortcut_pvgpj")
+text = "开始"
+
+[node name="MessageTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[node name="joystick" parent="." instance=ExtResource("3_pvgpj")]
+position = Vector2(552, 1856)
+scale = Vector2(10, 10)
+
+[node name="settings" parent="." instance=ExtResource("4_nhyt6")]
+offset_left = 48.0
+offset_top = 2000.0
+offset_right = 176.0
+offset_bottom = 2512.0
+
+[node name="Ui" type="ColorRect" parent="settings"]
+layout_mode = 0
+offset_left = 144.0
+offset_top = -1408.0
+offset_right = 864.0
+offset_bottom = -328.0
+color = Color(0.47451, 0.47451, 0.47451, 0.980392)
+
+[node name="CheckButtonFollowTouch" type="CheckButton" parent="settings/Ui"]
+layout_mode = 0
+offset_left = 264.0
+offset_top = 160.0
+offset_right = 480.0
+offset_bottom = 224.0
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("1_s3k51")
+theme_override_font_sizes/font_size = 42
+theme_override_styles/focus = SubResource("StyleBoxEmpty_6ut0m")
+text = "摇杆跟随"
+alignment = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="settings/Ui/CheckButtonFollowTouch"]
+libraries = {
+&"": SubResource("AnimationLibrary_ry2h7")
+}
+speed_scale = 8.0
+
+[node name="Close" parent="settings/Ui" instance=ExtResource("5_ry2h7")]
+layout_mode = 0
+offset_left = 648.0
+offset_top = 16.0001
+offset_right = 712.0
+offset_bottom = 80.0001
+
+[connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="timeout" from="MessageTimer" to="." method="_on_message_timer_timeout"]
+[connection signal="open_setting_ui" from="settings" to="." method="_on_settings_open_setting_ui"]
+[connection signal="pressed" from="settings/Ui/CheckButtonFollowTouch" to="." method="_on_check_button_follow_touch_pressed"]
+[connection signal="toggled" from="settings/Ui/CheckButtonFollowTouch" to="." method="_on_check_button_follow_touch_toggled"]
+[connection signal="animation_finished" from="settings/Ui/CheckButtonFollowTouch/AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
+[connection signal="close_ui" from="settings/Ui/Close" to="." method="_on_close_close_ui"]

@@ -13,7 +13,12 @@ config_version=5
 config/name="Test"
 run/main_scene="uid://dfb2t5ivrnrmy"
 config/features=PackedStringArray("4.4", "GL Compatibility")
+run/max_fps=120
 config/icon="res://icon.svg"
+
+[autoload]
+
+coord_utils="*res://script/utils/coord_utils.gd"
 
 [display]
 

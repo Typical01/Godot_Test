@@ -1,7 +1,7 @@
 [gd_scene load_steps=14 format=3 uid="uid://g1btnqk4tij4"]
 
 [ext_resource type="Texture2D" uid="uid://bunwa8hc104fv" path="res://dodge_the_creeps_2d_assets/art/关闭.png" id="1_rhm80"]
-[ext_resource type="Script" uid="uid://cjjmfgl0kekjp" path="res://script/close.gd" id="2_qlv7l"]
+[ext_resource type="Script" path="res://script/UI/close.gd" id="2_4arw3"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rhm80"]
 
@@ -41,6 +41,6 @@ theme_override_styles/normal_mirrored = SubResource("StyleBoxEmpty_710ui")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_lpjyo")
 icon = ExtResource("1_rhm80")
 expand_icon = true
-script = ExtResource("2_qlv7l")
+script = ExtResource("2_4arw3")
 
 [connection signal="button_up" from="." to="." method="_on_button_up"]

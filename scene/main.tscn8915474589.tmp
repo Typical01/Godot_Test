@@ -46,14 +46,10 @@ position = Vector2(544, 1160)
 
 [node name="Music" type="AudioStreamPlayer2D" parent="."]
 stream = SubResource("AudioStreamOggVorbis_brvut")
-max_distance = 8000.0
-attenuation = 1e-05
 parameters/looping = true
 
 [node name="DeathSound" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("5_0ha60")
-max_distance = 8000.0
-attenuation = 1e-05
 
 [node name="GenerateProp" parent="." instance=ExtResource("6_4j5ol")]
 
@@ -63,10 +59,10 @@ speed_max = 400.0
 Generate_speed = 0.25
 object_scene = ExtResource("2_wp4xf")
 
-[connection signal="die" from="Player" to="." method="game_over"]
-[connection signal="ready" from="Player" to="." method="_on_player_ready"]
+[connection signal="hit" from="Player" to="." method="game_over"]
+[connection signal="player_ready" from="Player" to="." method="_on_player_player_ready"]
 [connection signal="timeout" from="MobTimer" to="." method="_on_mob_timer_timeout"]
 [connection signal="timeout" from="ScoreTimer" to="." method="_on_score_timer_timeout"]
 [connection signal="timeout" from="StartTimer" to="." method="_on_start_timer_timeout"]
-[connection signal="ready" from="Hud" to="." method="_on_hud_ready"]
+[connection signal="hud_ready" from="Hud" to="." method="_on_hud_hud_ready"]
 [connection signal="start_game" from="Hud" to="." method="new_game"]

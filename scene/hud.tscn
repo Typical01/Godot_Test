@@ -1,10 +1,10 @@
-[gd_scene load_steps=12 format=3 uid="uid://d0iutcw00kjwr"]
+[gd_scene load_steps=19 format=3 uid="uid://d0iutcw00kjwr"]
 
 [ext_resource type="Script" uid="uid://5qrfpqx5sia2" path="res://script/hud.gd" id="1_o8u2p"]
 [ext_resource type="FontFile" uid="uid://by4wvcswqftf" path="res://dodge_the_creeps_2d_assets/fonts/Xolonium-Regular.ttf" id="1_s3k51"]
 [ext_resource type="PackedScene" uid="uid://bqy81lkdmhp8e" path="res://scene/joystick.tscn" id="3_pvgpj"]
-[ext_resource type="PackedScene" uid="uid://bmpeyi8ef1s3j" path="res://scene/settings.tscn" id="4_nhyt6"]
-[ext_resource type="PackedScene" uid="uid://g1btnqk4tij4" path="res://scene/close.tscn" id="5_ry2h7"]
+[ext_resource type="PackedScene" uid="uid://bmpeyi8ef1s3j" path="res://scene/UI/settings.tscn" id="4_nhyt6"]
+[ext_resource type="PackedScene" uid="uid://g1btnqk4tij4" path="res://scene/UI/close.tscn" id="5_ry2h7"]
 
 [sub_resource type="InputEventAction" id="InputEventAction_o8u2p"]
 action = &"start_game"
@@ -12,7 +12,7 @@ action = &"start_game"
 [sub_resource type="Shortcut" id="Shortcut_pvgpj"]
 events = [SubResource("InputEventAction_o8u2p")]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6ut0m"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ry2h7"]
 
 [sub_resource type="Animation" id="Animation_nhyt6"]
 length = 0.001
@@ -72,6 +72,147 @@ _data = {
 &"new_animation": SubResource("Animation_pvgpj")
 }
 
+[sub_resource type="Animation" id="Animation_sjh6b"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:scale:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="Animation" id="Animation_xphas"]
+resource_name = "close_menu"
+length = 0.26667
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(1, -0.133335, 0, 0.133335, 0, 0.3, -0.133335, 0, 0.133335, 0),
+"times": PackedFloat32Array(0, 0.266667)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:scale:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(1, -0.133335, 0, 0.133335, 0, 0.3, -0.133335, 0, 0.133335, 0),
+"times": PackedFloat32Array(0, 0.266667)
+}
+
+[sub_resource type="Animation" id="Animation_qy82l"]
+resource_name = "open_menu"
+length = 0.26667
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(0.3, -0.25, 0, 0.25, 0, 1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.266667)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:scale:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(0.3, -0.25, 0, 0.25, 0, 1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.266667)
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_xphas"]
+_data = {
+&"RESET": SubResource("Animation_sjh6b"),
+&"close_menu": SubResource("Animation_xphas"),
+&"open_menu": SubResource("Animation_qy82l")
+}
+
+[sub_resource type="Animation" id="Animation_lky30"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:scale:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(1, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="Animation" id="Animation_ry2h7"]
+resource_name = "button_down"
+length = 0.26667
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(1, 0, 0),
+"points": PackedFloat32Array(1, 0, 0, 0, 0, 0.6, 0, 0, 0, 0, 1, 0, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.133333, 0.266667)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:scale:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(1, 0, 0),
+"points": PackedFloat32Array(1, 0, 0, 0, 0, 0.6, 0, 0, 0, 0, 1, 0, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.133333, 0.266667)
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_qy82l"]
+_data = {
+&"RESET": SubResource("Animation_lky30"),
+&"button_down": SubResource("Animation_ry2h7")
+}
+
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_o8u2p")
 
@@ -103,10 +244,11 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_fonts/font = ExtResource("1_s3k51")
 theme_override_font_sizes/font_size = 128
-text = "真高手就坚持100秒!"
+text = "真高手就坚持
+1000秒!"
 horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 2
+autowrap_mode = 1
 
 [node name="StartButton" type="Button" parent="."]
 anchors_preset = 7
@@ -115,9 +257,9 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -132.0
-offset_top = -578.0
+offset_top = -771.0
 offset_right = 132.0
-offset_bottom = -400.0
+offset_bottom = -593.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_fonts/font = ExtResource("1_s3k51")
@@ -129,54 +271,68 @@ text = "开始"
 wait_time = 2.0
 one_shot = true
 
-[node name="joystick" parent="." instance=ExtResource("3_pvgpj")]
+[node name="Joystick" parent="." instance=ExtResource("3_pvgpj")]
 position = Vector2(552, 1856)
-scale = Vector2(10, 10)
+joystick_height_ratio = 0.85
 
-[node name="settings" parent="." instance=ExtResource("4_nhyt6")]
-offset_left = 48.0
-offset_top = 2000.0
-offset_right = 176.0
-offset_bottom = 2512.0
+[node name="SettingsMenu" type="ColorRect" parent="."]
+offset_left = 200.0
+offset_top = 712.0
+offset_right = 920.0
+offset_bottom = 1792.0
+pivot_offset = Vector2(360, 540)
+color = Color(0.404153, 0.404153, 0.404153, 1)
 
-[node name="Ui" type="ColorRect" parent="settings"]
-layout_mode = 0
-offset_left = 144.0
-offset_top = -1408.0
-offset_right = 864.0
-offset_bottom = -328.0
-color = Color(0.47451, 0.47451, 0.47451, 0.980392)
-
-[node name="CheckButtonFollowTouch" type="CheckButton" parent="settings/Ui"]
-layout_mode = 0
-offset_left = 264.0
-offset_top = 160.0
-offset_right = 480.0
-offset_bottom = 224.0
-theme_override_constants/outline_size = 2
+[node name="CheckButtonFollowTouch" type="CheckButton" parent="SettingsMenu"]
+layout_mode = 1
+offset_left = 200.0
+offset_top = 233.333
+offset_right = 504.0
+offset_bottom = 326.333
+theme_override_constants/outline_size = 1
 theme_override_fonts/font = ExtResource("1_s3k51")
-theme_override_font_sizes/font_size = 42
-theme_override_styles/focus = SubResource("StyleBoxEmpty_6ut0m")
+theme_override_font_sizes/font_size = 64
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ry2h7")
 text = "摇杆跟随"
-alignment = 1
+expand_icon = true
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="settings/Ui/CheckButtonFollowTouch"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="SettingsMenu/CheckButtonFollowTouch"]
 libraries = {
 &"": SubResource("AnimationLibrary_ry2h7")
 }
 speed_scale = 8.0
 
-[node name="Close" parent="settings/Ui" instance=ExtResource("5_ry2h7")]
+[node name="Close" parent="SettingsMenu" instance=ExtResource("5_ry2h7")]
 layout_mode = 0
 offset_left = 648.0
 offset_top = 16.0001
 offset_right = 712.0
 offset_bottom = 80.0001
 
+[node name="AnimationPlayer" type="AnimationPlayer" parent="SettingsMenu"]
+libraries = {
+&"": SubResource("AnimationLibrary_xphas")
+}
+
+[node name="Settings" parent="." node_paths=PackedStringArray("settings_menu", "animation") instance=ExtResource("4_nhyt6")]
+offset_left = 64.0
+offset_top = 2160.0
+offset_right = 192.0
+offset_bottom = 2288.0
+pivot_offset = Vector2(64, 64)
+settings_menu = NodePath("../SettingsMenu")
+animation = NodePath("AnimationPlayer")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Settings"]
+libraries = {
+&"": SubResource("AnimationLibrary_qy82l")
+}
+
 [connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="timeout" from="MessageTimer" to="." method="_on_message_timer_timeout"]
-[connection signal="open_setting_ui" from="settings" to="." method="_on_settings_open_setting_ui"]
-[connection signal="pressed" from="settings/Ui/CheckButtonFollowTouch" to="." method="_on_check_button_follow_touch_pressed"]
-[connection signal="toggled" from="settings/Ui/CheckButtonFollowTouch" to="." method="_on_check_button_follow_touch_toggled"]
-[connection signal="animation_finished" from="settings/Ui/CheckButtonFollowTouch/AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
-[connection signal="close_ui" from="settings/Ui/Close" to="." method="_on_close_close_ui"]
+[connection signal="pressed" from="SettingsMenu/CheckButtonFollowTouch" to="." method="_on_check_button_follow_touch_pressed"]
+[connection signal="toggled" from="SettingsMenu/CheckButtonFollowTouch" to="." method="_on_check_button_follow_touch_toggled"]
+[connection signal="animation_finished" from="SettingsMenu/CheckButtonFollowTouch/AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
+[connection signal="close_ui" from="SettingsMenu/Close" to="." method="_on_close_close_ui"]
+[connection signal="animation_finished" from="SettingsMenu/AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
+[connection signal="open_setting_ui" from="Settings" to="." method="_on_settings_open_setting_ui"]

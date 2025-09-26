@@ -1,0 +1,131 @@
+[gd_scene load_steps=16 format=3 uid="uid://bnr5fdylcf5y"]
+
+[ext_resource type="Texture2D" uid="uid://wl8guvq0qnja" path="res://dodge_the_creeps_2d_assets/art/playerGrey_up1.png" id="1_ct4mp"]
+[ext_resource type="Script" uid="uid://dwi3mrputd453" path="res://script/Object/player.gd" id="1_s4jxa"]
+[ext_resource type="Texture2D" uid="uid://b5fvi1jlohmdl" path="res://dodge_the_creeps_2d_assets/art/playerGrey_up2.png" id="2_s4jxa"]
+[ext_resource type="Texture2D" uid="uid://d0ev8hauc0wyj" path="res://icon.svg" id="2_uuiw5"]
+[ext_resource type="PackedScene" uid="uid://tnfjbewuolo" path="res://scene/Object/bullet.tscn" id="3_n1dpb"]
+[ext_resource type="Texture2D" uid="uid://cbpsq1arr8x0t" path="res://dodge_the_creeps_2d_assets/art/playerGrey_walk1.png" id="3_oh5ij"]
+[ext_resource type="Texture2D" uid="uid://c1xj8ds3xk6hs" path="res://dodge_the_creeps_2d_assets/art/playerGrey_walk2.png" id="4_hp4bs"]
+[ext_resource type="AudioStream" uid="uid://ctmef4j714ryf" path="res://dodge_the_creeps_2d_assets/sound/受击.wav" id="7_o5s4x"]
+[ext_resource type="Texture2D" uid="uid://comrpdkfaehel" path="res://dodge_the_creeps_2d_assets/art/火麒麟.png" id="8_ltbhw"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_g2vtq"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_ct4mp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_s4jxa")
+}],
+"loop": true,
+"name": &"up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_oh5ij")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_hp4bs")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ct4mp"]
+radius = 54.0
+height = 108.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uuiw5"]
+
+[sub_resource type="Animation" id="Animation_uuiw5"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_wreoj"]
+resource_name = "hit"
+length = 0.800003
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.133333, 0.266667, 0.4, 0.533333, 0.666667, 0.8),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [true, false, true, false, true, false, true]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_o5s4x"]
+_data = {
+&"RESET": SubResource("Animation_uuiw5"),
+&"hit": SubResource("Animation_wreoj")
+}
+
+[node name="Player" type="Area2D"]
+scale = Vector2(2, 2)
+script = ExtResource("1_s4jxa")
+speed = 800
+health_icon = ExtResource("2_uuiw5")
+bullet = ExtResource("3_n1dpb")
+metadata/_edit_group_ = true
+
+[node name="Animated" type="AnimatedSprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_g2vtq")
+animation = &"up"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -7)
+scale = Vector2(0.5, 0.5)
+shape = SubResource("CapsuleShape2D_ct4mp")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="HealthList" type="ItemList" parent="."]
+offset_left = -88.5
+offset_top = -82.0
+offset_right = 91.5
+offset_bottom = -22.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_uuiw5")
+allow_search = false
+max_columns = 4
+fixed_column_width = 40
+fixed_icon_size = Vector2i(40, 40)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_o5s4x")
+}
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("7_o5s4x")
+volume_db = 20.0
+
+[node name="Weapon" type="Sprite2D" parent="."]
+position = Vector2(-9.5, -22)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("8_ltbhw")
+
+[node name="TimerBullet" type="Timer" parent="."]
+wait_time = 0.2
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
+[connection signal="timeout" from="TimerBullet" to="." method="_on_timer_bullet_timeout"]

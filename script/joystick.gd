@@ -1,33 +1,56 @@
 extends Sprite2D
 
 
-@export var bIsFollowTouch = false # true: 摇杆出现在手指处；false: 固定在场景中的某点
-@export var max_length = 70.0 #摇杆指针: 最远长度
-@export var joystick_effective_range = Rect2(0, 0, 0, 0) #摇杆: 有效范围
-var screen_size : Vector2 #屏幕大小
-@export var joystick_height_ratio = 0.75 #摇杆: 在屏幕中的高度占比
-@export var is_visible = true #是否可见
-var on_draging = -1 #指针: 当前拖拽数量
+@onready var point: Node2D = $Point
 
-@onready var point: Node2D = $point
-@onready var joystick: Node2D = $joystick
+@export var bIsFollowTouch = false ##摇杆跟随
+@export var max_length = 70.0 ##最远触发位置
+@export var process_update_screen_size = false ##实时更新: 屏幕大小
+@export var joystick_height_ratio = 0.75 ##摇杆在屏幕中的Y轴位置(按照百分比)
+@export var is_visible = true ##可见
+
+var screen_size : Vector2 ##屏幕大小
+var on_draging = -1 ##多指
+
 
 func _ready() -> void:
-	joystick.self_modulate = Color(1, 1, 1, 0.08)
-	self_modulate = Color(1, 1, 1, 0.00)
-	
+	# 获取屏幕/视口尺寸
+	screen_size = get_viewport_rect().size
+
+	# 根据 Sprite2D 的纹理与缩放自动计算 max_length（半径）
+	var fallback = max_length
+	if texture:
+		var tex_size: Vector2
+		if region_enabled:
+			tex_size = region_rect.size
+		else:
+			tex_size = texture.get_size()
+		var sprite_scale = Vector2(abs(scale.x), abs(scale.y))
+		var displayed_size = tex_size * sprite_scale
+		var padding = 8.0
+		# 以较小边的一半为最大半径（减去 padding）
+		max_length = max((min(displayed_size.x, displayed_size.y) * 0.5) - padding, 0.0)
+	else:
+		push_warning("Joystick: Sprite2D 没有 texture，使用默认 max_length(%s)" % str(fallback))
+		max_length = fallback
+
+	# 初始可见性 / 跟随触摸逻辑
 	if bIsFollowTouch:
 		visible = false
-	# 如果是非跟随模式，确保 visible = true，且 global_position 已在编辑器里设置好
 	else:
-		if is_visible:
-			visible = true
-			
-	if joystick_effective_range == Rect2(0, 0, 0, 0):
-		joystick_effective_range = get_rect()
+		visible = is_visible
 
+	# 如果用户没有设置有效范围，则默认使用整个屏幕
+	#if joystick_effective_range == Rect2(0, 0, 0, 0):
+		#joystick_effective_range = Rect2(Vector2.ZERO, screen_size)
+
+	# 如果是非跟随模式，把摇杆放在屏幕底部指定高度
+	if not bIsFollowTouch:
+		global_position = Vector2(screen_size.x * 0.5, screen_size.y * joystick_height_ratio)
 
 func _process(delta: float) -> void:
+	if process_update_screen_size:
+		screen_size = get_viewport_rect().size
 	if !bIsFollowTouch:
 		global_position.x = screen_size.x / 2
 		global_position.y = screen_size.y * joystick_height_ratio
@@ -40,12 +63,6 @@ func _input(event):
 	# 处理按下（开始拖拽）
 	if event is InputEventScreenTouch and event.is_pressed():
 		on_draging = event.get_index()
-		# 如果已有正在拖拽的手指，忽略其他按下
-		if on_draging != -1:
-			return
-		if !is_in_the_range(event.position): 
-			return #不在范围时不处理
-			
 		if bIsFollowTouch:
 			# 跟随模式：把摇杆移动到触摸点（全局）
 			global_position = event.position
@@ -62,7 +79,7 @@ func _input(event):
 		if event.get_index() == on_draging or event.get_index() == -1:
 			# 回到中心并 tween
 			var tween = create_tween()
-			tween.tween_property(point, "position", Vector2.ZERO, 0.06).set_trans(Tween.TRANS_LINEAR)
+			tween.tween_property(point, "position", Vector2.ZERO, 0.1).set_trans(Tween.TRANS_LINEAR)
 			on_draging = -1
 		if bIsFollowTouch:
 			visible = false
@@ -90,51 +107,6 @@ func _update_point_from_event(event) -> void:
 	else:
 		point.position = local_pos
 
-# 简单工具：归一化 Rect2（把负 size 转为正并把 position 调整到左上角）
-func _rect_normalized(r: Rect2) -> Rect2:
-	var p = r.position
-	var s = r.size
-	if s.x < 0:
-		p.x += s.x
-		s.x = -s.x
-	if s.y < 0:
-		p.y += s.y
-		s.y = -s.y
-	return Rect2(p, s)
-
-# 把 background.get_rect() (本地 rect) 转成 屏幕/全局 Rect2（尽量简单）
-func _local_rect_to_screen_rect(bg: Node, local_rect: Rect2) -> Rect2:
-	var r = _rect_normalized(local_rect)
-	if bg is Control:
-		# Control 的 get_global_position() 是左上角位置，直接偏移即可
-		var gp = (bg as Control).get_global_position() + r.position
-		return Rect2(gp, r.size)
-	elif bg is Node2D:
-		# Node2D 可能有旋转/缩放，安全做法：把四个角点变换为全局后重建包围矩形
-		var n = bg as Node2D
-		var a = n.to_global(r.position)
-		var b = n.to_global(r.position + Vector2(r.size.x, 0))
-		var c = n.to_global(r.position + r.size)
-		var d = n.to_global(r.position + Vector2(0, r.size.y))
-		var minx = min(min(a.x, b.x), min(c.x, d.x))
-		var miny = min(min(a.y, b.y), min(c.y, d.y))
-		var maxx = max(max(a.x, b.x), max(c.x, d.x))
-		var maxy = max(max(a.y, b.y), max(c.y, d.y))
-		return Rect2(Vector2(minx, miny), Vector2(maxx - minx, maxy - miny))
-	else:
-		# 其他类型按原样返回（假设已是屏幕坐标）
-		return r
-
-# 主判断函数：position 是 屏幕/全局坐标（InputEvent.position）
-func is_in_the_range(position: Vector2) -> bool:
-	# 优先使用导出的 joystick_effective_range（如果设置了）
-	var local_rect = joystick_effective_range
-	if local_rect.size == Vector2.ZERO:
-		# 如果没有通过导出设置过范围，则使用节点自身的 rect
-		local_rect = get_rect()
-	var screen_rect = _local_rect_to_screen_rect(self, local_rect)
-	return screen_rect.has_point(position)
-
 # 返回 0~1 的百分比（当前位置到半径的占比）
 func get_touch_radius_percent() -> float:
 	var d = get_point_pos().length()
@@ -146,7 +118,7 @@ func get_touch_radius_percent() -> float:
 func get_point_pos() -> Vector2:
 	return point.position
 
-#返回
+#返回 
 func get_now_pos() -> Vector2:
 	var p = get_point_pos()
 	var l = p.length()

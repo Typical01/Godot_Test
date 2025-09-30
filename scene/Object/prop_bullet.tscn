@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://dug45oolq2syl"]
+
+[ext_resource type="Script" uid="uid://c3mlcwlf1vu58" path="res://script/Object/prop_bullet.gd" id="1_344sv"]
+[ext_resource type="Texture2D" uid="uid://g4cco0liofxl" path="res://dodge_the_creeps_2d_assets/art/UI/子弹道具.png" id="2_344sv"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kxbea"]
+size = Vector2(152, 129)
+
+[node name="Area2D" type="Area2D" groups=["prop_bullet"]]
+z_index = 1
+script = ExtResource("1_344sv")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_kxbea")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("2_344sv")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://tnfjbewuolo"]
 
-[ext_resource type="Texture2D" uid="uid://bhedp40suxpm2" path="res://dodge_the_creeps_2d_assets/art/子弹.png" id="1_mbm0y"]
+[ext_resource type="Texture2D" uid="uid://bhedp40suxpm2" path="res://dodge_the_creeps_2d_assets/art/UI/子弹.png" id="1_mbm0y"]
 [ext_resource type="Script" uid="uid://b3mfmc0o76n4h" path="res://script/Object/bullet.gd" id="1_wwd0m"]
 [ext_resource type="FontFile" uid="uid://by4wvcswqftf" path="res://dodge_the_creeps_2d_assets/fonts/Xolonium-Regular.ttf" id="3_5mvh7"]
 
@@ -12,7 +12,7 @@ height = 42.0
 collision_layer = 2
 gravity_scale = 0.0
 contact_monitor = true
-max_contacts_reported = 4
+max_contacts_reported = 2
 linear_damp_mode = 1
 angular_damp_mode = 1
 script = ExtResource("1_wwd0m")
@@ -31,8 +31,8 @@ shape = SubResource("CapsuleShape2D_0inbt")
 scale = Vector2(2, 2)
 rect = Rect2(-10, -2, 20, 4)
 
-[node name="TimerOut" type="Timer" parent="."]
-wait_time = 10.0
+[node name="TimerOut" type="Timer" parent="." groups=["bullet"]]
+wait_time = 3.0
 
 [node name="Label" type="Label" parent="."]
 visible = false

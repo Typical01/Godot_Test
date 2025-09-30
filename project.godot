@@ -19,14 +19,15 @@ config/icon="res://icon.svg"
 [autoload]
 
 coord_utils="*res://script/utils/coord_utils.gd"
+data_manage="*res://script/utils/data_manage.gd"
 
 [display]
 
-window/size/viewport_width=1080
-window/size/viewport_height=2340
+window/size/viewport_width=2340
+window/size/viewport_height=1080
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-window/handheld/orientation=1
+window/handheld/orientation=4
 window/vsync/vsync_mode=0
 
 [input]

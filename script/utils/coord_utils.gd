@@ -2,9 +2,77 @@
 extends Node
 class_name CoordUtils
 
+signal window_size_changed(window_size)
+
+
+var screen_size
+
+
+func _ready() -> void:
+	var window := get_window()
+	window.size_changed.connect(_on_window_resize)
+	_on_window_resize()
+	pass
+
+func _on_window_resize():
+	screen_size = get_viewport().get_visible_rect().size
+	window_size_changed.emit(screen_size)
+	pass
+	
 # -----------------------
 # 窗口 / 视口 尺寸相关
 # -----------------------
+## 设置在屏幕中的全局位置: 节点, 在屏幕中的比例, 是否枢轴居中
+func set_screen_global_position(node: Node, screen_position_ratio: Vector2, pivot_offset_center = true) -> void:
+	var pos := Vector2(screen_size.x * screen_position_ratio.x, screen_size.y * screen_position_ratio.y)
+	if pivot_offset_center:
+		align_node_center_to_pos(node, pos)
+	else:
+		# 不以中心对齐，直接放到 pos（注意 Control 的 global_position 是左上角）
+		node.global_position = pos
+
+# pos: 目标屏幕像素位置（例如 screen_size * ratio）
+func align_node_center_to_pos(node: Node, pos: Vector2) -> void:
+	# Control (UI) - size 可能在 _ready() 未稳定，按需 deferred
+	if node is Control:
+		var size = node.size
+		if size == Vector2.ZERO:
+			size = node.get_minimum_size()
+			if size == Vector2.ZERO:
+				call_deferred("_deferred_align_control_center", node, pos)
+				return
+		node.global_position = pos - size * 0.5
+		return
+
+	# Sprite2D / Node2D
+	if node is Sprite2D:
+		# 计算显示尺寸（纹理大小 * 缩放）
+		var sprite_size := Vector2.ZERO
+		if node.texture:
+			sprite_size = node.texture.get_size() * node.scale
+		# 根据 centered 属性决定如何赋值
+		if node.centered:
+			# position 是精灵中心 -> 直接把中心放到 pos
+			node.global_position = pos
+		else:
+			# position 是左上角 -> 把左上角放到 pos - size/2
+			node.global_position = pos - sprite_size * 0.5
+		return
+
+	# 其他 Node2D（比如自定义 Node2D）
+	if node is Node2D:
+		# 如果你想按中心对齐，尝试寻找 node 的“尺寸”来源再处理；保守做法直接设置
+		node.global_position = pos
+		return
+
+	# 默认兜底
+	node.global_position = pos
+
+func _deferred_align_control_center(node: Control, pos: Vector2) -> void:
+	var size := node.size
+	if size == Vector2.ZERO:
+		size = node.get_minimum_size()
+	node.global_position = pos - size * 0.5
 
 # 返回“渲染视口的可见矩形大小”（像素）
 # 推荐用于 UI/像素布局：优先使用 viewport 的 visible_rect，因为 DisplayServer 在某些 4.4 情况下会混淆窗口/viewport。

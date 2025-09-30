@@ -1,6 +1,6 @@
 [gd_scene load_steps=14 format=3 uid="uid://bmpeyi8ef1s3j"]
 
-[ext_resource type="Texture2D" uid="uid://ccdqxl12cttp7" path="res://dodge_the_creeps_2d_assets/art/设置.png" id="1_likc5"]
+[ext_resource type="Texture2D" uid="uid://ccdqxl12cttp7" path="res://dodge_the_creeps_2d_assets/art/UI/设置.png" id="1_likc5"]
 [ext_resource type="Script" uid="uid://cf0xqftui7igf" path="res://script/UI/settings.gd" id="2_ok4lx"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uhf66"]

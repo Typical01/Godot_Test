@@ -16,22 +16,21 @@ enum RangeMode {
 @export var border_thickness: float = 1.0 ## 边框厚度（像素）
 @export var speed_min: float = 200.0 ## 速度: 最小
 @export var speed_max: float = 300.0 ## 速度: 最大
-@export var Generate_speed: float = 0.5 ## 生成速度
+@export var generate_speed: float = 0.5 ## 生成速度
+@export var object_scale = Vector2(1.0, 1.0) ##场景对象: 缩放
 
-@export var object_scene: PackedScene ##场景对象
+@export var object_scene: PackedScene ##场景: 对象
+@export var sound: Node ##节点: 生成音效
 
 var screen_size: Vector2
+var rect: Rect2
 var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
-	var window := get_window()
-	window.size_changed.connect(_on_window_resized)
-	_on_window_resized()
+	coord_utils.window_size_changed.connect(on_window_size_changed)
 	
-	$ObjectTimer.wait_time = Generate_speed
-	# 补全, 将屏幕大小设置为shape2d
-	range_shape.shape
+	$ObjectTimer.wait_time = generate_speed
 	_rng.randomize()
 
 	# 连接计时器信号
@@ -48,12 +47,17 @@ func _process(delta: float) -> void:
 	pass
 	
 	
-func _on_window_resized():
-	var new_size = get_viewport_rect().size
-	if new_size != screen_size:
-		screen_size = new_size
+func on_window_size_changed(window_size):
+	if window_size != screen_size:
+		screen_size = window_size
 		update_range_shape()
-	print("Generate: 范围修改 ", screen_size)
+		# 补全, 将屏幕大小设置为shape2d
+		range_shape.shape.size = screen_size * object_scale
+		# 取得范围的屏幕/全局 Rect2
+		rect = get_background_screen_rect(range_shape)
+		#rect.size *= object_scale
+	print("Generate: 窗口大小修改 ", screen_size)
+	print("Generate: 范围大小修改 ", range_shape.shape.size)
 	pass
 
 # 将当前 screen_size 应用到 range_shape（CollisionShape2D）
@@ -120,12 +124,12 @@ func _on_object_timer_timeout() -> void:
 	# 使用导出的 object_scene（若为空则仅打印）
 	if not object_scene:
 		print("Generate: object_scene 未设置（将使用默认生成）。")
-	# 取得范围的屏幕/全局 Rect2
-	var rect = get_background_screen_rect(range_shape)
 	# 如果 rect 是空（例如 shape 不是 RectangleShape2D），跳过
 	if rect.size == Vector2.ZERO:
 		print("Generate: range_shape 未返回有效 Rect2。")
 		return
+	#print(rect)
+	if sound and sound is AudioStreamPlayer: sound.play()
 	spawn_object_by_range(rect)
 	pass
 

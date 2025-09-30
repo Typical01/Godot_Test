@@ -1,0 +1,127 @@
+[gd_scene load_steps=10 format=3 uid="uid://cwcbq0gpth3j7"]
+
+[ext_resource type="Script" uid="uid://cgs0jljadv1lg" path="res://script/Object/ghost_hunter_knife.gd" id="1_0f3cu"]
+[ext_resource type="Texture2D" uid="uid://dnwg4a5wnykh3" path="res://dodge_the_creeps_2d_assets/art/CF/幽灵猎手尼泊尔刀.png" id="1_ioi1c"]
+[ext_resource type="AudioStream" uid="uid://qfxoddwftatl" path="res://dodge_the_creeps_2d_assets/art/CF/刀杀幽灵.wav" id="3_56bfv"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_apu6b"]
+size = Vector2(379, 52)
+
+[sub_resource type="Animation" id="Animation_ioi1c"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_13u2w"]
+resource_name = "attack"
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.166667, 0.333333, 0.633333, 0.8),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, -0.261799, -1.309, 1.5708, 0.0]
+}
+
+[sub_resource type="Animation" id="Animation_56bfv"]
+resource_name = "attack_1"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0666667, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.261799, 3.14159]
+}
+
+[sub_resource type="Animation" id="Animation_0f3cu"]
+resource_name = "attack_2"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0666667, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [3.14159, 3.40339, 6.28319]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_cht2g"]
+_data = {
+&"RESET": SubResource("Animation_ioi1c"),
+&"attack": SubResource("Animation_13u2w"),
+&"attack_1": SubResource("Animation_56bfv"),
+&"attack_2": SubResource("Animation_0f3cu")
+}
+
+[node name="Area2D" type="Area2D"]
+script = ExtResource("1_0f3cu")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(190.7, -4.76837e-07)
+shape = SubResource("RectangleShape2D_apu6b")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(189.75, -2)
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("1_ioi1c")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_cht2g")
+}
+
+[node name="KillGhost" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_56bfv")
+volume_db = -15.0
+max_polyphony = 4
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

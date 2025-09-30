@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://camb6roxs17pc"]
+
+[ext_resource type="Script" uid="uid://dy6s2plu3yb1b" path="res://script/Object/prop_health.gd" id="1_5dhkt"]
+[ext_resource type="Texture2D" uid="uid://dvchgg50yonr7" path="res://dodge_the_creeps_2d_assets/art/UI/血包.png" id="2_5dhkt"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jukvo"]
+size = Vector2(151, 129)
+
+[node name="Area2D" type="Area2D" groups=["prop_health"]]
+z_index = 1
+script = ExtResource("1_5dhkt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0.5, 0.500001)
+shape = SubResource("RectangleShape2D_jukvo")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("2_5dhkt")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

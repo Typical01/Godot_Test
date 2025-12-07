@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://bggc353qyek66"]
+
+[ext_resource type="Script" uid="uid://c3uvc002g7avm" path="res://script/Object/item.gd" id="1_sgbq8"]
+[ext_resource type="Texture2D" uid="uid://cnoueieisg747" path="res://art/item_slot/其他/格子.png" id="2_85gh4"]
+
+[node name="ItemBackground" type="TextureRect"]
+offset_right = 64.0
+offset_bottom = 64.0
+mouse_filter = 2
+script = ExtResource("1_sgbq8")
+
+[node name="Item" type="TextureRect" parent="."]
+layout_mode = 0
+texture = ExtResource("2_85gh4")

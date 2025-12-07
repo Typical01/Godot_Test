@@ -20,7 +20,7 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
 
 func _on_window_resized():
@@ -29,6 +29,7 @@ func _on_window_resized():
 	settings_menu.global_position = (view_size - settings_menu_size) * 0.5
 	pass
 
+	
 func _on_button_up() -> void:
 	animation.play(button_down_animation_name)
 	open_setting_ui.emit()

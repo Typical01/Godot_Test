@@ -1,0 +1,60 @@
+[gd_scene load_steps=12 format=3 uid="uid://d256x7l6oxgqe"]
+
+[ext_resource type="Script" uid="uid://7eue20881hcs" path="res://script/Object/item_grid.gd" id="1_0o367"]
+[ext_resource type="Script" uid="uid://bjgmw8dldtlex" path="res://script/Object/inventory.gd" id="1_3sa4v"]
+[ext_resource type="PackedScene" uid="uid://bggc353qyek66" path="res://scene/Object/item.tscn" id="2_8g3nm"]
+[ext_resource type="PackedScene" uid="uid://dj8hl2rd62jg7" path="res://scene/Object/inventory_item.tscn" id="2_c6lix"]
+[ext_resource type="Script" uid="uid://bsb3vfjfmkr65" path="res://resource/item_data.gd" id="2_ixhi2"]
+[ext_resource type="Texture2D" uid="uid://dt375xohp4vdp" path="res://art/item_slot/物品/非洲之星.png" id="3_x04m7"]
+[ext_resource type="Texture2D" uid="uid://dnnibqf17flpn" path="res://art/item_slot/物品/黄金瞪羚.png" id="4_npv8c"]
+[ext_resource type="Texture2D" uid="uid://v4eco0liukb1" path="res://art/item_slot/物品/主战坦克模型.png" id="5_nuado"]
+
+[sub_resource type="Resource" id="Resource_715jb"]
+script = ExtResource("2_ixhi2")
+name = "0"
+texture = ExtResource("3_x04m7")
+dimentions = Vector2i(1, 1)
+metadata/_custom_type_script = "uid://bsb3vfjfmkr65"
+
+[sub_resource type="Resource" id="Resource_wmuw2"]
+script = ExtResource("2_ixhi2")
+name = "1"
+texture = ExtResource("4_npv8c")
+dimentions = Vector2i(2, 2)
+metadata/_custom_type_script = "uid://bsb3vfjfmkr65"
+
+[sub_resource type="Resource" id="Resource_npv8c"]
+script = ExtResource("2_ixhi2")
+name = "3"
+texture = ExtResource("5_nuado")
+dimentions = Vector2i(3, 3)
+metadata/_custom_type_script = "uid://bsb3vfjfmkr65"
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ItemContainer" type="Container" parent="."]
+unique_name_in_owner = true
+z_index = 1
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 20.0
+offset_bottom = 20.0
+script = ExtResource("1_3sa4v")
+items = Array[ExtResource("2_ixhi2")]([SubResource("Resource_715jb"), SubResource("Resource_wmuw2"), SubResource("Resource_npv8c")])
+inventory_item_scene = ExtResource("2_c6lix")
+
+[node name="ItemGrid" type="GridContainer" parent="ItemContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+script = ExtResource("1_0o367")
+inventory_slot_scene = ExtResource("2_8g3nm")
+dimentions = Vector2i(6, 6)

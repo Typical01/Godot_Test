@@ -34,8 +34,8 @@ func _ready() -> void:
 	_rng.randomize()
 
 	# 连接计时器信号
-	if object_timer:
-		object_timer.connect("timeout", Callable(self, "_on_object_timer_timeout"))
+	if object_timer and not object_timer.is_connected("timeout", _on_object_timer_timeout):
+		object_timer.connect("timeout", _on_object_timer_timeout)
 
 	# 检查 range_shape 是否存在且为 CollisionShape2D
 	if not range_shape:
@@ -43,7 +43,7 @@ func _ready() -> void:
 	pass
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
 	
 	

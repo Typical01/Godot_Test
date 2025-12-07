@@ -16,10 +16,11 @@ signal kill
 @export var speed_scale = 1.0 # 玩家速度的比例
 @export var speed = 400 # 玩家速度(像素/秒).
 @export var activity_range : Vector2 # How fast the player will move (pixels/sec).
+@export var activity_range_clamp_start = Vector2(300, 300) # How fast the player will move (pixels/sec).
+@export var activity_range_clamp_end = Vector2(300, 300) # How fast the player will move (pixels/sec).
 @export var health_icon : Texture2D
 @export var bullet : PackedScene
 
-var screen_size: Vector2 # Size of the game window.
 var health = 0
 @export var health_max = 4
 var live = true
@@ -84,7 +85,7 @@ func _process(delta: float) -> void:
 	
 	if live:	
 		position += velocity * delta
-		position = position.clamp(Vector2.ZERO, activity_range)
+		position = position.clamp(Vector2.ZERO + activity_range_clamp_start, activity_range - activity_range_clamp_end)
 			
 		if velocity.x != 0:
 			animated.animation = "walk"
@@ -98,14 +99,12 @@ func _process(delta: float) -> void:
 			animated.flip_v = velocity.y > 0
 			weapon.flip_v = velocity.y < 0
 
-func on_window_size_changed(window_size):
-	screen_size = window_size
-	activity_range = window_size
+func on_window_size_changed(_window_size):
 	pass
 
 func start(pos = Vector2(0.0, 0.0)):
 	if pos == Vector2(0.0, 0.0):
-		position = screen_size * 0.5
+		position = activity_range * 0.5
 	else:
 		position = pos
 	show()
@@ -190,7 +189,7 @@ func _on_area_entered(area: Area2D) -> void:
 		area.queue_free()
 	pass
 
-func _on_bullet_hit(body: Node) -> void:
+func _on_bullet_hit(_body: Node) -> void:
 	$SoundKill.play()
 	if $Sprite2D/AnimationHeadShot.is_playing():
 		$Sprite2D/AnimationHeadShot.stop()

@@ -1,5 +1,7 @@
 extends Sprite2D
 
+
+
 # 节点引用
 @onready var joystick_handle: Sprite2D = $Handle
 @onready var joystick_range: Sprite2D = $Range
@@ -30,6 +32,8 @@ var is_joystick_active: bool = false
 var trigger_area_center: Vector2 = Vector2.ZERO
 var trigger_area_size: Vector2 = Vector2.ZERO
 
+
+
 func _ready() -> void:
 	coord_utils.window_size_changed.connect(on_window_size_changed)
 	
@@ -42,10 +46,12 @@ func _ready() -> void:
 		# 延迟一帧计算触发区域，确保所有节点都已就位
 	call_deferred("_calculate_trigger_area")
 
-func _process(delta: float) -> void:	
+
+func _process(_delta: float) -> void:	
 	# 每帧更新触发区域位置（如果启用）
 	if use_trigger_area and joystick_range:
 		_update_trigger_area_position()
+
 
 func _input(event) -> void:
 	# 如果摇杆不可见且没有激活，直接返回
@@ -60,9 +66,11 @@ func _input(event) -> void:
 	elif event is InputEventScreenDrag and is_joystick_active:
 		_handle_drag_event(event)
 
+
 func on_window_size_changed(window_size):
 	update_screen_ratio(window_size)
 	pass
+
 
 # 初始化摇杆
 func _initialize_joystick() -> void:
@@ -82,6 +90,7 @@ func _initialize_joystick() -> void:
 	else:
 		visible = is_visible_by_default
 		coord_utils.set_screen_global_position(self, screen_position_ratio)
+
 
 # 计算触发区域
 func _calculate_trigger_area() -> void:
@@ -104,13 +113,14 @@ func _calculate_trigger_area() -> void:
 		else:
 			texture_size = Vector2(200, 200)  # 默认尺寸
 		
-		var global_scale = joystick_range.global_scale.abs()
-		trigger_area_size = texture_size * global_scale
+		var _global_scale = joystick_range.global_scale.abs()
+		trigger_area_size = texture_size * _global_scale
 	
 	# 更新触发区域位置
 	_update_trigger_area_position()
 	
 	#print("触发区域计算完成: 中心 ", trigger_area_center, " 尺寸 ", trigger_area_size)
+
 
 # 更新触发区域位置
 func _update_trigger_area_position() -> void:
@@ -127,6 +137,7 @@ func _handle_touch_event(event: InputEventScreenTouch) -> void:
 		_handle_touch_press(event)
 	else:
 		_handle_touch_release(event)
+
 
 # 处理触摸按下 - 修复触发区域检测逻辑
 func _handle_touch_press(event: InputEventScreenTouch) -> void:
@@ -159,6 +170,7 @@ func _handle_touch_press(event: InputEventScreenTouch) -> void:
 	else:
 		_update_handle_position(event.position)
 
+
 # 处理触摸释放
 func _handle_touch_release(event: InputEventScreenTouch) -> void:
 	# 只处理与当前活跃触摸匹配的释放事件
@@ -168,11 +180,13 @@ func _handle_touch_release(event: InputEventScreenTouch) -> void:
 		active_touch_index = -1
 		is_joystick_active = false
 
+
 # 处理拖拽事件
 func _handle_drag_event(event: InputEventScreenDrag) -> void:
 	# 只处理与当前活跃触摸匹配的拖拽事件
 	if event.index == active_touch_index:
 		_update_handle_position(event.position)
+
 
 # 更新摇杆手柄位置
 func _update_handle_position(touch_position: Vector2) -> void:
@@ -187,6 +201,7 @@ func _update_handle_position(touch_position: Vector2) -> void:
 	else:
 		joystick_handle.position = local_touch_pos
 
+
 # 重置摇杆位置
 func _reset_joystick() -> void:
 	var tween = create_tween()
@@ -194,6 +209,7 @@ func _reset_joystick() -> void:
 	
 	if follow_touch:
 		visible = false
+
 
 # 检查点是否在触发区域内
 func _is_point_in_trigger_area(global_point: Vector2) -> bool:
@@ -227,6 +243,7 @@ func get_intensity() -> float:
 		return 0.0
 	return clamp(distance / max_handle_distance, 0.0, 1.0)
 
+
 # 获取摇杆方向向量（标准化）
 func get_direction() -> Vector2:
 	var handle_pos = joystick_handle.position
@@ -235,18 +252,22 @@ func get_direction() -> Vector2:
 		return Vector2.ZERO
 	return handle_pos / length
 
+
 # 获取原始手柄位置
 func get_handle_position() -> Vector2:
 	return joystick_handle.position
+
 
 # 检查摇杆是否处于活动状态
 func is_active() -> bool:
 	return is_joystick_active
 
+
 # 强制显示/隐藏摇杆
-func set_joystick_visible(visible: bool) -> void:
-	is_visible_by_default = visible
-	self.visible = visible
+func set_joystick_visible(_visible: bool) -> void:
+	is_visible_by_default = _visible
+	visible = _visible
+
 
 # 更新屏幕位置比例（仅对固定位置摇杆有效）
 func update_screen_ratio(new_ratio: Vector2) -> void:
@@ -254,17 +275,20 @@ func update_screen_ratio(new_ratio: Vector2) -> void:
 	if not follow_touch:
 		coord_utils.set_screen_global_position(self, screen_position_ratio)
 
+
 # 启用/禁用触发区域
 func set_trigger_area_enabled(enabled: bool) -> void:
 	use_trigger_area = enabled
 	if enabled:
 		_calculate_trigger_area()
 
+
 # 设置自定义触发区域尺寸
 func set_custom_trigger_size(width: float, height: float) -> void:
 	trigger_area_width = width
 	trigger_area_height = height
 	_calculate_trigger_area()
+
 
 # 调试方法：可视化触发区域
 func debug_draw_trigger_area() -> void:
@@ -289,6 +313,7 @@ func debug_draw_trigger_area() -> void:
 func recalculate_trigger_area() -> void:
 	_calculate_trigger_area()
 
+
 # 新增：获取触发区域信息（用于调试）
 func get_trigger_area_info() -> Dictionary:
 	return {
@@ -297,6 +322,7 @@ func get_trigger_area_info() -> Dictionary:
 		"enabled": use_trigger_area,
 		"range_node_position": joystick_range.global_position if joystick_range else Vector2.ZERO
 	}
+
 
 # 新增：手动设置触发区域（用于调试）
 func set_trigger_area_manual(center: Vector2, size: Vector2) -> void:

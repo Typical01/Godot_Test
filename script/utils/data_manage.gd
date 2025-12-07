@@ -1,36 +1,46 @@
 extends Node
 class_name DataManage
 
-var data_file = null
+
+
+var data_file : Dictionary
 var is_show_log := false
-const SAVE_PATH := "user://game.dat"
+var save_path = "user://game.dat" :
+	set(path):
+		save_path = path
+		if is_show_log: print("DataManage: 保存路径修改为[%s]!" % save_path)
+	get():
+		return save_path
+
+
 
 func _ready() -> void:
 	# 尝试加载；如果不存在就新建
-	if not _load_data():
+	if not load_data():
 		data_file = {}
-		_save_data()
+		save_data()
 
 # 保存
-func _save_data() -> void:
+func save_data() -> void:
 	if data_file == null:
 		data_file = {}
-	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	var file = FileAccess.open(save_path, FileAccess.WRITE)
 	if file == null:
-		push_error("DataManage: 无法打开文件写入: %s" % SAVE_PATH)
+		push_error("DataManage: 无法打开文件写入: %s" % save_path)
 		return
 	file.store_var(data_file)
 	file.close()
-	if is_show_log: print("DataManage: 保存到文件[%s]!" % SAVE_PATH)
+	if is_show_log: print("DataManage: 保存到文件[%s]!" % save_path)
+
 
 # 读取
-func _load_data() -> bool:
-	if not FileAccess.file_exists(SAVE_PATH):
-		if is_show_log: print("DataManage: 保存文件[%s]不存在!" % SAVE_PATH)
+func load_data() -> bool:
+	if not FileAccess.file_exists(save_path):
+		if is_show_log: print("DataManage: 保存文件[%s]不存在!" % save_path)
 		return false
-	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var file = FileAccess.open(save_path, FileAccess.READ)
 	if file == null:
-		push_error("DataManage: 打开文件失败: %s" % SAVE_PATH)
+		push_error("DataManage: 打开文件失败: %s" % save_path)
 		return false
 	# get_var() 返回序列化的 Variant（这里通常是 Dictionary）
 	var v = file.get_var()  # 若文件里是带对象序列化的，使用 file.get_var(true)
@@ -43,11 +53,12 @@ func _load_data() -> bool:
 		data_file = {}
 		return false
 
+
 # 获取对象 —— 更稳健的检查与懒加载
 func get_object(object_name: StringName) -> Variant:
 	# 如果还未加载过，尝试懒加载一次
 	if data_file == null:
-		_load_data()
+		load_data()
 		if data_file == null:
 			# 保底，避免后续访问 NILL
 			data_file = {}
@@ -62,6 +73,7 @@ func get_object(object_name: StringName) -> Variant:
 		if is_show_log:
 			print("DataManage-get_object: 对象[%s]不存在!" % object_name)
 		return null
+
 
 # 设置对象
 func set_object(object_name: StringName, object = null, count = 0) -> bool:
@@ -78,5 +90,5 @@ func set_object(object_name: StringName, object = null, count = 0) -> bool:
 	if is_show_log:
 		# 注意字符串格式化的正确写法（用数组）
 		print("DataManage: set_object: object: [%s] = (%s)" % [object_name, str(object)])
-	_save_data() # 可选：每次设置就保存，或定期保存
+	#_save_data() # 可选：每次设置就保存，或定期保存
 	return true

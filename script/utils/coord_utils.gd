@@ -2,23 +2,29 @@
 extends Node
 class_name CoordUtils
 
+
 signal window_size_changed(window_size)
 
 
-var screen_size
+
+var window = null
+var screen_size: Vector2
+
 
 
 func _ready() -> void:
-	var window := get_window()
-	window.size_changed.connect(_on_window_resize)
-	_on_window_resize()
+	window = get_window()
+	window.size_changed.connect(on_window_size_changed)
+	on_window_size_changed()
 	pass
 
-func _on_window_resize():
+
+func on_window_size_changed():
 	screen_size = get_viewport().get_visible_rect().size
 	window_size_changed.emit(screen_size)
 	pass
-	
+
+
 # -----------------------
 # 窗口 / 视口 尺寸相关
 # -----------------------
@@ -30,6 +36,7 @@ func set_screen_global_position(node: Node, screen_position_ratio: Vector2, pivo
 	else:
 		# 不以中心对齐，直接放到 pos（注意 Control 的 global_position 是左上角）
 		node.global_position = pos
+
 
 # pos: 目标屏幕像素位置（例如 screen_size * ratio）
 func align_node_center_to_pos(node: Node, pos: Vector2) -> void:
@@ -68,11 +75,13 @@ func align_node_center_to_pos(node: Node, pos: Vector2) -> void:
 	# 默认兜底
 	node.global_position = pos
 
+
 func _deferred_align_control_center(node: Control, pos: Vector2) -> void:
 	var size := node.size
 	if size == Vector2.ZERO:
 		size = node.get_minimum_size()
 	node.global_position = pos - size * 0.5
+
 
 # 返回“渲染视口的可见矩形大小”（像素）
 # 推荐用于 UI/像素布局：优先使用 viewport 的 visible_rect，因为 DisplayServer 在某些 4.4 情况下会混淆窗口/viewport。
@@ -86,9 +95,11 @@ func get_viewport_size() -> Vector2:
 	# 回退
 	return DisplayServer.window_get_size()
 
+
 # 返回 OS 窗口大小（注意：在某些 4.4 情况下文档与行为可能不一致）
 func get_window_size() -> Vector2:
 	return DisplayServer.window_get_size()
+
 
 # -----------------------
 # 屏幕 <-> 世界 坐标转换
@@ -117,6 +128,7 @@ func debug_screen_to_world(screen_pos: Vector2, camera: Camera2D = null) -> void
 			print("root inverse:", t2.affine_inverse())
 			print("mapped:", t2.affine_inverse() * screen_pos)
 
+
 # 屏幕（viewport / event.position） -> 世界(canvas) 坐标
 # 优先：传入当前使用的 Camera2D（更精确，考虑 camera zoom/offset/rotation）
 # 备选：camera 为 null 时尝试用 viewport 的 canvas_transform（对简单场景通常可用）
@@ -132,6 +144,7 @@ func screen_to_world(screen_pos: Vector2, camera: Camera2D = null) -> Vector2:
 	push_warning("screen_to_world：未找到摄像头且没有根视口; 返回屏幕位置")
 	return screen_pos
 
+
 # 世界(canvas) -> 屏幕坐标
 func world_to_screen(world_pos: Vector2, camera: Camera2D = null) -> Vector2:
 	if camera != null:
@@ -144,6 +157,7 @@ func world_to_screen(world_pos: Vector2, camera: Camera2D = null) -> Vector2:
 	push_warning("world_to_screen：未找到相机和根视口; 返回 world_pos")
 	return world_pos
 
+
 # -----------------------
 # 局部节点坐标 <-> 屏幕 坐标
 # -----------------------
@@ -155,10 +169,12 @@ func node_local_to_screen(node: Node2D, local_pos: Vector2, camera: Camera2D = n
 	var world_pos = node.to_global(local_pos) # Node2D.to_global 可用
 	return world_to_screen(world_pos, camera)
 
+
 # 把屏幕坐标转换为某个 Node2D 的局部坐标
 func screen_to_node_local(node: Node2D, screen_pos: Vector2, camera: Camera2D = null) -> Vector2:
 	var world_pos = screen_to_world(screen_pos, camera)
 	return node.to_local(world_pos)
+
 
 # -----------------------
 # 辅助：尝试找到当前场景的 active Camera2D（若你没有显式传 camera）

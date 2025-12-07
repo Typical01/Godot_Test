@@ -16,13 +16,15 @@ signal music_change(volume_percentage: float) ##音乐音量百分比
 @onready var check_follw_touch = $GameOutsideUi/ColorRectSettingsMenu/LabelJoystick/CheckFollowTouch
 @onready var animation_color_rect_menu_settings = $GameOutsideUi/ColorRectSettingsMenu/Animation
 @onready var button_settings = $GameOutsideUi/ButtonSettings
+@onready var button_test_grid = $GameOutsideUi/ButtonTestGrid
+@onready var grid_item = $GameOutsideUi/ButtonTestGrid/Main
 @onready var animation_button_settings = $GameOutsideUi/ButtonSettings/Animation
 @onready var timer_message = $TimerMessage
 @onready var sprite2d_joystick_weapon = $GamePlayingUi/Sprite2DJoystickWeapon
 @onready var sprite2d_joystick = $GamePlayingUi/Sprite2DJoystick
 @onready var label_score = $GamePlayingUi/LabelScore
 @onready var texture_progress_transfiguration = $GamePlayingUi/TextureProgressTransfiguration
-@onready var texture_rect_transfiguration = $GamePlayingUi/TextureRect
+@onready var texture_rect_transfiguration = $GamePlayingUi/Control
 @onready var hslider_background_music = $GameOutsideUi/ColorRectSettingsMenu/LabelBackgroundMusic/HSliderBackgroundMusic
 @onready var hslider_kill_music = $GameOutsideUi/ColorRectSettingsMenu/LabelKillSound/HSliderKillMusic
 
@@ -30,8 +32,11 @@ signal music_change(volume_percentage: float) ##音乐音量百分比
 @export var button_start_postion = Vector2(0.5, 0.9)
 @export var color_rect_menu_settings_postion = Vector2(0.5, 0.5)
 @export var button_settings_postion = Vector2(0.05, 0.9)
+@export var grid_item_postion = Vector2(0.5, 0.5)
 @export var label_score_postion = Vector2(0.5, 0.1)
 @export var timer_message_postion = Vector2(0.5, 0.1)
+@export var texture_progress_transfiguration_postion = Vector2(0.5, 0.98)
+@export var texture_rect_transfiguration_postion = Vector2(0.25, 0.94)
 @export var sprite2d_joystick_postion = Vector2(0.19, 0.75)
 @export var sprite2d_joystick_weapon_postion = Vector2(0.81, 0.75)
 
@@ -45,6 +50,7 @@ var sound_max
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	coord_utils.window_size_changed.connect(on_window_size_changed)
+	on_window_size_changed(get_viewport())
 	GamePlayingUi_is_visible(false)
 	GameOutsideUi_is_visible(true)
 	title_name = label_message.text
@@ -55,15 +61,19 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
 	
 	
-func on_window_size_changed(window_size):
+func on_window_size_changed(_window_size):
 	coord_utils.set_screen_global_position(label_message, label_message_postion)
 	coord_utils.set_screen_global_position(button_start, button_start_postion)
 	coord_utils.set_screen_global_position(color_rect_menu_settings, color_rect_menu_settings_postion)
 	coord_utils.set_screen_global_position(button_settings, button_settings_postion)
+	coord_utils.set_screen_global_position(button_test_grid, Vector2(button_settings_postion.x + 0.15, button_settings_postion.y))
+	coord_utils.set_screen_global_position(grid_item, grid_item_postion)
+	coord_utils.set_screen_global_position(texture_progress_transfiguration, texture_progress_transfiguration_postion)
+	coord_utils.set_screen_global_position(texture_rect_transfiguration, texture_rect_transfiguration_postion)
 	coord_utils.set_screen_global_position(sprite2d_joystick_weapon, sprite2d_joystick_weapon_postion)
 	coord_utils.set_screen_global_position(sprite2d_joystick, sprite2d_joystick_postion)
 	coord_utils.set_screen_global_position(label_score, label_score_postion)
@@ -182,4 +192,9 @@ func _on_settings_mouse_entered() -> void:
 
 func _on_settings_mouse_exited() -> void:
 	animation_button_settings.play("button_hover_not")
+	pass # Replace with function body.
+
+
+func _on_button_test_grid_button_up() -> void:
+	grid_item.visible = !grid_item.visible
 	pass # Replace with function body.

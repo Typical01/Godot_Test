@@ -1,0 +1,110 @@
+[gd_scene load_steps=14 format=3 uid="uid://dfb2t5ivrnrmy"]
+
+[ext_resource type="PackedScene" uid="uid://bnr5fdylcf5y" path="res://scene/Object/player.tscn" id="1_itxqv"]
+[ext_resource type="Script" uid="uid://chsxxkbp7uco4" path="res://script/main.gd" id="1_v0l8b"]
+[ext_resource type="PackedScene" uid="uid://chmk0d5hy4g4d" path="res://scene/Object/ghost.tscn" id="2_wp4xf"]
+[ext_resource type="PackedScene" uid="uid://d0iutcw00kjwr" path="res://scene/hud.tscn" id="4_brvut"]
+[ext_resource type="AudioStream" uid="uid://bei11n8q0sm1d" path="res://dodge_the_creeps_2d_assets/art/CF/生化模式背景音乐.mp3" id="4_tqoya"]
+[ext_resource type="PackedScene" uid="uid://cfedmg8fj2x56" path="res://scene/Object/generate_range.tscn" id="6_4j5ol"]
+[ext_resource type="PackedScene" uid="uid://dug45oolq2syl" path="res://scene/Object/prop_bullet.tscn" id="6_of57s"]
+[ext_resource type="PackedScene" uid="uid://camb6roxs17pc" path="res://scene/Object/prop_health.tscn" id="7_of57s"]
+[ext_resource type="AudioStream" uid="uid://d1j5xgrsbtn5o" path="res://dodge_the_creeps_2d_assets/art/CF/道具刷新.wav" id="9_b5f6u"]
+[ext_resource type="AudioStream" uid="uid://c600ps6hvk5nh" path="res://dodge_the_creeps_2d_assets/art/CF/幽灵胜利.WAV" id="9_tqoya"]
+[ext_resource type="AudioStream" uid="uid://miefy5q1sqlq" path="res://dodge_the_creeps_2d_assets/art/CF/幽灵出现.wav" id="11_k65ib"]
+[ext_resource type="AudioStream" uid="uid://fqfpuh5t5b7s" path="res://dodge_the_creeps_2d_assets/art/CF/幽灵出现倒计时_1.wav" id="12_mswub"]
+[ext_resource type="AudioStream" uid="uid://l3mxladmyrgk" path="res://dodge_the_creeps_2d_assets/art/CF/Metrohead.mp3" id="13_mswub"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_v0l8b")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 6920.0
+offset_bottom = 5660.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.316858, 0.362912, 0.38128, 1)
+
+[node name="Player" parent="." instance=ExtResource("1_itxqv")]
+position = Vector2(4888, 3240)
+
+[node name="MobTimer" type="Timer" parent="."]
+wait_time = 0.5
+
+[node name="ScoreTimer" type="Timer" parent="."]
+
+[node name="StartTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="StartPosition" type="Marker2D" parent="."]
+position = Vector2(544, 1160)
+
+[node name="Hud" parent="." instance=ExtResource("4_brvut")]
+
+[node name="Music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_tqoya")
+volume_db = 10.0
+parameters/looping = true
+
+[node name="GeneratePropBullet" parent="." node_paths=PackedStringArray("sound") instance=ExtResource("6_4j5ol")]
+range_mode = 0
+speed_min = 0.0
+speed_max = 0.0
+generate_speed = 30.0
+object_scale = Vector2(0.6, 0.6)
+object_scene = ExtResource("6_of57s")
+sound = NodePath("../SoundPropRefresh")
+
+[node name="GeneratePropHealth" parent="." node_paths=PackedStringArray("sound") instance=ExtResource("6_4j5ol")]
+range_mode = 0
+speed_min = 0.0
+speed_max = 0.0
+generate_speed = 60.0
+object_scale = Vector2(0.6, 0.6)
+object_scene = ExtResource("7_of57s")
+sound = NodePath("../SoundPropRefresh")
+
+[node name="Generate" parent="." instance=ExtResource("6_4j5ol")]
+object_direction = true
+speed_min = 300.0
+speed_max = 750.0
+generate_speed = 0.075
+object_scale = Vector2(4, 4)
+object_scene = ExtResource("2_wp4xf")
+
+[node name="TimerSavaData" type="Timer" parent="."]
+wait_time = 60.0
+
+[node name="SoundPropRefresh" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_b5f6u")
+
+[node name="SoundGhostWin" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_tqoya")
+volume_db = -10.0
+
+[node name="SoundGhostRefresh" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_k65ib")
+volume_db = -10.0
+
+[node name="SoundGhostRefreshCountDown" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_mswub")
+max_polyphony = 10
+
+[node name="AudioStreamLobbyMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("13_mswub")
+
+[connection signal="die" from="Player" to="." method="game_over"]
+[connection signal="kill" from="Player" to="." method="_on_player_kill"]
+[connection signal="ready" from="Player" to="." method="_on_player_ready"]
+[connection signal="timeout" from="MobTimer" to="." method="_on_mob_timer_timeout"]
+[connection signal="timeout" from="ScoreTimer" to="." method="_on_score_timer_timeout"]
+[connection signal="timeout" from="StartTimer" to="." method="_on_start_timer_timeout"]
+[connection signal="follow_touch_change" from="Hud" to="." method="_on_hud_follow_touch_change"]
+[connection signal="music_change" from="Hud" to="." method="_on_hud_music_change"]
+[connection signal="progress_max" from="Hud" to="." method="_on_hud_progress_max"]
+[connection signal="ready" from="Hud" to="." method="_on_hud_ready"]
+[connection signal="sound_change" from="Hud" to="." method="_on_hud_sound_change"]
+[connection signal="start_game" from="Hud" to="." method="new_game"]
+[connection signal="timeout" from="TimerSavaData" to="." method="_on_timer_sava_data_timeout"]

@@ -3,42 +3,42 @@
 [ext_resource type="Texture2D" uid="uid://ccdqxl12cttp7" path="res://dodge_the_creeps_2d_assets/art/UI/设置.png" id="1_likc5"]
 [ext_resource type="Script" uid="uid://cf0xqftui7igf" path="res://script/UI/settings.gd" id="2_ok4lx"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uhf66"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ftovt"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wyye3"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_keur6"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4pcrv"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fkyj2"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bdort"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_h3kf0"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w6q7o"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dmpxh"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_65vpt"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dmpxh"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w6q7o"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_h3kf0"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bdort"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fkyj2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4pcrv"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_keur6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wyye3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ftovt"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uhf66"]
 
 [node name="settings" type="Button"]
 offset_right = 128.0
 offset_bottom = 128.0
-theme_override_styles/focus = SubResource("StyleBoxEmpty_uhf66")
-theme_override_styles/disabled_mirrored = SubResource("StyleBoxEmpty_ftovt")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_wyye3")
-theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxEmpty_keur6")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_4pcrv")
-theme_override_styles/hover_mirrored = SubResource("StyleBoxEmpty_fkyj2")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_bdort")
-theme_override_styles/pressed_mirrored = SubResource("StyleBoxEmpty_h3kf0")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_w6q7o")
-theme_override_styles/normal_mirrored = SubResource("StyleBoxEmpty_65vpt")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_dmpxh")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxEmpty_65vpt")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_w6q7o")
+theme_override_styles/pressed_mirrored = SubResource("StyleBoxEmpty_h3kf0")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_bdort")
+theme_override_styles/hover_mirrored = SubResource("StyleBoxEmpty_fkyj2")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_4pcrv")
+theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxEmpty_keur6")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_wyye3")
+theme_override_styles/disabled_mirrored = SubResource("StyleBoxEmpty_ftovt")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_uhf66")
 icon = ExtResource("1_likc5")
 expand_icon = true
 script = ExtResource("2_ok4lx")

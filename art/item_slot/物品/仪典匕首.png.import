@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bk8vgasx8s3ft"
-path="res://.godot/imported/锈迹斑斑的铜币.png-8661167f456b5ef900a2a99df531624d.ctex"
+uid="uid://ci02b2c2w1uxa"
+path="res://.godot/imported/仪典匕首.png-016cd902735b13951636e5f6bf252dd0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/item_slot/物品/锈迹斑斑的铜币.png"
-dest_files=["res://.godot/imported/锈迹斑斑的铜币.png-8661167f456b5ef900a2a99df531624d.ctex"]
+source_file="res://art/item_slot/物品/仪典匕首.png"
+dest_files=["res://.godot/imported/仪典匕首.png-016cd902735b13951636e5f6bf252dd0.ctex"]
 
 [params]
 

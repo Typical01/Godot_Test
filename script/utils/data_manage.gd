@@ -47,6 +47,7 @@ func load_data() -> bool:
 	file.close()
 	if typeof(v) == TYPE_DICTIONARY:
 		data_file = v
+		if is_show_log: print("DataManage: " % data_file)
 		return true
 	else:
 		push_error("DataManage: 读取到的存档不是 Dictionary，已忽略。")

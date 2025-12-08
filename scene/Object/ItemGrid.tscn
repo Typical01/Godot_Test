@@ -1,34 +1,30 @@
-[gd_scene load_steps=12 format=3 uid="uid://d256x7l6oxgqe"]
+[gd_scene load_steps=15 format=3 uid="uid://d256x7l6oxgqe"]
 
 [ext_resource type="Script" uid="uid://7eue20881hcs" path="res://script/Object/item_grid.gd" id="1_0o367"]
 [ext_resource type="Script" uid="uid://bjgmw8dldtlex" path="res://script/Object/inventory.gd" id="1_3sa4v"]
 [ext_resource type="PackedScene" uid="uid://bggc353qyek66" path="res://scene/Object/item.tscn" id="2_8g3nm"]
 [ext_resource type="PackedScene" uid="uid://dj8hl2rd62jg7" path="res://scene/Object/inventory_item.tscn" id="2_c6lix"]
-[ext_resource type="Script" uid="uid://bsb3vfjfmkr65" path="res://resource/item_data.gd" id="2_ixhi2"]
-[ext_resource type="Texture2D" uid="uid://dt375xohp4vdp" path="res://art/item_slot/物品/非洲之星.png" id="3_x04m7"]
-[ext_resource type="Texture2D" uid="uid://dnnibqf17flpn" path="res://art/item_slot/物品/黄金瞪羚.png" id="4_npv8c"]
-[ext_resource type="Texture2D" uid="uid://v4eco0liukb1" path="res://art/item_slot/物品/主战坦克模型.png" id="5_nuado"]
+[ext_resource type="FontFile" uid="uid://by4wvcswqftf" path="res://dodge_the_creeps_2d_assets/fonts/Xolonium-Regular.ttf" id="9_ovg48"]
+[ext_resource type="Texture2D" uid="uid://b4x4l4iia1egm" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮.png" id="10_b88fm"]
+[ext_resource type="Texture2D" uid="uid://8ar7qd4r52xn" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮_按下.png" id="11_t8s18"]
+[ext_resource type="Texture2D" uid="uid://cw42jw63lo30q" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮_悬停.png" id="12_715jb"]
 
-[sub_resource type="Resource" id="Resource_715jb"]
-script = ExtResource("2_ixhi2")
-name = "0"
-texture = ExtResource("3_x04m7")
-dimentions = Vector2i(1, 1)
-metadata/_custom_type_script = "uid://bsb3vfjfmkr65"
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_p0l2g"]
+texture = ExtResource("10_b88fm")
 
-[sub_resource type="Resource" id="Resource_wmuw2"]
-script = ExtResource("2_ixhi2")
-name = "1"
-texture = ExtResource("4_npv8c")
-dimentions = Vector2i(2, 2)
-metadata/_custom_type_script = "uid://bsb3vfjfmkr65"
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_j6k87"]
+texture = ExtResource("11_t8s18")
 
-[sub_resource type="Resource" id="Resource_npv8c"]
-script = ExtResource("2_ixhi2")
-name = "3"
-texture = ExtResource("5_nuado")
-dimentions = Vector2i(3, 3)
-metadata/_custom_type_script = "uid://bsb3vfjfmkr65"
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_jhtiy"]
+texture = ExtResource("12_715jb")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_63qnd"]
+
+[sub_resource type="InputEventAction" id="InputEventAction_o8u2p"]
+action = &"start_game"
+
+[sub_resource type="Shortcut" id="Shortcut_uqtin"]
+events = [SubResource("InputEventAction_o8u2p")]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -47,7 +43,6 @@ offset_top = 20.0
 offset_right = 20.0
 offset_bottom = 20.0
 script = ExtResource("1_3sa4v")
-items = Array[ExtResource("2_ixhi2")]([SubResource("Resource_715jb"), SubResource("Resource_wmuw2"), SubResource("Resource_npv8c")])
 inventory_item_scene = ExtResource("2_c6lix")
 
 [node name="ItemGrid" type="GridContainer" parent="ItemContainer"]
@@ -57,4 +52,22 @@ theme_override_constants/h_separation = 0
 theme_override_constants/v_separation = 0
 script = ExtResource("1_0o367")
 inventory_slot_scene = ExtResource("2_8g3nm")
-dimentions = Vector2i(6, 6)
+dimensions = Vector2i(5, 5)
+
+[node name="Search" type="Button" parent="."]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 440.0
+offset_right = 356.0
+offset_bottom = 525.0
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_ovg48")
+theme_override_font_sizes/font_size = 64
+theme_override_styles/normal = SubResource("StyleBoxTexture_p0l2g")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_j6k87")
+theme_override_styles/hover = SubResource("StyleBoxTexture_jhtiy")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_63qnd")
+shortcut = SubResource("Shortcut_uqtin")
+text = "开始"
+
+[connection signal="button_up" from="Search" to="ItemContainer" method="_on_search_button_up"]

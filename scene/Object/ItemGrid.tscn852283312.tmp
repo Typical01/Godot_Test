@@ -1,0 +1,131 @@
+[gd_scene load_steps=19 format=3 uid="uid://d256x7l6oxgqe"]
+
+[ext_resource type="Script" uid="uid://7eue20881hcs" path="res://script/Object/item_grid.gd" id="1_0o367"]
+[ext_resource type="Script" uid="uid://bjgmw8dldtlex" path="res://script/Object/inventory.gd" id="1_3sa4v"]
+[ext_resource type="PackedScene" uid="uid://bggc353qyek66" path="res://scene/Object/item.tscn" id="2_8g3nm"]
+[ext_resource type="PackedScene" uid="uid://dj8hl2rd62jg7" path="res://scene/Object/inventory_item.tscn" id="2_c6lix"]
+[ext_resource type="Texture2D" uid="uid://cnoueieisg747" path="res://art/item_slot/其他/格子.png" id="5_ovg48"]
+[ext_resource type="Texture2D" uid="uid://fxn64pwkh3x0" path="res://art/item_slot/其他/格子边框.png" id="6_b88fm"]
+[ext_resource type="Texture2D" uid="uid://cy8jagcgmc7le" path="res://art/item_slot/其他/哈夫币.png" id="9_npv8c"]
+[ext_resource type="FontFile" uid="uid://by4wvcswqftf" path="res://dodge_the_creeps_2d_assets/fonts/Xolonium-Regular.ttf" id="9_ovg48"]
+[ext_resource type="Texture2D" uid="uid://b4x4l4iia1egm" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮.png" id="10_b88fm"]
+[ext_resource type="Script" uid="uid://x23dw04wo2y6" path="res://script/Object/value.gd" id="10_nuado"]
+[ext_resource type="Texture2D" uid="uid://8ar7qd4r52xn" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮_按下.png" id="11_t8s18"]
+[ext_resource type="Texture2D" uid="uid://cw42jw63lo30q" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮_悬停.png" id="12_715jb"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_p0l2g"]
+texture = ExtResource("10_b88fm")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_j6k87"]
+texture = ExtResource("11_t8s18")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_jhtiy"]
+texture = ExtResource("12_715jb")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_63qnd"]
+
+[sub_resource type="InputEventAction" id="InputEventAction_o8u2p"]
+action = &"start_game"
+
+[sub_resource type="Shortcut" id="Shortcut_uqtin"]
+events = [SubResource("InputEventAction_o8u2p")]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ItemContainer" type="Container" parent="."]
+unique_name_in_owner = true
+z_index = 1
+layout_mode = 0
+offset_left = 20.0
+offset_top = 40.0
+offset_right = 20.0
+offset_bottom = 40.0
+script = ExtResource("1_3sa4v")
+inventory_item_scene = ExtResource("2_c6lix")
+
+[node name="ItemGrid" type="GridContainer" parent="ItemContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+script = ExtResource("1_0o367")
+inventory_slot_scene = ExtResource("2_8g3nm")
+dimensions = Vector2i(5, 5)
+
+[node name="ItemSimpleInformation" type="Sprite2D" parent="ItemContainer"]
+self_modulate = Color(0.4392157, 0.4392157, 0.4392157, 1)
+texture = ExtResource("5_ovg48")
+centered = false
+
+[node name="Sprite2D" type="TextureRect" parent="ItemContainer/ItemSimpleInformation"]
+texture = ExtResource("6_b88fm")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ItemContainer/ItemSimpleInformation"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="ItemContainer/ItemSimpleInformation/VBoxContainer"]
+layout_mode = 2
+text = "test"
+
+[node name="Value" type="Sprite2D" parent="ItemContainer/ItemSimpleInformation/VBoxContainer"]
+scale = Vector2(2, 2)
+texture = ExtResource("9_npv8c")
+centered = false
+script = ExtResource("10_nuado")
+
+[node name="Label" type="Label" parent="ItemContainer/ItemSimpleInformation/VBoxContainer/Value"]
+offset_left = 20.0
+offset_top = -3.0
+offset_right = 66.0
+offset_bottom = 20.0
+text = "0"
+
+[node name="Search" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -128.0
+offset_top = -85.0
+offset_right = 128.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_ovg48")
+theme_override_font_sizes/font_size = 64
+theme_override_styles/normal = SubResource("StyleBoxTexture_p0l2g")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_j6k87")
+theme_override_styles/hover = SubResource("StyleBoxTexture_jhtiy")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_63qnd")
+shortcut = SubResource("Shortcut_uqtin")
+text = "开始"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(300, 40)
+layout_mode = 0
+offset_right = 300.0
+offset_bottom = 40.0
+theme_override_constants/separation = 100
+
+[node name="Value" type="Sprite2D" parent="HBoxContainer"]
+unique_name_in_owner = true
+scale = Vector2(2, 2)
+texture = ExtResource("9_npv8c")
+centered = false
+script = ExtResource("10_nuado")
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "0"
+
+[connection signal="button_up" from="Search" to="ItemContainer" method="_on_search_button_up"]

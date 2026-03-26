@@ -46,17 +46,17 @@ func _build_quality_dictionaries():
 
 # === 核心方法：加载配置到本实例 ===
 func load_config(config: Dictionary) -> bool:
-	if config.is_empty() or not config.has("基本设置"):
-		print("RewardPool: 配置无效或缺少[基本设置]")
-		return false
+	#if config.is_empty() or not config.has("基本设置"):
+	#	print("RewardPool: 配置无效或缺少[基本设置]")
+	#	return false
 	
-	var base_setting = config["基本设置"]
-	if not base_setting is Dictionary:
-		return false
+	#var base_setting = config["基本设置"]
+	#if not base_setting is Dictionary:
+	#	return false
 	
 	# 1. 加载概率配置
-	if base_setting.has("概率") and base_setting["概率"] is Array:
-		quality_probabilities = base_setting["概率"]
+	if config.has("概率") and config["概率"] is Array:
+		quality_probabilities = config["概率"]
 		print("RewardPool: 加载概率配置成功")
 	else:
 		print("RewardPool: 配置中缺少概率数组，使用默认值")
@@ -66,7 +66,7 @@ func load_config(config: Dictionary) -> bool:
 	_clear_all_arrays()
 	
 	# 3. 加载物品配置
-	var goods_object = base_setting.get("物品", {})
+	var goods_object = config.get("物品", {})
 	if not goods_object is Dictionary:
 		print("RewardPool: 配置中物品格式错误")
 		return false
@@ -133,13 +133,13 @@ func allocate_single_reward() -> Goods:
 	if quality == null:
 		return null
 	
-	var item_array = quality_to_array.get(quality)
+	var item_array: Array = quality_to_array.get(quality, [])
 	if not item_array or item_array.is_empty():
-		print("RewardPool: 品质[%d]的物品数组为空" % quality)
+		push_error("RewardPool: 品质[%d]的物品数组为空" % [quality])
 		return null
 	
 	var random_index = randi() % item_array.size()
-	return item_array[random_index]
+	return item_array[random_index].duplicate()
 
 ## 指定数量分配
 func allocate_multiple_rewards(count: int = 10) -> Array[Goods]:

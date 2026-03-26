@@ -1,0 +1,207 @@
+[gd_scene load_steps=25 format=3 uid="uid://d256x7l6oxgqe"]
+
+[ext_resource type="Script" uid="uid://7eue20881hcs" path="res://script/Object/item_grid.gd" id="1_0o367"]
+[ext_resource type="Script" uid="uid://bjgmw8dldtlex" path="res://script/Object/inventory.gd" id="1_3sa4v"]
+[ext_resource type="PackedScene" uid="uid://bggc353qyek66" path="res://scene/Object/item.tscn" id="2_8g3nm"]
+[ext_resource type="PackedScene" uid="uid://dj8hl2rd62jg7" path="res://scene/Object/inventory_item.tscn" id="2_c6lix"]
+[ext_resource type="Texture2D" uid="uid://cnoueieisg747" path="res://art/item_slot/其他/格子.png" id="5_ovg48"]
+[ext_resource type="Script" uid="uid://v1p4sbghyfrb" path="res://script/Object/item_simple_information.gd" id="6_t8s18"]
+[ext_resource type="Texture2D" uid="uid://cy8jagcgmc7le" path="res://art/item_slot/其他/哈夫币.png" id="9_npv8c"]
+[ext_resource type="FontFile" uid="uid://by4wvcswqftf" path="res://dodge_the_creeps_2d_assets/fonts/Xolonium-Regular.ttf" id="9_ovg48"]
+[ext_resource type="Texture2D" uid="uid://b4x4l4iia1egm" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮.png" id="10_b88fm"]
+[ext_resource type="Script" uid="uid://x23dw04wo2y6" path="res://script/Object/value.gd" id="10_nuado"]
+[ext_resource type="Texture2D" uid="uid://8ar7qd4r52xn" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮_按下.png" id="11_t8s18"]
+[ext_resource type="Texture2D" uid="uid://cw42jw63lo30q" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮_悬停.png" id="12_715jb"]
+[ext_resource type="Script" uid="uid://b010s0dxio86v" path="res://script/utils/input_recognizer.gd" id="13_b88fm"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_p0l2g"]
+texture = ExtResource("10_b88fm")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_j6k87"]
+texture = ExtResource("11_t8s18")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_jhtiy"]
+texture = ExtResource("12_715jb")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_63qnd"]
+
+[sub_resource type="InputEventAction" id="InputEventAction_o8u2p"]
+action = &"start_game"
+
+[sub_resource type="Shortcut" id="Shortcut_uqtin"]
+events = [SubResource("InputEventAction_o8u2p")]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ovg48"]
+bg_color = Color(0.21568628, 0.21568628, 0.21568628, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b88fm"]
+bg_color = Color(0.29411766, 0.29411766, 0.29411766, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t8s18"]
+bg_color = Color(0.25490198, 0.25490198, 0.25490198, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_715jb"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_b88fm"]
+
+[node name="Main" type="Node"]
+
+[node name="Inventory" type="Container" parent="."]
+unique_name_in_owner = true
+z_index = 1
+offset_left = 20.0
+offset_top = 40.0
+offset_right = 20.0
+offset_bottom = 40.0
+script = ExtResource("1_3sa4v")
+inventory_item_scene = ExtResource("2_c6lix")
+
+[node name="ItemGrid" type="GridContainer" parent="Inventory"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+script = ExtResource("1_0o367")
+inventory_slot_scene = ExtResource("2_8g3nm")
+dimensions = Vector2i(5, 5)
+
+[node name="Search" type="Button" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -128.0
+offset_top = -85.0
+offset_right = 128.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("9_ovg48")
+theme_override_font_sizes/font_size = 64
+theme_override_styles/normal = SubResource("StyleBoxTexture_p0l2g")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_j6k87")
+theme_override_styles/hover = SubResource("StyleBoxTexture_jhtiy")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_63qnd")
+shortcut = SubResource("Shortcut_uqtin")
+text = "开始"
+
+[node name="Info" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 4
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 1
+script = ExtResource("6_t8s18")
+
+[node name="InfoBorder" type="ColorRect" parent="Info"]
+unique_name_in_owner = true
+self_modulate = Color(1, 1, 1, 0.78431374)
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+color = Color(0.4959023, 0.49590182, 0.49590182, 1)
+
+[node name="ItemSimpleInformation" type="TextureRect" parent="Info"]
+unique_name_in_owner = true
+self_modulate = Color(0.627451, 0.627451, 0.627451, 0.78431374)
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+texture = ExtResource("5_ovg48")
+
+[node name="InfoContainer" type="VBoxContainer" parent="Info/ItemSimpleInformation"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 4.0
+offset_right = 104.0
+offset_bottom = 43.0
+theme_override_constants/separation = 2
+
+[node name="GoodsName" type="Label" parent="Info/ItemSimpleInformation/InfoContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Test"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Info/ItemSimpleInformation/InfoContainer"]
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Value" type="TextureRect" parent="Info/ItemSimpleInformation/InfoContainer/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("9_npv8c")
+
+[node name="InfoValue" type="Label" parent="Info/ItemSimpleInformation/InfoContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "0"
+
+[node name="Control" type="Control" parent="Info/ItemSimpleInformation/InfoContainer"]
+layout_mode = 2
+
+[node name="SellBorder" type="ColorRect" parent="Info/ItemSimpleInformation/InfoContainer/Control"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 2.0
+offset_right = 100.0
+offset_bottom = 2.0
+color = Color(0.52748007, 0.52748, 0.52748, 1)
+
+[node name="Sell" type="Button" parent="Info/ItemSimpleInformation/InfoContainer/Control"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 0
+offset_top = 2.0
+offset_right = 100.0
+offset_bottom = 19.0
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_ovg48")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_b88fm")
+theme_override_styles/hover = SubResource("StyleBoxFlat_t8s18")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_715jb")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_b88fm")
+text = "出售"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(200, 16)
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_bottom = 16.0
+grow_horizontal = 0
+pivot_offset = Vector2(200, 0)
+theme_override_constants/separation = 2
+
+[node name="Value" type="TextureRect" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("9_npv8c")
+script = ExtResource("10_nuado")
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "0"
+
+[node name="InputRecognizer" type="Control" parent="."]
+unique_name_in_owner = true
+physics_interpolation_mode = 0
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1107.0
+offset_right = 1107.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("13_b88fm")
+metadata/_custom_type_script = "uid://b010s0dxio86v"
+
+[connection signal="button_up" from="Search" to="Inventory" method="_on_search_button_up"]

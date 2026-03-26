@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://byvwk5vwr18j7"]
+
+[ext_resource type="Script" uid="uid://b8xan3oefngss" path="res://script/car.gd" id="1_s004f"]
+[ext_resource type="PackedScene" uid="uid://dpl51tmkb5eq3" path="res://art/model/小汽车.glb" id="1_ti7k3"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_s004f"]
+size = Vector3(5.1992335, 1.5947266, 2.9)
+
+[node name="Car" type="CharacterBody3D" unique_id=654445815]
+script = ExtResource("1_s004f")
+
+[node name="Pivot" type="Node3D" parent="." unique_id=1070718437]
+
+[node name="小汽车" parent="Pivot" unique_id=2106387485 instance=ExtResource("1_ti7k3")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2111746080]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.095222, 0.60752463, 0)
+shape = SubResource("BoxShape3D_s004f")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=396488921]
+transform = Transform3D(1, 0, 0, 0, 0.8620983, 0.50674117, 0, -0.50674117, 0.8620983, 0, 5.2216086, 2.3611772)
+current = true

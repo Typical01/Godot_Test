@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://cxssrvq5g6w5r"]
+
+[ext_resource type="Script" uid="uid://dlpkvf5lvf1qs" path="res://script/Object/dice.gd" id="1_43xvx"]
+[ext_resource type="PackedScene" uid="uid://cglltr8sx3ex1" path="res://art/model/骰子.glb" id="1_vullf"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_43xvx"]
+bounce = 0.2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_43xvx"]
+size = Vector3(2.0324707, 2.0270996, 2.0228882)
+
+[node name="RigidBody3D" type="RigidBody3D" unique_id=1739736881]
+physics_material_override = SubResource("PhysicsMaterial_43xvx")
+gravity_scale = 2.0
+script = ExtResource("1_43xvx")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1057236253]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0076904297, -0.0037841797, -0.0018005371)
+shape = SubResource("BoxShape3D_43xvx")
+
+[node name="骰子" parent="." unique_id=108117648 instance=ExtResource("1_vullf")]
+
+[node name="LabelNumber" type="Label3D" parent="." unique_id=107717047]
+unique_name_in_owner = true
+top_level = true
+billboard = 1
+no_depth_test = true
+text = "0"
+font_size = 3600
+
+[node name="RemoteTransform3D" type="RemoteTransform3D" parent="." unique_id=1777826943]
+remote_path = NodePath("../LabelNumber")
+update_rotation = false
+update_scale = false

@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://dt8rwxirflj4v"]
+
+[ext_resource type="Script" uid="uid://cpsyhts7ppo45" path="res://script/UI/item_inventory_grid.gd" id="1_we6yu"]
+[ext_resource type="PackedScene" uid="uid://dj8hl2rd62jg7" path="res://scene/Object/inventory_item.tscn" id="2_dccqe"]
+[ext_resource type="Script" uid="uid://cbe24cnfw6jpk" path="res://script/UI/item_grid.gd" id="2_ovnba"]
+[ext_resource type="PackedScene" uid="uid://bggc353qyek66" path="res://scene/Object/item.tscn" id="4_jn1jv"]
+[ext_resource type="Script" uid="uid://b010s0dxio86v" path="res://script/utils/input_recognizer.gd" id="4_nj702"]
+[ext_resource type="PackedScene" uid="uid://sy2iet4kp0po" path="res://scene/Object/held_item_highlight.tscn" id="6_6fwli"]
+
+[node name="ItemInventory" type="GridContainer" unique_id=455152987]
+script = ExtResource("1_we6yu")
+inventory_item_scene = ExtResource("2_dccqe")
+
+[node name="ItemGrid" type="GridContainer" parent="." unique_id=1344079670]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("2_ovnba")
+inventory_slot_scene = ExtResource("4_jn1jv")
+
+[node name="InputRecognizer" type="Node" parent="." unique_id=1999973059]
+unique_name_in_owner = true
+script = ExtResource("4_nj702")
+metadata/_custom_type_script = "uid://b010s0dxio86v"
+
+[node name="HeldItemHighlight" parent="." unique_id=1931749988 instance=ExtResource("6_6fwli")]
+unique_name_in_owner = true
+z_index = 10
+offset = Vector2(32, 32)
+
+[connection signal="ready" from="." to="ItemGrid" method="_on_item_inventory_ready"]

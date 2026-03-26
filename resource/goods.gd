@@ -1,7 +1,7 @@
 class_name Goods extends ItemData
 
-
 enum Class {
+	None = -1,
 	CraftCollection, ##工艺收藏品
 	Household ##家用物品
 }
@@ -16,7 +16,8 @@ enum Quality {
 	Orange
 }
 enum Slot {
-	Slot_1_1 = 0,
+	None = -1,
+	Slot_1_1,
 	Slot_1_2,
 	Slot_1_3,
 	Slot_1_4,
@@ -30,21 +31,13 @@ enum Slot {
 	Slot_4_1
 }
 
-var quality: Quality
-var slot: Slot
-var value: int
-var goods_class: Class
-var search = false
+@export var quality: Quality = Quality.None
+@export var slot: Slot = Slot.None
+@export var value: int = 0
+@export var goods_class: Class = Class.None
+@export var search = false
+@export var slot_index: int = -1
 
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
 
 
 func init(tmp_name: String, tmp_quality: Quality, tmp_slot: Slot, tmp_value: int, tmp_class: Class = Class.CraftCollection) -> void:
@@ -58,7 +51,7 @@ func init(tmp_name: String, tmp_quality: Quality, tmp_slot: Slot, tmp_value: int
 	dimensions = get_slot_dimensions(slot)
 
 func output():
-	print("[%s]: %s (价值: %d, 格数: %dx%d)" % [
+	print("goods::output: [%s]%s (价值: %d, 格数: %dx%d)" % [
 		Goods.get_color_from_string(quality), 
 		name,
 		value, 
@@ -78,7 +71,6 @@ static func get_slot_dimensions(slot_type: Slot) -> Vector2i:
 			return Vector2i(1, 3)    # 1x3
 		Slot.Slot_1_4:
 			return Vector2i(1, 4)    # 1x4
-		
 		# 2x系列 (宽2)
 		Slot.Slot_2_1:
 			return Vector2i(2, 1)    # 2x1
@@ -86,7 +78,6 @@ static func get_slot_dimensions(slot_type: Slot) -> Vector2i:
 			return Vector2i(2, 2)    # 2x2
 		Slot.Slot_2_3:
 			return Vector2i(2, 3)    # 2x3
-		
 		# 3x系列 (宽3)
 		Slot.Slot_3_1:
 			return Vector2i(3, 1)    # 3x1
@@ -96,11 +87,9 @@ static func get_slot_dimensions(slot_type: Slot) -> Vector2i:
 			return Vector2i(3, 3)    # 3x3
 		Slot.Slot_3_4:
 			return Vector2i(3, 4)    # 3x4
-		
 		# 4x系列 (宽4)
 		Slot.Slot_4_1:
 			return Vector2i(4, 1)    # 4x1
-		
 		_:
 			return Vector2i(1, 1)    # 默认值
 
@@ -124,6 +113,46 @@ static func get_color_from_string(quality_color: Quality) -> String:
 		_:
 			printerr("未处理的品质颜色[Enum]: ", quality_color)
 			return "null" # 返回灰色作为默认值
+
+static func get_quality_time(quality_color: Goods.Quality) -> float:
+	match quality_color:
+		Goods.Quality.White:
+			return 1.0
+		Goods.Quality.Green:
+			return 1.0
+		Goods.Quality.Blue:
+			return 1.0
+		Goods.Quality.Purple:
+			return 1.5
+		Goods.Quality.Gold:
+			return 2.0
+		Goods.Quality.Red:
+			return 2.5
+		Goods.Quality.Orange:
+			return 2.5
+		_:
+			printerr("未处理的品质颜色[时间]: ", quality_color)
+			return 1.0 # 返回灰色作为默认值
+			
+static func get_color(quality_color: Goods.Quality, alpha: float = 0.28) -> Color:
+	match quality_color:
+		Goods.Quality.White:
+			return Color(0.278, 0.278, 0.278, alpha)
+		Goods.Quality.Green:
+			return Color(0.0, 0.278, 0.0, alpha)
+		Goods.Quality.Blue:
+			return Color(0.05, 0.2, 0.4, alpha)
+		Goods.Quality.Purple:
+			return Color(0.216, 0.0, 0.376, alpha)
+		Goods.Quality.Gold:
+			return Color(0.8, 0.4, 0.05, alpha)
+		Goods.Quality.Red:
+			return Color(0.706, 0.051, 0.051, alpha)
+		Goods.Quality.Orange:
+			return Color(0.706, 0.051, 0.051, alpha)
+		_:
+			printerr("未处理的品质颜色: ", quality_color)
+			return Color(1, 1, 1, alpha) # 返回灰色作为默认值
 
 ##将品质字符串转换为: 颜色
 static func get_string_from_color(quality_string: String) -> Quality:
@@ -181,7 +210,12 @@ static func get_slot_from_dimensions(width: int, height: int) -> Slot:
 		if get_slot_dimensions(slot_value) == target:
 			return slot_value
 	# 没有找到，返回默认
-	return Slot.Slot_1_1
+	return Slot.None
+
+static func is_dimensions(_dimensions: Vector2i) -> bool:
+	if _dimensions.x <= 0 or _dimensions.y <= 0: # 大小有效
+		return false
+	return true
 
 ##Slot转换为字符串表示
 static func slot_to_string(slot_type: Slot) -> String:

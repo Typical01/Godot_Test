@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bqau8wo5ooslc"]
+
+[ext_resource type="Script" uid="uid://e4hpffalnd7f" path="res://script/ui/v_list_view.gd" id="1_thj6u"]
+
+[node name="VListView" type="ScrollContainer"]
+custom_minimum_size = Vector2(400, 200)
+offset_right = 400.0
+offset_bottom = 200.0
+script = ExtResource("1_thj6u")
+
+[node name="ItemContainer" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[connection signal="resized" from="." to="." method="_on_resized"]

@@ -47,10 +47,16 @@ is_search = true
 
 [node name="ItemInventory" parent="." unique_id=455152987 instance=ExtResource("15_715jb")]
 unique_name_in_owner = true
+offset_left = 192.0
+offset_top = 96.0
+offset_right = 192.0
+offset_bottom = 96.0
 
 [node name="ItemInventoryStore" parent="." unique_id=122668884 instance=ExtResource("15_715jb")]
-offset_left = 500.0
-offset_right = 500.0
+offset_left = 704.0
+offset_top = 96.0
+offset_right = 704.0
+offset_bottom = 96.0
 dimensions = Vector2i(3, 3)
 
 [node name="Search" type="Button" parent="." unique_id=938154618]
@@ -102,6 +108,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+pivot_offset = Vector2(10, 10)
 mouse_filter = 1
 script = ExtResource("6_t8s18")
 
@@ -203,7 +210,11 @@ script = ExtResource("13_b88fm")
 metadata/_custom_type_script = "uid://b010s0dxio86v"
 
 [connection signal="cancel" from="ItemInventory" to="." method="_on_item_inventory_cancel"]
+[connection signal="move" from="ItemInventory" to="." method="_on_item_inventory_move"]
 [connection signal="select" from="ItemInventory" to="." method="_on_item_inventory_select"]
+[connection signal="cancel" from="ItemInventoryStore" to="." method="_on_item_inventory_cancel"]
+[connection signal="move" from="ItemInventoryStore" to="." method="_on_item_inventory_move"]
+[connection signal="select" from="ItemInventoryStore" to="." method="_on_item_inventory_select"]
 [connection signal="button_up" from="Search" to="." method="_on_search_button_up"]
 [connection signal="button_up" from="Search2" to="." method="_on_search_2_button_up"]
 [connection signal="button_up" from="Info/ItemSimpleInformation/InfoContainer/Control/Sell" to="." method="_on_sell_button_up"]

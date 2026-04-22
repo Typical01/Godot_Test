@@ -5,7 +5,7 @@ extends Node
 # 配置
 # =====================
 const LONG_PRESS_TIME := 0.15 ## 长按触发阈值
-const DOUBLE_CLICK_TIME := 0.15 ## 双击触发阈值
+const DOUBLE_CLICK_TIME := 0.3 ## 双击触发阈值
 const CLICK_MOVE_PIXEL := 5.0 ## 拖拽移动像素阈值
 
 # =====================
@@ -90,7 +90,7 @@ func _on_release(pos: Vector2):
 
 	# 长按
 	if _long_press_trigger:
-		print("InputRecognizer: long_press_end")
+		#print("InputRecognizer: long_press_end")
 		long_press_end.emit(pos)
 		_reset()
 		return

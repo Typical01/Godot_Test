@@ -134,7 +134,7 @@ static func get_quality_time(quality_color: Goods.Quality) -> float:
 			printerr("未处理的品质颜色[时间]: ", quality_color)
 			return 1.0 # 返回灰色作为默认值
 			
-static func get_color(quality_color: Goods.Quality, alpha: float = 0.28) -> Color:
+static func get_color(quality_color: Goods.Quality, alpha: float = 0.5) -> Color:
 	match quality_color:
 		Goods.Quality.White:
 			return Color(0.278, 0.278, 0.278, alpha)
@@ -145,9 +145,9 @@ static func get_color(quality_color: Goods.Quality, alpha: float = 0.28) -> Colo
 		Goods.Quality.Purple:
 			return Color(0.216, 0.0, 0.376, alpha)
 		Goods.Quality.Gold:
-			return Color(0.8, 0.4, 0.05, alpha)
+			return Color(0.788, 0.443, 0.0, alpha)
 		Goods.Quality.Red:
-			return Color(0.706, 0.051, 0.051, alpha)
+			return Color(0.62, 0.125, 0.125, alpha)
 		Goods.Quality.Orange:
 			return Color(0.706, 0.051, 0.051, alpha)
 		_:

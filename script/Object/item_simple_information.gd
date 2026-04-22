@@ -18,7 +18,7 @@ func show_info(is_show: bool, data: Goods = null):
 	if not is_show: return
 	%InfoValue.text = str(data.value)
 	%GoodsName.text = data.name
-	position = get_global_mouse_position()
+	position = get_global_mouse_position() + pivot_offset
 
 func set_container_size():
 	# 1. 获取信息

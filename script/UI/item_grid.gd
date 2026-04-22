@@ -28,7 +28,7 @@ func _on_item_inventory_ready() -> void:
 
 ## 坐标是否在指定范围
 func has_point(_position: Vector2) -> bool:
-	var global_rect = Rect2(global_position, size + global_position)
+	var global_rect = Rect2(global_position, size)
 	return global_rect.has_point(_position)
 
 func _get_drag_data(at_position: Vector2) -> Variant:

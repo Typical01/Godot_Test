@@ -1,8 +1,9 @@
 extends GridContainer
 
 
-signal select(item: Node)
-signal cancel()
+signal select(self_node, item: Node)
+signal move(self_node, item: Node)
+signal cancel(self_node)
 
 
 @onready var input_recognizer_node = %InputRecognizer
@@ -11,16 +12,19 @@ signal cancel()
 @export var inventory_item_scene: PackedScene ## 场景: 容器物品
 
 @export var dimensions: Vector2i = Vector2i(5, 5) ## 网格大小: X,Y
-@export var slot_data: Array[Node] = [] ## 槽位
+@export var slot_data: Array[Node] = []: ## 槽位
+	get():
+		return slot_data
 
 var id = get_instance_id()
-
 var select_item = null
 var last_select_item = null
 var held = false
 var held_index = -1
 var count = 0
-var item_sum: Dictionary = {}
+var item_sum: Dictionary = {} :
+	get():
+		return item_sum
 
 
 func _ready() -> void:
@@ -31,10 +35,7 @@ func _ready() -> void:
 	input_recognizer_node.drag_start.connect(_on_drag_start)
 	input_recognizer_node.drag_move.connect(_on_drag_move)
 	input_recognizer_node.drag_end.connect(_on_drag_end)
-	
 	# 初始化物品网格
-	add_theme_constant_override("v_separation", Global.V_SEPARATION)
-	#global_position -= Vector2(Global.SLOT_SCALE * 2, Global.SLOT_SCALE * 2)
 	init_slot_data()
 
 
@@ -43,21 +44,49 @@ func _ready() -> void:
 
 ## 回调: 单击
 func _on_single_click(_position: Vector2) -> void:
-	if not has_point(_position): return
-	
+	if not has_point(_position): 
+		select_item = null
+		restore_select()
+		cancel.emit(self)
+		return
+
 	last_select_item = select_item ##覆盖旧选项
 	var slot_index = get_slot_index_from_coords(_position)
 	select_item = slot_data.get(slot_index) # 获取索引项
 	restore_select()
 	if select_item and select_item.data.search:
 		select_item.set_item_select(true)
-		select.emit(select_item)
+		select.emit(self, select_item)
 	else:
-		cancel.emit()
+		cancel.emit(self)
 
 ## 回调: 双击
 func _on_double_click(_position: Vector2) -> void:
 	if not has_point(_position): return
+	
+	return
+	if select_item and select_item.data.search:
+		var success = -1
+		var is_remove = false
+		var inventorys = get_tree().get_nodes_in_group("Inventory")
+		if inventorys.size() > 2: return
+		for inventory in inventorys:
+			inventory.restore_select()
+			if not is_remove:
+				is_remove = true
+				remove_child(select_item)
+			if inventory != self:
+				success = inventory.attempt_to_place_item(select_item, -1)
+				if success != -1:
+					inventory.add_child(select_item)
+					inventory.try_place_item(select_item, inventory.get_coords_from_slot_index(success), success) # 放置
+				else:
+					add_child(select_item)
+					try_place_item(select_item, _position, select_item.data.slot_index) # 放置
+		if success != -1:
+			del_item_to_slot_data(select_item)
+			move.emit(self, select_item)
+		select_item = null
 
 ## 回调: 长按开始
 func _on_long_press_start(_position: Vector2) -> void:
@@ -79,37 +108,23 @@ func _on_drag_start(_position: Vector2) -> void:
 func _on_drag_move(_position: Vector2) -> void:
 	if not select_item: return
 	select_item.global_position = _position # 物品: 跟随鼠标
-	var inventorys = get_tree().get_nodes_in_group("Inventory")
-	var inventory_other = []
-	var inventory_ins = self
-	for tmp in inventorys:
-		if tmp.has_point(_position): 
-			inventory_ins = tmp
-			break
-		inventory_other.append(tmp)
-	#print("_on_drag_move: \n\t%s\n\t%s" % [inventory_ins.global_position, 
-	#	inventory_ins.size + inventory_ins.global_position])
-	var slot_index = inventory_ins.get_slot_index_from_coords(
-		clamp(_position, inventory_ins.global_position, 
-		inventory_ins.size + inventory_ins.global_position))
-	if inventory_ins.item_is_fits(select_item, inventory_ins.get_slot_index_from_coords(
-		clamp(_position, inventory_ins.global_position, inventory_ins.size + inventory_ins.global_position))):
-		if inventory_ins.has_point(_position):
-			inventory_ins.held_item_highlight_node.global_position = \
-			inventory_ins.get_coords_from_slot_index(slot_index) # 悬浮物品槽位高亮: 跟随鼠标
-			inventory_ins.held_item_highlight_node.color_change(true)
-			#held_item_highlight_node.posision_to_print()
-	else:
-		if inventory_ins.has_point(_position):
-			if inventory_ins.canfine(select_item.data.dimensions, slot_index):
-				inventory_ins.held_item_highlight_node.global_position = \
-				inventory_ins.get_coords_from_slot_index(slot_index) # 悬浮物品槽位高亮: 跟随鼠标
-			inventory_ins.held_item_highlight_node.color_change(false)
 	
-	inventory_ins.held_item_highlight_node.scale_change(select_item.data.dimensions) # 悬浮物品槽位高亮: 缩放
-	inventory_ins.held_item_highlight_node.visible = true
-	for tmp in inventory_other:
-		tmp.held_item_highlight_node.visible = false
+	var held_inventory = get_tree().get_nodes_in_group("Held_Item")
+	if held_inventory.is_empty(): return
+	var slot_index = get_slot_from_center_position(select_item, _position)
+	if slot_index == -1 or not has_point(_position): # 不在当前容器范围
+		held_inventory[0].held_item_highlight_node.visible = false
+		return
+	held_inventory[0].held_item_highlight_node.global_position = get_coords_from_slot_index(slot_index)
+	
+	if held_inventory[0].item_is_fits(select_item, 
+	get_slot_from_center_position(select_item, _position)):
+		held_inventory[0].held_item_highlight_node.color_change(true)
+	else:
+		held_inventory[0].held_item_highlight_node.color_change(false)
+	
+	held_inventory[0].held_item_highlight_node.scale_change(select_item.data.dimensions) # 悬浮物品槽位高亮: 缩放
+	held_inventory[0].held_item_highlight_node.visible = true
 
 ## 回调: 拖拽结束
 func _on_drag_end(_position: Vector2) -> void:
@@ -120,14 +135,15 @@ func _on_drag_end(_position: Vector2) -> void:
 ## 统一物品放置操作
 func item_place(_position: Vector2) -> void:
 	if select_item:
-		if not has_point(_position):
+		if not has_point(_position): # 不在当前容器范围
 			remove_child(select_item) # 移除子节点
 			if not Inventory_place_data(_position, select_item):
 				print("没有合适容器/槽位放置, 还原!")
 				add_child(select_item)
 				try_place_item(select_item, get_coords_from_slot_index(held_index), held_index)
 		else:
-			try_place_item(select_item, _position, held_index)
+			try_place_item(select_item, get_coords_from_slot_index(
+				get_slot_from_center_position(select_item, _position)), held_index)
 		last_select_item = select_item
 		select_item = null
 	held = false
@@ -144,9 +160,9 @@ func Inventory_place_data(_at_position: Vector2, data: Variant) -> bool:
 			continue
 		var slot_index = tmp.get_slot_index_from_coords(_at_position)
 		if not tmp.item_is_fits(data, slot_index): # 对应容器: 该槽位无法放置
-			print(slot_index)
+			#print(slot_index)
 			var success = tmp.attempt_to_place_item(data, -1) # 尝试每个位置
-			print("success: ", success)
+			#print("success: ", success)
 			if success == -1 : # 没有合适位置放置
 				return false
 			else:
@@ -184,12 +200,14 @@ func add_item(item_data: Goods, index: int = -1) -> bool:
 	var success = attempt_to_place_item(inventory_item, index)
 	#print(item_sum)
 	if success == -1:
-		push_error("ItemInventory: add_item: 添加物品[%s]失败not " % [item_data.name])
+		#push_error("ItemInventory: add_item: 添加物品[%s]失败not " % [item_data.name])
+		pass
 	else:
 		add_child(inventory_item)
 		# 设置 UI 初始位置
 		inventory_item.get_placed(get_coords_from_slot_index(success))
-	return success
+		return true
+	return false
 
 func remove_item(_item = null) -> void:
 	if _item and _item is Node:
@@ -208,10 +226,13 @@ func remove_item(_item = null) -> void:
 				item.queue_free()
 				print("ItemInventory: remove_item: 移除物品[%s]not " % [item.data.name])
 
-func clear() -> void:
+func clear(sell: Callable = Callable()) -> void:
+	cancel.emit(self)
 	#var count = 0
 	for item in get_children():
 		if item and item.get("data"):
+			if sell: # 出售物品
+				sell.call(item)
 			remove_child(item)
 			item.queue_free()
 			#count += 1
@@ -238,28 +259,33 @@ func restore_select() -> void:
 	if last_select_item and last_select_item != select_item: 
 		last_select_item.set_item_select(false)
 
-## 开始拖拽物品
-func start_dragging_item(item: Node) -> void:
-	if item == null:
-		push_error("ItemInventory: start_dragging_item: 物品为 nullnot ")
-		return
-	held_index = item.data.slot_index # 记录拿起时的槽位
-	item.set_item_select(false)
-	# 清空 原槽位
-	del_item_to_slot_data(item)
-	item.get_picked_up()
-	#print(held_index)
-
 ## 拿起物品
 func held_item(_position: Vector2) -> void:
 	if held: return
-	cancel.emit()
+	cancel.emit(self)
 	restore_select()
 	var slot_index = get_slot_index_from_coords(_position)
+	if slot_index == -1:
+		select_item = null
+		return
 	select_item = slot_data.get(slot_index)
+	if select_item == null:
+		push_error("ItemInventory: start_dragging_item: 物品为 null!")
+		return
 	if select_item:
-		start_dragging_item(select_item)
+		held_index = select_item.data.slot_index # 记录拿起时的槽位
+		select_item.set_item_select(false)
+		# 清空 原槽位
+		del_item_to_slot_data(select_item)
+		select_item.get_picked_up()
+		add_to_group("Held_Item")
 	held = true
+	
+	# 其他容器: 取消选择
+	var inventorys = get_tree().get_nodes_in_group("Inventory")
+	for tmp in inventorys:
+		if tmp != self:
+			tmp.select_item = null
 
 ## 放置物品
 func try_place_item(item:Node, _position: Vector2, reset_index: int) -> void:
@@ -274,6 +300,7 @@ func try_place_item(item:Node, _position: Vector2, reset_index: int) -> void:
 	else:
 		add_item_to_slot_data(item, reset_index)
 		item.get_placed(get_coords_from_slot_index(reset_index))
+	remove_from_group("Held_Item")
 		#print("place[false]: ", get_coords_from_slot_index(reset_index))
 
 ## 检测物品是否为 Node节点
@@ -406,11 +433,36 @@ func item_is_fits(item: Node, index: int) -> bool:
 			return false
 	return true
 
+## 获取: 中心坐标 > 首槽位
+func get_slot_from_center_position(item: Node, coords: Vector2) -> int:
+	var item_dimensions = Goods.get_slot_dimensions(item.data.slot)
+	var item_offset_position = Vector2(0, 0)
+	var offset_slot_size = roundi(Global.SLOT_SIZE / 2)
+	if item_dimensions.x > 1:
+		item_offset_position.x = offset_slot_size * (item_dimensions.x - 1)
+	if item_dimensions.y > 1:
+		item_offset_position.y = offset_slot_size * (item_dimensions.y - 1)
+	coords -= item_offset_position
+	return get_slot_index_from_coords(coords)
+
+## 获取: 首槽位 > 中心坐标
+func get_center_position_from_slot(item: Node, index: int) -> Vector2:
+	var item_dimensions: Vector2i = Goods.get_slot_dimensions(item.data.slot)
+	var offset_slot_size = roundi(Global.SLOT_SIZE / 2)
+	var item_offset_position = Vector2(offset_slot_size * item_dimensions.x, 
+		offset_slot_size * item_dimensions.y)
+	var coords = get_coords_from_slot_index(index)
+	coords += item_offset_position + global_position
+	print("offset_slot_size: ", offset_slot_size)
+	print("item_offset_position: ", item_offset_position)
+	print("coords: ", coords)
+	return coords
+
 ## 获取: 坐标 > 槽位索引
 func get_slot_index_from_coords(coords: Vector2) -> int:
-	var local := coords - global_position
-	if local.x < 0 or local.y < 0 or local.x > size.x or local.y > size.y:
+	if not has_point(coords):
 		return -1
+	var local := coords - global_position
 	local /= Global.SLOT_SIZE
 	var index := int(local.x) + int(local.y) * dimensions.x
 	if index < 0 or index >= slot_data.size():
@@ -425,5 +477,5 @@ func get_coords_from_slot_index(index: int) -> Vector2:
 
 ## 坐标是否在指定范围
 func has_point(_position: Vector2) -> bool:
-	var global_rect = Rect2(global_position, size + global_position)
+	var global_rect = Rect2(global_position, size)
 	return global_rect.has_point(_position)

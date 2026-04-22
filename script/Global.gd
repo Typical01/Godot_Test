@@ -61,13 +61,13 @@ func load_setting():
 	else:
 		if Engine.is_editor_hint():
 			game_config["概率"] = [
-				0.0,   # 白
-				0.0,   # 绿
-				0.0,   # 蓝
-				0.0,   # 紫
-				0.00,  # 粉
+				0.1,   # 白
+				0.1,   # 绿
+				0.1,   # 蓝
+				0.1,   # 紫
+				0.0,  # 粉
 				0.1,   # 金
-				0.8, 	# 红
+				0.4, 	# 红
 				0.1  	# 橙
 			]
 			print("Global: editor.")
@@ -449,12 +449,12 @@ func create_game_config() -> Dictionary:
 	base_setting["概率"] = [
 		0.02,   # 白
 		0.02,   # 绿
-		0.30,   # 蓝
-		0.41,   # 紫
+		0.20,   # 蓝
+		0.40,   # 紫
 		0.00,   # 粉
-		0.23,   # 金
-		0.0198, # 红
-		0.0002  # 橙
+		0.33,   # 金
+		0.0405, # 红
+		0.0005  # 橙
 	]
 	# 货币
 	var value_setting: int = 0

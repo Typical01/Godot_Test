@@ -140,15 +140,15 @@ func get_placed(pos: Vector2i) -> void:
 
 func do_rotation() -> void:
 	return
-	if not data.search:
-		return
-	data.is_rotated = not data.is_rotated
-	data.dimensions = Vector2i(data.dimensions.y, data.dimensions.x)
-	var tween = create_tween()
-	tween.tween_property(item, "rotation_degrees", 90 if data.is_rotated else 0, 0.3)
-	await tween.finished
-	tween.kill()
-	anchor_point = global_position - size / 2
+	#if not data.search:
+		#return
+	#data.is_rotated = not data.is_rotated
+	#data.dimensions = Vector2i(data.dimensions.y, data.dimensions.x)
+	#var tween = create_tween()
+	#tween.tween_property(item, "rotation_degrees", 90 if data.is_rotated else 0, 0.3)
+	#await tween.finished
+	#tween.kill()
+	#anchor_point = global_position - size / 2
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if anim_name == "search":

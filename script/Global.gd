@@ -3,7 +3,7 @@ extends Node
 
 const SLOT_SIZE = 64
 const TEXTURE_SIZE = 64
-var SLOT_SCALE = SLOT_SIZE / TEXTURE_SIZE
+var SLOT_SCALE = float(SLOT_SIZE) / TEXTURE_SIZE
 var H_SEPARATION = 0
 var V_SEPARATION = 0
 
@@ -21,12 +21,12 @@ func _ready() -> void:
 	if safe_box_reward_pool.load_config(game_config):
 		print("Global: 普通奖励池创建成功！")
 	return
-	print("\n=== 测试普通奖励池 ===")
-	var normal_reward = safe_box_reward_pool.allocate_single_reward()
-	if normal_reward:
-		for i in normal_reward:
-			print("获得[%s]: %s (价值: %d)" % [\
-			Goods.get_color_from_string(i.quality), i.name, i.value])
+	#print("\n=== 测试普通奖励池 ===")
+	#var normal_reward = safe_box_reward_pool.allocate_single_reward()
+	#if normal_reward:
+		#for i in normal_reward:
+			#print("获得[%s]: %s (价值: %d)" % [\
+			#Goods.get_color_from_string(i.quality), i.name, i.value])
 
 func _exit_tree() -> void:
 	save_data()

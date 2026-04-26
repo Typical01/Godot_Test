@@ -1,0 +1,393 @@
+extends ScrollContainer
+
+
+
+## ============================ 数据刷新 =============================
+signal on_refresh_requested() ## 强制刷新
+signal on_items_changed(start_index: int, count: int) ## 条目范围变化
+signal on_entry_updated(index: int, control, data) ## 条目刷新
+signal on_visible_range_changed(first: int, last: int) ## 可见范围变化
+#signal on_scroll_completed()
+
+## 拖拽: 假定节点继承[Control], 包含函数[set_dray_hover]
+signal on_drag_start_item(index: int, data) ## 拖拽开始
+signal on_drag_move_item(local_mouse_position: Vector2) ## 拖拽移动
+signal on_drag_end_item(index: int, end_index: int) ## 拖拽结束
+
+## ============================ 数据加载 =============================
+#signal on_load_more_requested()
+signal on_data_fill() ## 数据填充
+signal on_node_init(control) ## 条目初始化
+signal on_entry_connect_callback(control) ## 条目连接
+signal on_entry_disconnect_callback(control) ## 条目断开
+#signal on_data_ready(start_index: int, items)
+
+## ============================ 条目生命周期 =============================
+#signal on_entry_created(control, template_type)
+#signal on_entry_recycled(control, index: int) ## 回收条目
+#signal on_entry_destroyed(control)
+
+
+
+## ============================ 变量 =============================
+@onready var item_container = %ItemContainer
+@onready var v_scroll_bar = get_v_scroll_bar()
+
+@export var node_scene_template: PackedScene = null ## 节点模板
+
+var _last_visible_first = 0 ## 最后显示范围: 开始索引
+var _last_visible_last = 0 ## 最后显示范围: 结束索引
+var _visible_rows = 0 ## 显示范围: 行数
+
+@export var columns: int = 1 ## 列数
+@export var item_size: Vector2i = Vector2i(0, 0) ## 项: 高度x宽度
+@export var buffer_rows: int = 0 ## 缓冲: 行数
+@export var drag_roll_rows: int = 1 ## 拖拽滚动触发的首尾行数
+
+var drag_index: int = -1
+var drag_node = null
+var data = []: ## 数据
+	get():
+		return data
+	set(new_data):
+		data = new_data
+		_setup_scroll_range()
+		_update_visible_items()
+var node_pool = [] ## 节点池
+var node_pool_size = 0 ## 节点池大小 = (可见列数 + 缓冲行数 * 2(上/下不可见列数) * 列数
+
+
+
+## ============================ 基础函数 =============================
+func _ready() -> void:
+	# 创建节点池
+	v_scroll_bar.value_changed.connect(_update_visible_items)
+	get_tree().root.size_changed.connect(_on_window_resized)
+	# 数据初始化
+	on_data_fill.emit()
+	update_view()
+
+func _process(_delta: float) -> void:
+	if get_draging():
+		drag_move_item(get_global_mouse_position())
+
+func _on_resized() -> void:
+	update_view()
+
+func _on_window_resized():
+	update_view()
+
+
+## ============================ 接口 =============================
+
+func update_view():
+	await get_tree().process_frame
+	#_update_node_pool_size()
+	#_setup_scroll_range()
+	#_update_visible_items()
+	call_deferred("_update_node_pool_size")
+	call_deferred("_setup_scroll_range")
+	call_deferred("_update_visible_items")
+
+## 设置节点模板, 并刷新节点池和视图显示
+func set_template(scene:  PackedScene):
+	node_scene_template = scene
+	if not node_scene_template:
+		push_error("VListView: 节点模板为 null!")
+		return
+	if drag_node: # 覆盖原节点
+		if find_child(drag_node):
+			remove_child(drag_node)
+	drag_node = node_scene_template.instantiate()
+	if not drag_node:
+		push_error("VListView: 拖拽节点初始化失败!")
+		return
+	drag_node.z_index = 10
+	drag_node.visible = false
+	drag_node.modulate = Color(1, 1, 1, 0.5)
+	item_container.add_child(drag_node)
+	drag_node.set_dray_hover(true)
+	if drag_node is Control:
+		drag_node.mouse_filter = MOUSE_FILTER_IGNORE
+	update_view()
+
+## 刷新节点池大小
+func _update_node_pool_size():
+	if not item_container:
+		return
+	if not node_scene_template:
+		return
+	
+	_visible_rows = int(size.y /item_size.y) + 1
+	node_pool_size = (_visible_rows + buffer_rows * 2) * columns
+	
+	if node_pool_size == node_pool.size():
+		for i in range(node_pool.size()):
+			node_pool[i].size = Vector2(item_size.x, item_size.y) # 刷新节点大小
+		return # 大小合适，不重建
+	if node_pool_size > node_pool.size():
+		# 添加新节点
+		for i in range(node_pool_size - node_pool.size()):
+			if node_scene_template == null:
+				push_error("VListView: node_scene_template == null!")
+			else:
+				var node = node_scene_template.instantiate()
+				node.size = Vector2(item_size.x, item_size.y)
+				node_pool.append(node)
+				item_container.add_child(node)
+				on_node_init.emit(node) # 节点初始化
+				on_entry_connect_callback.emit(node)  # 新节点连接信号
+	else:
+		# 移除多余节点（注意：要断开信号）
+		while node_pool.size() > node_pool_size and \
+			not node_pool.is_empty():
+			var node = node_pool.pop_back()
+			on_entry_disconnect_callback.emit(node)  # 旧节点断开信号
+			node.queue_free()
+	node_pool_size = node_pool.size()
+	#print("VListView: node_pool_size: (%s)" % [node_pool_size])
+
+## 设置滚动范围
+func _setup_scroll_range():
+	# 确定节点高/宽
+	if drag_node.size.y == 0 or \
+		drag_node.size.y < item_size.y:
+		drag_node.size.y = item_size.y
+	item_size.x = int(size.x / columns)
+	item_size.y = drag_node.size.y
+	if drag_node:
+		drag_node.size = Vector2(item_size.x, item_size.y)
+	
+	var total_rows = ceil(data.size() / float(columns))
+	var new_height = total_rows * item_size.y
+	item_container.custom_minimum_size = Vector2(item_size.x, new_height)
+
+## 聚焦索引项
+func _scroll_to_index(index: int, animat_time: float = 0.1):
+	if index < 0 or index >= data.size():
+		return
+	var row = float(index) / columns
+	var y = row * item_size.y
+	
+	var visible_height = size.y
+	var scroll_y = y - visible_height / 2 #居中显示
+	
+	scroll_y = clamp(scroll_y, 0, v_scroll_bar.max_value)
+	if animat_time:
+		var tween = create_tween()
+		tween.tween_property(v_scroll_bar, "value", scroll_y, animat_time)
+	else:
+		v_scroll_bar.value = scroll_y
+
+## 刷新指定项
+func _update_index_item(index: int):
+	on_entry_updated.emit(index, _get_control_at_index(index), data[index]) # 数据范围变化
+	
+## 刷新可见项
+func _update_visible_items(scroll_y: float = v_scroll_bar.value):
+	if not item_container:
+		return
+	# 计算可见范围(带缓冲)
+	var first_row = max(0, int(scroll_y / item_size.y) - buffer_rows)
+	var first_index = first_row * columns
+	#_visible_rows = int(size.y / item_size.y) + 1
+	var last_row = first_row + _visible_rows + buffer_rows * 2
+	var last_index = min(data.size() - 1, (last_row + 1) * columns - 1)
+	
+	# 可见范围变化
+	if first_index != _last_visible_first and last_index != _last_visible_last:
+		_last_visible_first = first_index
+		_last_visible_last = last_index
+		#_visible_rows = last_row - first_row - (buffer_rows * 2)
+		on_visible_range_changed.emit(first_index, last_index)
+	
+	for i in range(node_pool.size()):
+		var row_offset = float(i) / columns      # 池中的行偏移
+		var col = i % columns             # 池中的列
+		var data_row = first_row + row_offset
+		var data_index = data_row * columns + col
+		var item = node_pool[i]
+		
+		if data_index < data.size():
+			var new_pos = Vector2(col * item_size.x, data_row * item_size.y)
+			if item.position != new_pos:
+				item.position = new_pos
+			on_entry_updated.emit(data_index, item, data[data_index]) # 条目刷新
+			item.visible = true
+		else:
+			item.visible = false
+
+## 限制拖拽节点的位置
+func clamp_drag_node_position(global_mouse_position: Vector2, _clip_contents: bool = false):
+	var index = get_index_of_position(global_mouse_position)
+	var control = _get_control_at_index(index)
+	if control:
+		var rect = control.get_rect()
+		drag_node.position = rect.position
+
+## ============================ 数据接口 =============================
+
+## 正在拖拽中时返回: true
+func get_draging() -> bool:
+	return true if drag_index != -1 else false
+
+## 清空数据
+func clear_item():
+	data.clear()
+	update_view() # 更新滚动范围
+
+## 添加数据
+func add_item(item_data):
+	var old_size = data.size()
+	data.append(item_data)
+	on_items_changed.emit(old_size, 1) # 数据范围变化
+	#var control = _get_control_at_index(old_size)
+	#if control:
+		#control.visible = true
+	#on_entry_updated.emit(old_size, control, item_data) # 数据范围变化
+
+	_setup_scroll_range() # 更新滚动范围
+	_update_visible_items()
+
+## 删除数据
+func remove_item(index: int) -> int:
+	if index < 0 or index >= data.size():
+		return -1
+	data.remove_at(index)
+	on_items_changed.emit(index, -1) # 数据范围变化
+	
+	_setup_scroll_range() # 更新滚动范围
+	_update_visible_items()
+	return 0
+
+## 修改数据
+func update_item(index: int, new_data):
+	if index < 0 or index >= data.size():
+		return
+	data[index] = new_data
+
+	_setup_scroll_range() # 更新滚动范围
+	var control = _get_control_at_index(index)
+	if control:
+		control.visible = true
+	on_entry_updated.emit(index, control, new_data) # 数据范围变化
+	#_update_visible_items()
+
+## 插入数据
+func insert_item(index: int, new_data):
+	if index < 0 or index >= data.size():
+		return
+	var old_size = data.size()
+	data.insert(index, new_data)
+	on_items_changed.emit(old_size, 1) # 数据范围变化
+
+	_setup_scroll_range() # 更新滚动范围
+	_update_visible_items()
+
+## 交换数据
+func swap_item(index: int, target_index: int) -> int:
+	if index < 0 or index >= data.size():
+		return -1
+	if target_index < 0 or target_index >= data.size():
+		return -1
+	var tmp = data[index]
+	data[index] = data[target_index]
+	data[target_index] = tmp
+	var index_control = _get_control_at_index(index)
+	if index_control:
+		index_control.visible = true
+	on_entry_updated.emit(index, index_control, data[index]) # 数据范围变化
+	var target_index_control = _get_control_at_index(target_index)
+	if target_index_control:
+		target_index_control.visible = true
+	on_entry_updated.emit(target_index, target_index_control, data[target_index]) # 数据范围变化
+
+	_setup_scroll_range() # 更新滚动范围
+	#_update_visible_items()
+	return 0
+
+## 批量添加数据(异步)
+func append_items(new_items: Array):
+	var old_size = data.size()
+	data.append_array(new_items)
+	on_items_changed.emit(old_size, new_items.size())
+	
+	_setup_scroll_range() # 更新滚动范围
+	#_update_visible_items()
+
+## 拖拽开始: 刷新拖拽节点数据
+func drag_start_item(index: int = get_index_of_position()):
+	drag_index = index
+	on_drag_start_item.emit(drag_index, data[drag_index])
+	clamp_drag_node_position(get_global_mouse_position())
+	drag_node.visible = true
+
+## 拖拽移动: 跟随鼠标并自动跟随滚动
+func drag_move_item(global_mouse_position: Vector2):
+	clamp_drag_node_position(global_mouse_position)
+	## 鼠标处于视图 顶/底部时, 缓慢向上/下滚动视图
+	#global_mouse_position -= item_container.global_position
+	#if global_mouse_position.y < drag_roll_rows * item_size.y:
+		#v_scroll_bar.value -= 1
+	#if global_mouse_position.y > (_visible_rows - drag_roll_rows) * item_size.y:
+		#v_scroll_bar.value += 1
+	on_drag_move_item.emit(global_mouse_position)
+
+## 拖拽结束: 还原状态
+func drag_end_item():
+	var end_index = get_index_of_position()
+	if end_index != -1 and end_index != drag_index:
+		swap_item(drag_index, end_index)
+		on_drag_end_item.emit(drag_index, end_index)
+	drag_node.visible = false
+	drag_index = -1
+
+
+## ============================ 刷新控制 =============================
+
+## 强制刷新整个列表
+func refresh_list():
+	on_refresh_requested.emit() ## 强制刷新
+	_update_visible_items()
+
+## 刷新指定索引条目
+func refresh_entry(index: int):
+	if index >= 0 and index < data.size():
+		var control = _get_control_at_index(index)
+		if control:
+			control.visible = true
+			on_entry_updated.emit(index, control, data[index]) ## 条目刷新
+
+
+## ============================ 工具 =============================
+
+## 获取指定坐标的索引
+func get_index_of_position(_position: Vector2 = get_global_mouse_position()) -> int:
+	var container_pos = item_container.global_position
+	var relative_x = _position.x - container_pos.x
+	var relative_y = _position.y - container_pos.y
+	# 边界检查
+	if relative_x < 0 or relative_x >= columns * item_size.x:
+		return -1
+	if relative_y < 0:
+		return -1
+	var col = floor(relative_x / item_size.x)
+	var row = floor(relative_y / item_size.y)
+	var index = row * columns + col
+	return index if index < data.size() else -1
+
+## 获取索引对应的控件(如果可见)
+func _get_control_at_index(target_index: int) -> Control:
+	var target_row = float(target_index) / columns
+	var target_col = target_index % columns
+	var scroll_y = v_scroll_bar.value
+	var first_row = max(0, int(scroll_y / item_size.y) - buffer_rows)
+	# 在可见区域上方
+	var row_offset = target_row - first_row
+	if row_offset < 0:
+		return null
+	# 在可见区域下方
+	var pool_index = row_offset * columns + target_col
+	if pool_index >= node_pool.size():
+		return null
+	return node_pool[pool_index]

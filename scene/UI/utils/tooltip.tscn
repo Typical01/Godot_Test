@@ -1,0 +1,50 @@
+[gd_scene load_steps=6 format=3 uid="uid://b2jbmh4tq743a"]
+
+[ext_resource type="Script" uid="uid://bv0cuhysp2s80" path="res://script/ui/tooltip.gd" id="1_jelon"]
+[ext_resource type="Texture2D" uid="uid://by1e4sjelbtl3" path="res://art/ui/Tool_Tips.png" id="1_mlyyi"]
+[ext_resource type="Theme" uid="uid://4ahy1naibqf" path="res://resource/flat_ligth_theme.tres" id="3_eg02s"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8daw7"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.8980392, 0.8980392, 0.8980392, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_csuuj"]
+
+[node name="ToolTipIcon" type="TextureRect"]
+self_modulate = Color(1, 1, 1, 0.7254902)
+custom_minimum_size = Vector2(16, 16)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("1_mlyyi")
+expand_mode = 1
+stretch_mode = 3
+script = ExtResource("1_jelon")
+horizontal_offset = 12.0
+vertical_offset = 12.0
+
+[node name="Tips" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 10
+layout_mode = 0
+offset_right = 9.0
+offset_bottom = 33.0
+theme = ExtResource("3_eg02s")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_8daw7")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_csuuj")
+
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

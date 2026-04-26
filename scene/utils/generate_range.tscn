@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://cfedmg8fj2x56"]
+
+[ext_resource type="Script" uid="uid://dn4khm0u47xv2" path="res://script/utils/generate_range.gd" id="1_aedpx"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_n7jp1"]
+
+[node name="Generate" type="Area2D" unique_id=2108981331]
+script = ExtResource("1_aedpx")
+
+[node name="Range" type="CollisionShape2D" parent="." unique_id=1036070572]
+shape = SubResource("RectangleShape2D_n7jp1")
+
+[node name="ObjectTimer" type="Timer" parent="." unique_id=2112208349]
+wait_time = 0.1
+
+[connection signal="timeout" from="ObjectTimer" to="." method="_on_object_timer_timeout"]

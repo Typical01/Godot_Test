@@ -437,7 +437,7 @@ func item_is_fits(item: Node, index: int) -> bool:
 func get_slot_from_center_position(item: Node, coords: Vector2) -> int:
 	var item_dimensions = Goods.get_slot_dimensions(item.data.slot)
 	var item_offset_position = Vector2(0, 0)
-	var offset_slot_size = roundi(Global.SLOT_SIZE / 2)
+	var offset_slot_size = roundi(float(Global.SLOT_SIZE) / 2)
 	if item_dimensions.x > 1:
 		item_offset_position.x = offset_slot_size * (item_dimensions.x - 1)
 	if item_dimensions.y > 1:
@@ -448,7 +448,7 @@ func get_slot_from_center_position(item: Node, coords: Vector2) -> int:
 ## 获取: 首槽位 > 中心坐标
 func get_center_position_from_slot(item: Node, index: int) -> Vector2:
 	var item_dimensions: Vector2i = Goods.get_slot_dimensions(item.data.slot)
-	var offset_slot_size = roundi(Global.SLOT_SIZE / 2)
+	var offset_slot_size = roundi(float(Global.SLOT_SIZE) / 2)
 	var item_offset_position = Vector2(offset_slot_size * item_dimensions.x, 
 		offset_slot_size * item_dimensions.y)
 	var coords = get_coords_from_slot_index(index)

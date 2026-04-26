@@ -11,7 +11,7 @@
 script = ExtResource("1_we6yu")
 inventory_item_scene = ExtResource("2_dccqe")
 
-[node name="ItemGrid" type="GridContainer" parent="." unique_id=1344079670]
+[node name="ItemSlotGrid" type="GridContainer" parent="." unique_id=1344079670]
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("2_ovnba")
@@ -27,4 +27,4 @@ unique_name_in_owner = true
 z_index = 10
 offset = Vector2(32, 32)
 
-[connection signal="ready" from="." to="ItemGrid" method="_on_item_inventory_ready"]
+[connection signal="ready" from="." to="ItemSlotGrid" method="_on_item_inventory_ready"]

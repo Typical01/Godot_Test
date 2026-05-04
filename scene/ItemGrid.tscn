@@ -1,24 +1,23 @@
 [gd_scene format=3 uid="uid://d256x7l6oxgqe"]
 
 [ext_resource type="Script" uid="uid://bkvfoh4oxtx2y" path="res://script/item_grid_main.gd" id="1_t8s18"]
-[ext_resource type="Texture2D" uid="uid://cnoueieisg747" path="res://art/item_slot/其他/格子.png" id="5_ovg48"]
-[ext_resource type="Script" uid="uid://v1p4sbghyfrb" path="res://script/Object/item_simple_information.gd" id="6_t8s18"]
-[ext_resource type="Texture2D" uid="uid://cy8jagcgmc7le" path="res://art/item_slot/其他/哈夫币.png" id="9_npv8c"]
-[ext_resource type="FontFile" uid="uid://by4wvcswqftf" path="res://dodge_the_creeps_2d_assets/fonts/Xolonium-Regular.ttf" id="9_ovg48"]
-[ext_resource type="Texture2D" uid="uid://b4x4l4iia1egm" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮.png" id="10_b88fm"]
-[ext_resource type="Texture2D" uid="uid://8ar7qd4r52xn" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮_按下.png" id="11_t8s18"]
-[ext_resource type="Texture2D" uid="uid://cw42jw63lo30q" path="res://dodge_the_creeps_2d_assets/art/UI/单击按钮_悬停.png" id="12_715jb"]
+[ext_resource type="Texture2D" uid="uid://b4x4l4iia1egm" path="res://art/texture/ui/单击按钮.png" id="3_auxwc"]
+[ext_resource type="Texture2D" uid="uid://8ar7qd4r52xn" path="res://art/texture/ui/单击按钮_按下.png" id="4_44fev"]
+[ext_resource type="Texture2D" uid="uid://cw42jw63lo30q" path="res://art/texture/ui/单击按钮_悬停.png" id="5_0hlyf"]
+[ext_resource type="Texture2D" uid="uid://cnoueieisg747" path="res://art/texture/ui/slot/格子.png" id="5_ovg48"]
+[ext_resource type="Script" uid="uid://v1p4sbghyfrb" path="res://script/object/item_simple_information.gd" id="6_t8s18"]
+[ext_resource type="Texture2D" uid="uid://cy8jagcgmc7le" path="res://art/texture/ui/slot/哈夫币.png" id="9_npv8c"]
 [ext_resource type="Script" uid="uid://b010s0dxio86v" path="res://script/utils/input_recognizer.gd" id="13_b88fm"]
-[ext_resource type="PackedScene" uid="uid://dt8rwxirflj4v" path="res://scene/UI/item_inventory_grid.tscn" id="15_715jb"]
+[ext_resource type="PackedScene" uid="uid://dt8rwxirflj4v" path="res://scene/ui/goods_grid.tscn" id="15_715jb"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_p0l2g"]
-texture = ExtResource("10_b88fm")
+texture = ExtResource("3_auxwc")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_j6k87"]
-texture = ExtResource("11_t8s18")
+texture = ExtResource("4_44fev")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_jhtiy"]
-texture = ExtResource("12_715jb")
+texture = ExtResource("5_0hlyf")
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_63qnd"]
 
@@ -45,18 +44,22 @@ bg_color = Color(0.25490198, 0.25490198, 0.25490198, 1)
 script = ExtResource("1_t8s18")
 is_search = true
 
-[node name="ItemInventory" parent="." unique_id=455152987 instance=ExtResource("15_715jb")]
+[node name="GoodsContainer" parent="." unique_id=455152987 instance=ExtResource("15_715jb")]
 unique_name_in_owner = true
-offset_left = 192.0
+custom_minimum_size = Vector2(512, 512)
+offset_left = 512.0
 offset_top = 96.0
-offset_right = 192.0
-offset_bottom = 96.0
+offset_right = 1024.0
+offset_bottom = 608.0
+dimensions = Vector2i(8, 8)
+is_search_container = true
 
-[node name="ItemInventoryStore" parent="." unique_id=122668884 instance=ExtResource("15_715jb")]
-offset_left = 704.0
+[node name="GoodsStore" parent="." unique_id=122668884 instance=ExtResource("15_715jb")]
+custom_minimum_size = Vector2(192, 192)
+offset_left = 1088.0
 offset_top = 96.0
-offset_right = 704.0
-offset_bottom = 96.0
+offset_right = 1280.0
+offset_bottom = 288.0
 dimensions = Vector2i(3, 3)
 
 [node name="Search" type="Button" parent="." unique_id=938154618]
@@ -66,12 +69,11 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -64.0
-offset_top = -87.0
+offset_top = -88.0
 offset_right = 64.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/outline_size = 10
-theme_override_fonts/font = ExtResource("9_ovg48")
 theme_override_font_sizes/font_size = 64
 theme_override_styles/normal = SubResource("StyleBoxTexture_p0l2g")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_j6k87")
@@ -92,7 +94,6 @@ offset_right = 237.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/outline_size = 10
-theme_override_fonts/font = ExtResource("9_ovg48")
 theme_override_font_sizes/font_size = 64
 theme_override_styles/normal = SubResource("StyleBoxTexture_p0l2g")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_j6k87")
@@ -209,12 +210,12 @@ unique_name_in_owner = true
 script = ExtResource("13_b88fm")
 metadata/_custom_type_script = "uid://b010s0dxio86v"
 
-[connection signal="cancel" from="ItemInventory" to="." method="_on_item_inventory_cancel"]
-[connection signal="move" from="ItemInventory" to="." method="_on_item_inventory_move"]
-[connection signal="select" from="ItemInventory" to="." method="_on_item_inventory_select"]
-[connection signal="cancel" from="ItemInventoryStore" to="." method="_on_item_inventory_cancel"]
-[connection signal="move" from="ItemInventoryStore" to="." method="_on_item_inventory_move"]
-[connection signal="select" from="ItemInventoryStore" to="." method="_on_item_inventory_select"]
+[connection signal="cancel" from="GoodsContainer" to="." method="_on_item_inventory_cancel"]
+[connection signal="move" from="GoodsContainer" to="." method="_on_item_inventory_move"]
+[connection signal="select" from="GoodsContainer" to="." method="_on_item_inventory_select"]
+[connection signal="cancel" from="GoodsStore" to="." method="_on_item_inventory_cancel"]
+[connection signal="move" from="GoodsStore" to="." method="_on_item_inventory_move"]
+[connection signal="select" from="GoodsStore" to="." method="_on_item_inventory_select"]
 [connection signal="button_up" from="Search" to="." method="_on_search_button_up"]
 [connection signal="button_up" from="Search2" to="." method="_on_search_2_button_up"]
 [connection signal="button_up" from="Info/ItemSimpleInformation/InfoContainer/Control/Sell" to="." method="_on_sell_button_up"]

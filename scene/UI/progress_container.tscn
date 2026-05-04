@@ -1,8 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://cnjfgr2usi1bn"]
+[gd_scene format=3 uid="uid://cnjfgr2usi1bn"]
 
-[ext_resource type="Texture2D" uid="uid://d1281gv1eteha" path="res://dodge_the_creeps_2d_assets/art/UI/进度条背景.png" id="1_bdiqo"]
-[ext_resource type="Texture2D" uid="uid://cs86iv6ior87u" path="res://dodge_the_creeps_2d_assets/art/UI/进度.png" id="2_bdiqo"]
-[ext_resource type="Texture2D" uid="uid://b2honbjurbnnu" path="res://dodge_the_creeps_2d_assets/art/UI/进度条边框.png" id="2_xdi3l"]
+[ext_resource type="Texture2D" uid="uid://d1281gv1eteha" path="res://art/texture/ui/进度条背景.png" id="1_bdiqo"]
+[ext_resource type="Texture2D" uid="uid://cs86iv6ior87u" path="res://art/texture/ui/进度.png" id="2_bdiqo"]
+[ext_resource type="Texture2D" uid="uid://b2honbjurbnnu" path="res://art/texture/ui/进度条边框.png" id="2_xdi3l"]
 
 [node name="TextureProgressBar" type="TextureProgressBar"]
 clip_contents = true

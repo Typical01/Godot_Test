@@ -1,0 +1,221 @@
+extends Button
+
+
+signal on_set_search(global_position, is_search: bool)
+signal on_button_down(global_position)
+signal on_button_up(global_position)
+
+
+
+## ============================ 变量 =============================
+
+var quality_color_node:
+	get():
+		return $QualityColor
+var goods_texture_node:
+	get():
+		return $GoodsTexture
+var quality_border_node:
+	get():
+		return $QualityBorder
+var search_background_rect_node:
+	get():
+		return $SearchBackgroundRect
+var search_icon_node:
+	get():
+		return $SearchIcon
+var search_background_node:
+	get():
+		return $SearchBackgroundRect/SearchBackground
+var goods_name_node:
+	get():
+		return $GoodsName
+var animation_player_node:
+	get():
+		return $AnimationPlayer
+var audio_player_node:
+	get():
+		return $AudioStreamPlayer
+
+
+var sound_stream = preload("res://art/sound/打开背包.wav")
+
+@export var goods_name: String = "null" ## 物品名称
+@export var goods_texture: Texture2D = null ## 物品纹理
+@export var slot_size: int = Global.SLOT_SIZE ## 物品槽大小
+@export var quality: RewardPool.Quality = RewardPool.Quality.None ## 品质颜色
+@export var quality_color: Color = Color() ## 品质颜色
+@export var dimensions: Vector2i = Vector2i(1, 1) ## 物品规格
+var is_search = false ## 搜索物品
+var is_rotated = false ## 旋转物品
+var is_held = false ## 拿起物品
+
+
+## ============================ 基础实现 =============================
+
+func _ready() -> void:
+	#OverlayStateMonitor.push_overlay("id", [get_instance_id()])
+	pass
+	
+func _input(event: InputEvent) -> void:	
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT && event.is_pressed():
+			rotated()
+
+
+
+## ============================ 接口 =============================
+
+func set_data(data: Goods) -> void:
+	if not data:
+		push_error("ItemGoods: set_data: data == null!")
+		return
+	goods_name = data.name
+	goods_texture = data.texture
+	quality = data.quality
+	quality_color = Goods.get_color(data.quality)
+	dimensions = data.dimensions
+	is_search = data.is_search
+	is_rotated = data.is_rotated
+
+## 返回: 物品大小
+func get_goods_size() -> Vector2:
+	return Vector2(dimensions.x * slot_size, dimensions.y * slot_size)
+
+func reset_animation():
+	animation_player_node.stop()
+
+# 显示: 名称/品质
+func show_image_background(is_show: bool):
+	if is_show:
+		goods_name_node.visible = true
+		quality_color_node.visible = true
+	else:
+		goods_name_node.visible = false
+		quality_color_node.visible = false
+
+func show_search():
+	if not is_search: # 未搜索
+		if quality_border_node:
+			quality_border_node.visible = true
+		if search_background_rect_node:
+			search_background_rect_node.visible = true
+		if search_icon_node:
+			search_icon_node.visible = true
+	else:
+		if quality_border_node:
+			quality_border_node.visible = false
+		if search_background_rect_node:
+			search_background_rect_node.visible = false
+		if search_icon_node:
+			search_icon_node.visible = false
+
+##设置: 物品大小
+func set_goods_size(_size: Vector2 = get_goods_size()):
+	size = _size
+	#OverlayStateMonitor.clear()
+		
+	if quality_color_node:
+		quality_color_node.size = size
+	if goods_texture_node:
+		goods_texture_node.size = size
+		#OverlayStateMonitor.push_overlay("[%s]goods_texture_node.size" % [get_instance_id()], goods_texture_node.size)
+	if goods_name_node and goods_name_node.size.x != size.x:
+		if size.x > slot_size:
+			goods_name_node.size.x = size.x
+		else:
+			goods_name_node.size.x = 56
+	if quality_border_node:
+		quality_border_node.size = size
+	if search_background_rect_node:
+		search_background_rect_node.size = size
+	if search_icon_node:
+		search_icon_node.size = size
+	
+	#OverlayStateMonitor.push_overlay("[%s]size" % [get_instance_id()], size)
+	#OverlayStateMonitor.push_overlay("[%s]dimensions" % [get_instance_id()], dimensions)
+
+## ============================ 接口 =============================
+
+func init_goods() -> void:
+	set_goods_size()
+	
+	goods_texture_node.texture = goods_texture
+	goods_name_node.text = goods_name
+	quality_color_node.self_modulate = quality_color
+	quality_border_node.self_modulate = quality_color
+	reset_animation()
+	show_search()
+	audio_player_node.stream = load("res://art/item_slot/音效/%s.wav" % [RewardPool.quality_to_string(quality)])
+	if is_search:
+		goods_texture_node.scale = Vector2(1, 1)
+		audio_player_node.stream = sound_stream
+	else:
+		#print("ItemGoods: [%s]搜索中..." % [goods_name_node.text])
+		animation_player_node.play_section("search", 0.0, Goods.get_quality_time(quality))
+
+## 拿起
+func piked_up() -> void:
+	if not is_search and is_held:
+		return
+	is_held = true
+	audio_player_node.play()
+	show_image_background(false)
+	on_button_down.emit(global_position)
+
+## 放置
+func placed() -> void:
+	if not is_search and not is_held:
+		return
+	audio_player_node.play()
+	show_image_background(true)
+	is_held = false
+	on_button_up.emit(global_position)
+
+## 旋转
+func rotated() -> void:
+	if is_rotated: # 已旋转
+		pass
+	else: # 未旋转
+		pass
+	return
+	#if not data.search:
+		#return
+	#data.is_rotated = not data.is_rotated
+	#data.dimensions = Vector2i(data.dimensions.y, data.dimensions.x)
+	#tween.tween_property(goods_texture_node, "rotation_degrees", 90 if data.is_rotated else 0, 0.3)
+	#await tween.finished
+	#tween.kill()
+	#anchor_point = global_position - size / 2
+
+
+## ============================ 信号 =============================
+
+func _on_animation_player_animation_finished(anim_name: StringName) -> void:
+	if anim_name == "search":
+		goods_texture_node.scale = Vector2(1.25, 1.25)
+		audio_player_node.play()
+		# 淡出（从不透明到透明）
+		var tween = create_tween()
+		if quality >= RewardPool.Quality.Gold:
+			quality_border_node.self_modulate.a = 0.18
+			tween.tween_property(quality_border_node, "self_modulate:a", 1, 0.15)
+		tween.tween_property(goods_texture_node, "scale", Vector2(1, 1), 0.05)
+		if quality >= RewardPool.Quality.Gold:
+			animation_player_node.play("quality_border")
+		else:
+			quality_border_node.visible = false
+		is_search = true
+		on_set_search.emit(global_position, is_search)
+		show_search()
+	elif anim_name == "quality_border":
+		if quality_border_node:
+			quality_border_node.visible = false
+	#OverlayStateMonitor.push_overlay("anim_name", anim_name)
+
+func _on_audio_stream_player_finished() -> void:
+	audio_player_node.stream = sound_stream
+
+func _on_mouse_entered() -> void:
+	pass
+	#OverlayStateMonitor.push_overlay("id", [get_instance_id()])

@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://dt8rwxirflj4v"]
+
+[ext_resource type="Script" uid="uid://cpsyhts7ppo45" path="res://script/ui/goods_grid.gd" id="1_we6yu"]
+[ext_resource type="PackedScene" uid="uid://dj8hl2rd62jg7" path="res://scene/object/item_goods.tscn" id="2_dccqe"]
+[ext_resource type="PackedScene" uid="uid://bggc353qyek66" path="res://scene/object/slot.tscn" id="4_jn1jv"]
+[ext_resource type="PackedScene" uid="uid://sy2iet4kp0po" path="res://scene/object/held_goods_highlight.tscn" id="4_k4abw"]
+[ext_resource type="PackedScene" uid="uid://bqau8wo5ooslc" path="res://scene/ui/utils/v_list_view.tscn" id="7_y03jg"]
+
+[node name="GoodsContainer" type="Control" unique_id=2123018299]
+custom_minimum_size = Vector2(320, 320)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 200.0
+offset_bottom = 100.0
+mouse_filter = 2
+script = ExtResource("1_we6yu")
+slot_grid_scene = ExtResource("4_jn1jv")
+goods_grid_scene = ExtResource("2_dccqe")
+held_goods_highlight_scene = ExtResource("4_k4abw")
+
+[node name="SlotGrid" parent="." unique_id=1175102371 instance=ExtResource("7_y03jg")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 320)
+layout_mode = 0
+mouse_filter = 2
+
+[node name="GoodsGrid" parent="." unique_id=727001819 instance=ExtResource("7_y03jg")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 320)
+layout_mode = 0
+aligning = false
+default_node_visible = false
+
+[connection signal="on_data_fill" from="SlotGrid" to="." method="_on_slot_grid_on_data_fill"]
+[connection signal="on_node_init" from="SlotGrid" to="." method="_on_slot_grid_on_node_init"]
+[connection signal="on_data_fill" from="GoodsGrid" to="." method="_on_goods_grid_on_data_fill"]
+[connection signal="on_drag_start_item" from="GoodsGrid" to="." method="_on_goods_grid_on_drag_start_item"]
+[connection signal="on_entry_connect_callback" from="GoodsGrid" to="." method="_on_goods_grid_on_entry_connect_callback"]
+[connection signal="on_entry_disconnect_callback" from="GoodsGrid" to="." method="_on_goods_grid_on_entry_disconnect_callback"]
+[connection signal="on_entry_updated" from="GoodsGrid" to="." method="_on_goods_grid_on_entry_updated"]

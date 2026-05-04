@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://df3yns1nhq6jg"]
+
+[ext_resource type="Script" uid="uid://cwsgg3hc0rg8c" path="res://script/ui/utils/overlay_state_monitor.gd" id="1_vk1up"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vk1up"]
+bg_color = Color(0.09985284, 0.09985284, 0.09985284, 0.2)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ckn7d"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cu4q0"]
+
+[node name="OverlayStateMonitor" type="CanvasLayer" unique_id=1156920259]
+script = ExtResource("1_vk1up")
+is_performance = false
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=479381955]
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_vk1up")
+
+[node name="GridContainer" type="GridContainer" parent="Panel" unique_id=494035604]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="." unique_id=1147219412]
+visible = false
+offset_right = 68.0
+offset_bottom = 29.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 1
+theme_override_constants/shadow_outline_size = 4
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxEmpty_ckn7d")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_cu4q0")
+text = "Test: ..."
+
+[node name="Timer" type="Timer" parent="." unique_id=998491041]
+wait_time = 0.5
+autostart = true
+
+[connection signal="timeout" from="Timer" to="." method="_update_performance"]

@@ -13,10 +13,10 @@ func _on_sell_button_up() -> void:
 	%Info.show_info(false)
 
 func _on_search_button_up() -> void:
-	%ItemInventory.get_search_items(4, is_search)
+	%GoodsContainer.get_search_items(50, is_search)
 
 func _on_search_2_button_up() -> void:
-	%ItemInventory.clear(self.sell)
+	%GoodsContainer.clear(self.sell)
 
 func _on_item_inventory_select(self_node, item: Node) -> void:
 	current_inventory = self_node
@@ -26,9 +26,10 @@ func _on_item_inventory_select(self_node, item: Node) -> void:
 func _ready() -> void:
 	%LabelValue.text = str(Global.game_config.get("货币", -1.0))
 
-func sell(item) -> void:
-	if item and item.get("data"):
-		value_change(item.data.value)
+func sell(data) -> void:
+	if not data:
+		return
+	value_change(data.value)
 
 func value_change(number: int) -> void:
 	#print("货币: ", number)

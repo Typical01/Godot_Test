@@ -1,14 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://bqau8wo5ooslc"]
+[gd_scene format=3 uid="uid://bqau8wo5ooslc"]
 
-[ext_resource type="Script" uid="uid://e4hpffalnd7f" path="res://script/ui/v_list_view.gd" id="1_thj6u"]
+[ext_resource type="Script" uid="uid://e4hpffalnd7f" path="res://script/ui/utils/v_list_view.gd" id="1_thj6u"]
 
-[node name="VListView" type="ScrollContainer"]
+[node name="VListView" type="ScrollContainer" unique_id=727001819]
 custom_minimum_size = Vector2(200, 100)
 offset_right = 200.0
 offset_bottom = 100.0
 script = ExtResource("1_thj6u")
 
-[node name="ItemContainer" type="Control" parent="."]
+[node name="ItemContainer" type="Control" parent="." unique_id=1347873741]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

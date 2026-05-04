@@ -1,230 +1,124 @@
 class_name Goods extends ItemData
 
-enum Class {
+enum Type {
 	None = -1,
-	CraftCollection, ##工艺收藏品
-	Household ##家用物品
-}
-enum Quality {
-	None = -1,
-	White,
-	Green,
-	Blue,
-	Purple,
-	Gold,
-	Red,
-	Orange
-}
-enum Slot {
-	None = -1,
-	Slot_1_1,
-	Slot_1_2,
-	Slot_1_3,
-	Slot_1_4,
-	Slot_2_1,
-	Slot_2_2,
-	Slot_2_3,
-	Slot_3_1,
-	Slot_3_2,
-	Slot_3_3,
-	Slot_3_4,
-	Slot_4_1
+	CraftCollection,   ## 工艺收藏
+	KeyCar,            ## 钥匙
+	EnergyFuel,        ## 能源燃料
+	Medical,           ## 医疗道具
+	Electronic,        ## 电子物品
+	Document,          ## 资料情报
+	ToolMaterial,      ## 工具材料
+	HomeItem,          ## 家居物品
 }
 
-@export var quality: Quality = Quality.None
-@export var slot: Slot = Slot.None
+@export var quality: RewardPool.Quality = RewardPool.Quality.None
 @export var value: int = 0
-@export var goods_class: Class = Class.None
-@export var search = false
-@export var slot_index: int = -1
+@export var goods_class: Type = Type.None
+@export var is_search = false
+@export var start_index: int = -1
+var slot_index: Array[int] = []
 
 
 
-func init(tmp_name: String, tmp_quality: Quality, tmp_slot: Slot, tmp_value: int, tmp_class: Class = Class.CraftCollection) -> void:
+func init(tmp_name: String, tmp_quality: RewardPool.Quality, _dimensions: Vector2i, 
+	tmp_value: int, tmp_class: Type = Type.CraftCollection) -> void:
 	name = tmp_name
 	quality = tmp_quality
-	slot = tmp_slot
+	dimensions = _dimensions
 	value = tmp_value
 	goods_class = tmp_class
-	
-	texture = load("res://art/item_slot/物品/%s.png" % name)
-	dimensions = get_slot_dimensions(slot)
+	texture = load("res://art/texture/物品/%s.png" % name)
 
 func output():
-	print("goods::output: [%s]%s (价值: %d, 格数: %dx%d)" % [
-		Goods.get_color_from_string(quality), 
+	print("Goods::output: [%s]%s (价值: %d) | %s (%s, 共%d格)" % [
+		RewardPool.quality_to_string(quality), 
 		name,
-		value, 
-		get_slot_dimensions(slot).x, 
-		get_slot_dimensions(slot).y
+		value,
+		slot_to_string(dimensions),
+		"正方形" if is_square(dimensions) else "长方形",
+		get_slot_count(dimensions)
 	])
-	
-##将物品尺寸转换为: 宽x高
-static func get_slot_dimensions(slot_type: Slot) -> Vector2i:
-	match slot_type:
-		# 1x系列 (宽1)
-		Slot.Slot_1_1:
-			return Vector2i(1, 1)    # 1x1
-		Slot.Slot_1_2:
-			return Vector2i(1, 2)    # 1x2
-		Slot.Slot_1_3:
-			return Vector2i(1, 3)    # 1x3
-		Slot.Slot_1_4:
-			return Vector2i(1, 4)    # 1x4
-		# 2x系列 (宽2)
-		Slot.Slot_2_1:
-			return Vector2i(2, 1)    # 2x1
-		Slot.Slot_2_2:
-			return Vector2i(2, 2)    # 2x2
-		Slot.Slot_2_3:
-			return Vector2i(2, 3)    # 2x3
-		# 3x系列 (宽3)
-		Slot.Slot_3_1:
-			return Vector2i(3, 1)    # 3x1
-		Slot.Slot_3_2:
-			return Vector2i(3, 2)    # 3x2
-		Slot.Slot_3_3:
-			return Vector2i(3, 3)    # 3x3
-		Slot.Slot_3_4:
-			return Vector2i(3, 4)    # 3x4
-		# 4x系列 (宽4)
-		Slot.Slot_4_1:
-			return Vector2i(4, 1)    # 4x1
-		_:
-			return Vector2i(1, 1)    # 默认值
 
-##将品质颜色转换为: 字符串
-static func get_color_from_string(quality_color: Quality) -> String:
-	match quality_color:
-		Goods.Quality.White:
-			return "白"
-		Goods.Quality.Green:
-			return "绿"
-		Goods.Quality.Blue:
-			return "蓝"
-		Goods.Quality.Purple:
-			return "紫"
-		Goods.Quality.Gold:
-			return "金"
-		Goods.Quality.Red:
-			return "红"
-		Goods.Quality.Orange:
-			return "橙"
-		_:
-			printerr("未处理的品质颜色[Enum]: ", quality_color)
-			return "null" # 返回灰色作为默认值
-
-static func get_quality_time(quality_color: Goods.Quality) -> float:
-	match quality_color:
-		Goods.Quality.White:
-			return 1.0
-		Goods.Quality.Green:
-			return 1.0
-		Goods.Quality.Blue:
-			return 1.0
-		Goods.Quality.Purple:
-			return 1.5
-		Goods.Quality.Gold:
-			return 2.0
-		Goods.Quality.Red:
-			return 2.5
-		Goods.Quality.Orange:
-			return 2.5
-		_:
-			printerr("未处理的品质颜色[时间]: ", quality_color)
-			return 1.0 # 返回灰色作为默认值
-			
-static func get_color(quality_color: Goods.Quality, alpha: float = 0.5) -> Color:
-	match quality_color:
-		Goods.Quality.White:
-			return Color(0.278, 0.278, 0.278, alpha)
-		Goods.Quality.Green:
-			return Color(0.0, 0.278, 0.0, alpha)
-		Goods.Quality.Blue:
-			return Color(0.05, 0.2, 0.4, alpha)
-		Goods.Quality.Purple:
-			return Color(0.216, 0.0, 0.376, alpha)
-		Goods.Quality.Gold:
-			return Color(0.788, 0.443, 0.0, alpha)
-		Goods.Quality.Red:
-			return Color(0.62, 0.125, 0.125, alpha)
-		Goods.Quality.Orange:
-			return Color(0.706, 0.051, 0.051, alpha)
-		_:
-			printerr("未处理的品质颜色: ", quality_color)
-			return Color(1, 1, 1, alpha) # 返回灰色作为默认值
-
-##将品质字符串转换为: 颜色
-static func get_string_from_color(quality_string: String) -> Quality:
-	match quality_string:
-		"白":
-			return Goods.Quality.White
-		"绿":
-			return Goods.Quality.Green
-		"蓝":
-			return Goods.Quality.Blue
-		"紫":
-			return Goods.Quality.Purple
-		"金":
-			return Goods.Quality.Gold
-		"红":
-			return Goods.Quality.Red
-		"橙":
-			return Goods.Quality.Orange
-		_:
-			printerr("未处理的品质颜色: ", quality_string)
-			return Goods.Quality.None
-
-##获取物品占用的格子总数
-static func get_slot_cell_count(slot_type: Slot) -> int:
-	var dim = get_slot_dimensions(slot_type)
-	return dim.x * dim.y
-
-##检查是否为正方形物品
-static func is_square_slot(slot_type: Slot) -> bool:
-	var dim = get_slot_dimensions(slot_type)
-	return dim.x == dim.y
-
-##检查物品是否可以旋转（非正方形且不是1x1）
-static func can_rotate_slot(slot_type: Slot) -> bool:
-	var dim = get_slot_dimensions(slot_type)
-	return dim.x != dim.y and dim.x > 1 and dim.y > 1
-
-##获取旋转后的尺寸（交换宽高）
-static func get_rotated_dimensions(slot_type: Slot) -> Vector2i:
-	var dim = get_slot_dimensions(slot_type)
-	return Vector2i(dim.y, dim.x)
-
-##获取旋转后的Slot枚举（如果存在）
-static func get_rotated_slot(slot_type: Slot) -> Slot:
-	var dim = get_slot_dimensions(slot_type)
-	var rotated = Vector2i(dim.y, dim.x)
-	# 反向查找对应的枚举
-	return get_slot_from_dimensions(rotated.x, rotated.y)
-
-##根据宽高获取Slot枚举（反向查找）
-static func get_slot_from_dimensions(width: int, height: int) -> Slot:
-	var target = Vector2i(width, height)
-	# 遍历所有Slot值查找匹配
-	for slot_value in Slot.values():
-		if get_slot_dimensions(slot_value) == target:
-			return slot_value
-	# 没有找到，返回默认
-	return Slot.None
-
-static func is_dimensions(_dimensions: Vector2i) -> bool:
-	if _dimensions.x <= 0 or _dimensions.y <= 0: # 大小有效
+func is_valid() -> bool:
+	if dimensions.x <= 0 or dimensions.y <= 0:
 		return false
 	return true
+	
+##获取物品占用的格子总数
+static func get_slot_count(data_dimensions: Vector2i) -> int:
+	return data_dimensions.x * data_dimensions.y
+
+##检查是否为正方形物品
+static func is_square(data_dimensions: Vector2i) -> bool:
+	return data_dimensions.x == data_dimensions.y
+
+##检查物品是否可以旋转（非正方形）
+static func can_rotate(data_dimensions: Vector2i) -> bool:
+	return data_dimensions.x != data_dimensions.y
+
+##获取旋转后的尺寸（交换宽高）
+static func get_rotated_dimensions(data_dimensions: Vector2i) -> Vector2i:
+	return Vector2i(data_dimensions.y, data_dimensions.x)
 
 ##Slot转换为字符串表示
-static func slot_to_string(slot_type: Slot) -> String:
-	var dim = get_slot_dimensions(slot_type)
-	return "%dx%d" % [dim.x, dim.y]
+static func slot_to_string(ata_dimensions: Vector2i) -> String:
+	return "%dx%d" % [ata_dimensions.x, ata_dimensions.y]
 
-##带描述的字符串
-static func slot_to_description(slot_type: Slot) -> String:
-	var size_str = slot_to_string(slot_type)
-	var cell_count = get_slot_cell_count(slot_type)
-	var shape = "正方形" if is_square_slot(slot_type) else "长方形"
-	return "%s (%s, 共%d格)" % [size_str, shape, cell_count]
+static func get_color(quality_color: RewardPool.Quality, alpha: float = 0.18) -> Color:
+	match quality_color:
+		RewardPool.Quality.White:
+			return Color(0.278, 0.278, 0.278, alpha)
+		RewardPool.Quality.Green:
+			return Color(0.0, 0.45, 0.1, alpha)
+		RewardPool.Quality.Blue:
+			return Color(0.2, 0.44, 0.64, alpha)
+		RewardPool.Quality.Purple:
+			return Color(0.3, 0.0, 0.4, alpha)
+		RewardPool.Quality.Gold:
+			return Color(0.66, 0.48, 0.0, alpha)
+		RewardPool.Quality.Red:
+			return Color(0.78, 0.0, 0.0, alpha)
+		RewardPool.Quality.Orange:
+			return Color(0.78, 0.0, 0.0, alpha)
+		_:
+			return Color(1, 1, 1, alpha)
+
+static func get_quality_time(quality_color: RewardPool.Quality) -> float:
+	match quality_color:
+		RewardPool.Quality.White:
+			return 1.0
+		RewardPool.Quality.Green:
+			return 1.0
+		RewardPool.Quality.Blue:
+			return 1.0
+		RewardPool.Quality.Purple:
+			return 1.5
+		RewardPool.Quality.Gold:
+			return 2.0
+		RewardPool.Quality.Red:
+			return 4.0
+		RewardPool.Quality.Orange:
+			return 4.0
+		_:
+			return 1.0
+
+static func get_string_to_class_enum(category_name: String) -> int:
+	match category_name:
+		"工艺收藏品":
+			return Goods.Type.CraftCollection
+		"钥匙":
+			return Goods.Type.KeyCar
+		"能源燃料":
+			return Goods.Type.EnergyFuel
+		"资料情报":
+			return Goods.Type.Document
+		"医疗道具":
+			return Goods.Type.Medical
+		"电子物品":
+			return Goods.Type.Electronic
+		"工具材料":
+			return Goods.Type.ToolMaterial
+		"家居物品":
+			return Goods.Type.HomeItem
+	return Goods.Type.None

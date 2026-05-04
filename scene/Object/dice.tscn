@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cxssrvq5g6w5r"]
 
-[ext_resource type="Script" uid="uid://dlpkvf5lvf1qs" path="res://script/Object/dice.gd" id="1_43xvx"]
+[ext_resource type="Script" uid="uid://dlpkvf5lvf1qs" path="res://script/object/dice.gd" id="1_43xvx"]
 [ext_resource type="PackedScene" uid="uid://cglltr8sx3ex1" path="res://art/model/骰子.glb" id="1_vullf"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_43xvx"]

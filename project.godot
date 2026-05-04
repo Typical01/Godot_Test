@@ -17,14 +17,19 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 config/name="Test"
 run/main_scene="uid://d256x7l6oxgqe"
 config/features=PackedStringArray("4.6", "GL Compatibility")
-run/max_fps=120
-config/icon="res://icon.svg"
+run/max_fps=144
+config/icon="uid://dn6hsy6hdndff"
 
 [autoload]
 
 data_manage="*res://script/utils/data_manage.gd"
 coord_utils="*res://script/utils/coord_utils.gd"
 Global="*res://script/Global.gd"
+application_mutex="*uid://codc0rr45xtqv"
+GlobalLogger="*uid://db5n8i0lqtjfg"
+input_recognizer="*uid://b010s0dxio86v"
+OverlayStateMonitor="*uid://df3yns1nhq6jg"
+goods_container_manage="*uid://j6gxecsmlj8r"
 
 [display]
 

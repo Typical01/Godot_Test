@@ -1,8 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://b2jbmh4tq743a"]
+[gd_scene format=3 uid="uid://b2jbmh4tq743a"]
 
-[ext_resource type="Script" uid="uid://bv0cuhysp2s80" path="res://script/ui/tooltip.gd" id="1_jelon"]
-[ext_resource type="Texture2D" uid="uid://by1e4sjelbtl3" path="res://art/ui/Tool_Tips.png" id="1_mlyyi"]
-[ext_resource type="Theme" uid="uid://4ahy1naibqf" path="res://resource/flat_ligth_theme.tres" id="3_eg02s"]
+[ext_resource type="Script" uid="uid://bv0cuhysp2s80" path="res://script/ui/utils/tooltip.gd" id="1_jelon"]
+[ext_resource type="Texture2D" path="res://art/ui/Tool_Tips.png" id="1_mlyyi"]
+[ext_resource type="Theme" path="res://resource/flat_ligth_theme.tres" id="3_eg02s"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8daw7"]
 content_margin_left = 10.0

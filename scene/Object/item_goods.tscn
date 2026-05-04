@@ -1,0 +1,210 @@
+[gd_scene format=3 uid="uid://dj8hl2rd62jg7"]
+
+[ext_resource type="Script" uid="uid://hvpailbk154v" path="res://script/object/item_goods.gd" id="1_m62xi"]
+[ext_resource type="AudioStream" uid="uid://bfvxw5ys0uhus" path="res://art/sound/红.wav" id="2_drnxo"]
+[ext_resource type="Texture2D" uid="uid://bpd0g10n2gl31" path="res://art/texture/物品/海盗银币.png" id="3_g2ywv"]
+[ext_resource type="Texture2D" uid="uid://dvbvccouux2kn" path="res://art/texture/ui/slot/品质动画边框.png" id="4_gqkdw"]
+[ext_resource type="Texture2D" uid="uid://btblmvch5tu27" path="res://art/texture/ui/slot/搜索背景.png" id="5_0ym4v"]
+[ext_resource type="Texture2D" uid="uid://cucnim26pify5" path="res://art/texture/ui/slot/搜索图标.png" id="6_gt80q"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g2ywv"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.4, 0.4, 1)
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m62xi"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drnxo"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gqkdw"]
+bg_color = Color(0, 0, 0, 0)
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0ym4v"]
+
+[sub_resource type="Animation" id="Animation_f4n6m"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../QualityBorder:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_djc1i"]
+resource_name = "quality_border"
+length = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../QualityBorder:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(1.4, 1.4)]
+}
+
+[sub_resource type="Animation" id="Animation_8hf3f"]
+resource_name = "search"
+length = 4.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_djc1i"]
+_data = {
+&"RESET": SubResource("Animation_f4n6m"),
+&"quality_border": SubResource("Animation_djc1i"),
+&"search": SubResource("Animation_8hf3f")
+}
+
+[node name="Button" type="Button" unique_id=1501948871]
+z_index = 10
+custom_minimum_size = Vector2(64, 64)
+offset_right = 64.0
+offset_bottom = 64.0
+pivot_offset_ratio = Vector2(0.5, 0.5)
+theme_override_styles/normal = SubResource("StyleBoxFlat_g2ywv")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_m62xi")
+theme_override_styles/hover = SubResource("StyleBoxFlat_drnxo")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_m62xi")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_gqkdw")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_0ym4v")
+toggle_mode = true
+script = ExtResource("1_m62xi")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=318845119]
+root_node = NodePath("../SearchIcon")
+libraries/ = SubResource("AnimationLibrary_djc1i")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1591181606]
+stream = ExtResource("2_drnxo")
+
+[node name="QualityColor" type="ColorRect" parent="." unique_id=600624522]
+self_modulate = Color(0.8509804, 0, 0, 0.18039216)
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_right = 62.0
+offset_bottom = 62.0
+mouse_filter = 2
+
+[node name="GoodsTexture" type="TextureRect" parent="." unique_id=1109956902]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+pivot_offset_ratio = Vector2(0.5, 0.5)
+mouse_filter = 2
+texture = ExtResource("3_g2ywv")
+expand_mode = 1
+stretch_mode = 3
+
+[node name="GoodsName" type="Label" parent="." unique_id=1302733923]
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 60.0
+offset_bottom = 28.0
+theme_override_constants/line_spacing = -2
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 10
+text = "非洲之心海洋之泪"
+autowrap_mode = 1
+
+[node name="QualityBorder" type="TextureRect" parent="." unique_id=796381760]
+visible = false
+self_modulate = Color(1, 0, 0, 1)
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+pivot_offset_ratio = Vector2(0.5, 0.5)
+mouse_filter = 2
+texture = ExtResource("4_gqkdw")
+expand_mode = 1
+
+[node name="SearchBackgroundRect" type="ColorRect" parent="." unique_id=1528426914]
+visible = false
+clip_contents = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0)
+
+[node name="SearchBackground" type="TextureRect" parent="SearchBackgroundRect" unique_id=1100818510]
+custom_minimum_size = Vector2(256, 256)
+layout_mode = 0
+offset_right = 256.0
+offset_bottom = 256.0
+mouse_filter = 2
+texture = ExtResource("5_0ym4v")
+
+[node name="SearchIcon" type="TextureRect" parent="." unique_id=747046351]
+visible = false
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+scale = Vector2(0.4, 0.4)
+pivot_offset_ratio = Vector2(0.5, 0.5)
+mouse_filter = 2
+texture = ExtResource("6_gt80q")
+expand_mode = 1
+stretch_mode = 3
+
+[connection signal="button_down" from="." to="." method="piked_up"]
+[connection signal="button_up" from="." to="." method="placed"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="resized" from="." to="." method="_on_resized"]
+[connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
+[connection signal="finished" from="AudioStreamPlayer" to="." method="_on_audio_stream_player_finished"]

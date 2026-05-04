@@ -1,8 +1,0 @@
-[gd_scene format=3 uid="uid://sy2iet4kp0po"]
-
-[ext_resource type="Texture2D" uid="uid://bb4ys4i7a8ck1" path="res://art/item_slot/其他/品质.png" id="1_l5vg6"]
-[ext_resource type="Script" uid="uid://dj0i03mpg8vpa" path="res://script/Object/held_item_highlight.gd" id="2_3fv8a"]
-
-[node name="HeldItemHighlight" type="Sprite2D" unique_id=1931749988]
-texture = ExtResource("1_l5vg6")
-script = ExtResource("2_3fv8a")

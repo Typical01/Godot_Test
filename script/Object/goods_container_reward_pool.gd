@@ -3,36 +3,46 @@ class_name GoodsContainerRewardPool extends RefCounted
 
 
 var config # 配置文件引用
-var current_map_level: String
 var container_probabilitys: Dictionary
+var container_data: Dictionary
 var goods_probabilitys: Dictionary ## 物品概率
 var reward_pools: Dictionary = {}
 
-## 普通/机密/绝密
+
+
 func init(_config) -> bool:
 	config = _config
 	var container_qualitys_reward = extract_container_reward_pool()
-	if not container_qualitys_reward.is_empty():
-		set_container_reward(container_qualitys_reward)
+	if container_qualitys_reward.is_empty():
+		push_error("提取: 容器奖励池失败!")
+		return false
+	set_container_reward(container_qualitys_reward)
 	var goods_qualitys_reward = extract_goods_reward_pool()
-	if not goods_qualitys_reward.is_empty():
-		set_goods_reward(goods_qualitys_reward)
+	if goods_qualitys_reward.is_empty():
+		push_error("提取: 物品奖励池失败!")
+		return false
+	set_goods_reward(goods_qualitys_reward)
+	#print("reward_pools: ", reward_pools)
+	test()
 	return true
 	
 ## 设置: 容器本身的概率
 ## container_probabilitys: ["普通"] = [0.6, 0.3, 0.1, 0, 0, 0, 0]
 ## container_qualitys_reward: ["品质] = {"白": ["收纳袋", "收纳盒", "快递盒", "抽屉柜", "储物柜", "井盖", "鸟窝", "电脑机箱"]...}
 func set_container_reward(container_qualitys_reward: Dictionary) -> bool:
+	var reward = RewardPool.new()
 	for key in container_probabilitys.keys(): # [0.6, 0.3, 0.1, 0, 0, 0, 0]
 		if container_probabilitys.size() > 3:
 			push_error("容器: 只有 3 级!")
 			return false
 		var reward_pool = RewardPool.new()
-		if not reward_pool.init(key, container_probabilitys[key], container_qualitys_reward):
-			push_error("容器: [%s] 奖励池初始化失败!" % [key, current_map_level])
+		if not reward_pool.init(key, ["容器"], container_probabilitys[key]):
+			push_error("容器: [%s] 奖励池初始化失败!" % [key])
 			return false
-		reward_pools.set(current_map_level, reward_pool)
-		print("GoodsContainerManage: 容器: [%s]奖励池创建成功！" % [key])
+		reward_pool.output()
+		reward_pools.set(key, reward_pool)
+		print("GoodsContainerRewardPool: 容器: [%s]奖励池创建成功！" % [key])
+	reward.add_qualitys_reward(container_qualitys_reward)
 	return true
 	
 ## 设置: 容器中物品的概率
@@ -43,25 +53,26 @@ func set_goods_reward(goods_qualitys_reward: Dictionary) -> bool:
 	if goods_level < 7:
 		push_error("物品: 概率有 7 级, 当前等级[%s]!" % [goods_level])
 		return false
+	var reward = RewardPool.new()
 	for key in goods_probabilitys.keys(): # "保险箱": [0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005]
 		#for key2 in goods_qualitys_reward.keys():
 		var reward_pool = RewardPool.new()
-		if not reward_pool.init(key, goods_probabilitys[key], goods_qualitys_reward):
+		if not reward_pool.init(key, get_container_types(key), goods_probabilitys[key]):
 			push_error("物品: [%s]奖励池初始化失败!" % [key])
 			return false
+		reward_pool.output()
 		reward_pools.set(key, reward_pool)
-		print("GoodsContainerManage: 物品: [%s]奖励池创建成功！" % [key])
+		print("GoodsContainerRewardPool: 物品: [%s]奖励池创建成功！" % [key])
+	reward.add_qualitys_reward(goods_qualitys_reward)
 	return true
 
-func get_map_level_probabilitys(_map_level: String = current_map_level) -> Array:
+## 获取: 容器奖励池
+func get_map_level_probabilitys(_map_level: String) -> Array:
 	return container_probabilitys.get(_map_level, null) # 容器概率
 
-func get_container_reward_pool(_map_level: String = current_map_level) -> RewardPool:
-	var container_reward_pools = reward_pools.get(_map_level, null)
-	if container_reward_pools.is_empty(): return null
-	return container_reward_pools
-
-func get_goods_reward_pool(reward_pool_name: String) -> RewardPool:
+## 获取: 奖励池
+func get_reward_pool(reward_pool_name: String) -> RewardPool:
+	print("获取: 物品奖励池[%s]." % [reward_pool_name])
 	return reward_pools.get(reward_pool_name, null)
 
 func is_empty() -> bool:
@@ -70,7 +81,7 @@ func is_empty() -> bool:
 
 ## 提取: 容器奖励池
 func extract_container_reward_pool() -> Dictionary:
-	var container_qualitys = {}
+	var qualitys = {}
 	if not config is Dictionary or not config.has("容器"):
 		push_error("Json对象没有[容器]!")
 		return {}
@@ -86,7 +97,7 @@ func extract_container_reward_pool() -> Dictionary:
 	if not container is Dictionary or not container.has("品质"):
 		push_error("Json对象[容器]没有[品质]!")
 		return {}
-	container_qualitys = container["品质"] # {"白": [{"名称": "收纳袋", "类型": ...}...]}
+	var container_qualitys = container["品质"] # {"白": [{"名称": "收纳袋", "类型": ...}...]}
 	if not container_qualitys is Dictionary or container_qualitys.is_empty():
 		push_error("Json对象[容器][品质]没有数据!")
 		return {}
@@ -98,17 +109,23 @@ func extract_container_reward_pool() -> Dictionary:
 	if not goods_probabilitys is Dictionary or goods_probabilitys.is_empty():
 		push_error("Json对象[容器][物品概率]没有数据!")
 		return {}
+	var container_quality_array = {}
 	for key in container_qualitys.keys(): #"白": [{"名称": "收纳袋", "类型": ...}...]
 		var quality_array = []
-		var container_data = container_qualitys[key] #[{"名称": "收纳袋", "类型": ...}...]
-		for i in container_data.size(): # {"名称": "收纳袋", "类型": ...}
-			var container_name = container_data[i]["名称"]
-			var container_types = container_data[i]["类型"]
+		var data = container_qualitys[key] #[{"名称": "收纳袋", "类型": ...}...]
+		for i in data.size(): # {"名称": "收纳袋", "类型": ...}
+			var container_name = data[i]["名称"]
+			var container_types = data[i]["类型"]
 			var container_ins = GoodsContainer.new()
 			container_ins.init(container_name, container_types)
 			quality_array.append(container_ins)
-		container_qualitys.set(key, quality_array.duplicate())
-	return container_qualitys
+			var types = []
+			for i2 in container_types.size():
+				types.append(Goods.type_to_string(container_types[i2]))
+			container_data.set(container_name, types.duplicate())
+		container_quality_array.set(key, quality_array.duplicate())
+	qualitys.set("容器", container_quality_array.duplicate())
+	return qualitys
 
 ## 提取: 物品奖励池
 func extract_goods_reward_pool() -> Dictionary:
@@ -121,7 +138,7 @@ func extract_goods_reward_pool() -> Dictionary:
 		push_error("Json对象[物品]没有数据!")
 		return {}
 	for key in goods_type.keys(): # "工艺藏品" = {"白": [{物品}...]}
-		var quality_array = []
+		var quality_array = {}
 		var qualitys = goods_type[key] # {"白": [{物品}...]}
 		for key2 in qualitys.keys(): # "白": [{物品}...]
 			var goods_array = []
@@ -157,33 +174,55 @@ func extract_goods_reward_pool() -> Dictionary:
 				var goods = Goods.new()
 				var quality_enum: RewardPool.Quality = RewardPool.string_to_quality(key2)
 				goods.init(goods_name, quality_enum, goods_dimensions, goods_value, goods_class)
-				goods.output()
+				#goods.output()
 				goods_array.append(goods)
-			quality_array.append(goods_array.duplicate())
+			quality_array.set(key2, goods_array.duplicate())
 		goods_qualitys.set(key, quality_array.duplicate())
 	return goods_qualitys
 
-static func string_to_class_enum(category_name: String) -> RewardPool.Quality:
-	match category_name:
-		"普通":
-			return RewardPool.Quality.White
-		"机密":
-			return RewardPool.Quality.Green
-		"绝密":
-			return RewardPool.Quality.Blue
-		_:
-			return RewardPool.Quality.None
+func allocate_single_reward_container() -> Object:
+	var container_reward_pool = get_reward_pool(GoodsContainer.type_to_string(randi() % 3))
+	if not container_reward_pool:
+		push_error("容器池 == null!")
+		return null
+	var reward_object = container_reward_pool.allocate_single_reward(randi() % 3)
+	return reward_object
+	
+func allocate_single_reward_goods() -> Object:
+	var goods_reward_pool = get_reward_pool(get_goods_reward_random())
+	if not goods_reward_pool:
+		push_error("容器池 == null!")
+		return
+	var random = RewardPool.get_quality_random()
+	var reward_object = goods_reward_pool.allocate_single_reward(random)
+	return reward_object
 
-static func class_enum_to_string(class_enum: RewardPool.Quality) -> String:
-	match class_enum:
-		RewardPool.Quality.White:
-			return "普通"
-		RewardPool.Quality.Green:
-			return "机密"
-		RewardPool.Quality.Blue:
-			return "绝密"
-		_:
-			return "普通"
+func test():
+	for i in range(10):
+		var container_reward_pool = get_reward_pool(GoodsContainer.type_to_string(randi() % 3))
+		if not container_reward_pool:
+			push_error("容器池 == null!")
+			return
+		var reward_object = container_reward_pool.allocate_single_reward(randi() % 3)
+		if reward_object:
+			reward_object.output()
+	
+	for i in range(10):
+		var goods_reward_pool = get_reward_pool(get_goods_reward_random())
+		if not goods_reward_pool:
+			push_error("容器池 == null!")
+			return
+		var random = RewardPool.get_quality_random()
+		var reward_object = goods_reward_pool.allocate_single_reward(random)
+		if reward_object:
+			reward_object.output()
+
+func get_goods_reward_random() -> String:
+	var keys = container_data.keys()
+	return keys[randi() % keys.size()]
+
+func get_container_types(container_name: String) -> Array:
+	return container_data.get(container_name, [])
 
 func create_config() -> Dictionary:	
 	## 物品概率
@@ -818,7 +857,7 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "高速磁盘阵列",
 		"物品类型": Goods.Type.Electronic,
-		"物品格数": [3, 4],
+		"物品格数": [4, 3],
 		"物品价值": 5000000
 	})
 	qualitys.append({
@@ -1196,7 +1235,7 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "飞秒激光器",
 		"物品类型": Goods.Type.ToolMaterial,
-		"物品格数": [1, 3],
+		"物品格数": [3, 1],
 		"物品价值": 800000
 	})
 	qualitys.append({
@@ -1328,7 +1367,7 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "手锯",
 		"物品类型": Goods.Type.ToolMaterial,
-		"物品格数": [1, 2],
+		"物品格数": [2, 1],
 		"物品价值": 4500
 	})
 	qualitys.append({
@@ -1970,8 +2009,8 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "加密手记",
 		"物品类型": Goods.Type.Document,
-		"物品格数": [1, 2],
-		"物品价值": 45000
+		"物品格数": [2, 2],
+		"物品价值": 100000
 	})
 	qualitys.append({
 		"物品名称": "袖珍录像带",
@@ -2027,19 +2066,19 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "人像照片",
 		"物品类型": Goods.Type.Document,
-		"物品格数": [1, 2],
+		"物品格数": [2, 1],
 		"物品价值": 2000
 	})
 	qualitys.append({
 		"物品名称": "军情照片",
 		"物品类型": Goods.Type.Document,
-		"物品格数": [1, 2],
+		"物品格数": [2, 1],
 		"物品价值": 2000
 	})
 	qualitys.append({
 		"物品名称": "当地小报",
 		"物品类型": Goods.Type.Document,
-		"物品格数": [1, 2],
+		"物品格数": [2, 1],
 		"物品价值": 2000
 	})
 	qualitys.append({
@@ -2089,7 +2128,7 @@ func create_config() -> Dictionary:
 	qualitys.clear()
 	
 	qualitys.append({
-		"物品名称": "蓝室数据中心",
+		"物品名称": "蓝室数据",
 		"物品类型": Goods.Type.KeyCar,
 		"物品格数": [1, 1],
 		"物品价值": 1000000

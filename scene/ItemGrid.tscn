@@ -42,16 +42,15 @@ bg_color = Color(0.25490198, 0.25490198, 0.25490198, 1)
 
 [node name="Main" type="Node" unique_id=308838927]
 script = ExtResource("1_t8s18")
-is_search = true
 
 [node name="GoodsContainer" parent="." unique_id=455152987 instance=ExtResource("15_715jb")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(512, 512)
-offset_left = 512.0
+clip_contents = false
+custom_minimum_size = Vector2(1024, 512)
 offset_top = 96.0
 offset_right = 1024.0
 offset_bottom = 608.0
-dimensions = Vector2i(8, 8)
+dimensions = Vector2i(16, 8)
 is_search_container = true
 
 [node name="GoodsStore" parent="." unique_id=122668884 instance=ExtResource("15_715jb")]

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://tkjm63300n48"
-path="res://.godot/imported/蓝室数据中心.png-5bd4e804cca7dbddf6e88b09587f3074.ctex"
+path="res://.godot/imported/蓝室数据.png-0d97447417d860e04e98babe31d0e2d8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/texture/物品/蓝室数据中心.png"
-dest_files=["res://.godot/imported/蓝室数据中心.png-5bd4e804cca7dbddf6e88b09587f3074.ctex"]
+source_file="res://art/texture/物品/蓝室数据.png"
+dest_files=["res://.godot/imported/蓝室数据.png-0d97447417d860e04e98babe31d0e2d8.ctex"]
 
 [params]
 

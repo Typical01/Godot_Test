@@ -45,3 +45,4 @@ default_node_visible = false
 [connection signal="on_entry_connect_callback" from="GoodsGrid" to="." method="_on_goods_grid_on_entry_connect_callback"]
 [connection signal="on_entry_disconnect_callback" from="GoodsGrid" to="." method="_on_goods_grid_on_entry_disconnect_callback"]
 [connection signal="on_entry_updated" from="GoodsGrid" to="." method="_on_goods_grid_on_entry_updated"]
+[connection signal="on_node_init" from="GoodsGrid" to="." method="_on_goods_grid_on_node_init"]

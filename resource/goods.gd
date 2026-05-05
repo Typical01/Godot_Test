@@ -103,9 +103,9 @@ static func get_quality_time(quality_color: RewardPool.Quality) -> float:
 		_:
 			return 1.0
 
-static func get_string_to_class_enum(category_name: String) -> int:
+static func string_to_type(category_name: String) -> int:
 	match category_name:
-		"工艺收藏品":
+		"工艺藏品":
 			return Goods.Type.CraftCollection
 		"钥匙":
 			return Goods.Type.KeyCar
@@ -122,3 +122,23 @@ static func get_string_to_class_enum(category_name: String) -> int:
 		"家居物品":
 			return Goods.Type.HomeItem
 	return Goods.Type.None
+
+static func type_to_string(class_type: int) -> String:
+	match class_type:
+		Goods.Type.CraftCollection:
+			return "工艺藏品"
+		Goods.Type.KeyCar:
+			return "钥匙"
+		Goods.Type.EnergyFuel:
+			return "能源燃料"
+		Goods.Type.Document:
+			return "资料情报"
+		Goods.Type.Medical:
+			return "医疗道具"
+		Goods.Type.Electronic:
+			return "电子物品"
+		Goods.Type.ToolMaterial:
+			return "工具材料"
+		Goods.Type.HomeItem:
+			return "家居物品"
+	return "未知"

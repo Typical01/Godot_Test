@@ -47,6 +47,7 @@ var sound_stream = preload("res://art/sound/打开背包.wav")
 @export var quality_color: Color = Color() ## 品质颜色
 @export var dimensions: Vector2i = Vector2i(1, 1) ## 物品规格
 var is_search = false ## 搜索物品
+var is_search_finish = false ## 搜索物品播放完成
 var is_rotated = false ## 旋转物品
 var is_held = false ## 拿起物品
 
@@ -96,41 +97,30 @@ func show_image_background(is_show: bool):
 
 func show_search():
 	if not is_search: # 未搜索
-		if quality_border_node:
-			quality_border_node.visible = true
-		if search_background_rect_node:
-			search_background_rect_node.visible = true
-		if search_icon_node:
-			search_icon_node.visible = true
+		quality_border_node.visible = true
+		search_background_rect_node.visible = true
+		search_icon_node.visible = true
 	else:
-		if quality_border_node:
-			quality_border_node.visible = false
-		if search_background_rect_node:
-			search_background_rect_node.visible = false
-		if search_icon_node:
-			search_icon_node.visible = false
+		if is_search_finish: quality_border_node.visible = false
+		search_background_rect_node.visible = false
+		search_icon_node.visible = false
 
 ##设置: 物品大小
 func set_goods_size(_size: Vector2 = get_goods_size()):
 	size = _size
 	#OverlayStateMonitor.clear()
 		
-	if quality_color_node:
-		quality_color_node.size = size
-	if goods_texture_node:
-		goods_texture_node.size = size
+	quality_color_node.size = size
+	goods_texture_node.size = size
 		#OverlayStateMonitor.push_overlay("[%s]goods_texture_node.size" % [get_instance_id()], goods_texture_node.size)
-	if goods_name_node and goods_name_node.size.x != size.x:
+	if goods_name_node.size.x != size.x:
 		if size.x > slot_size:
 			goods_name_node.size.x = size.x
 		else:
-			goods_name_node.size.x = 56
-	if quality_border_node:
-		quality_border_node.size = size
-	if search_background_rect_node:
-		search_background_rect_node.size = size
-	if search_icon_node:
-		search_icon_node.size = size
+			goods_name_node.size.x = 54
+	quality_border_node.size = size
+	search_background_rect_node.size = size
+	search_icon_node.size = size
 	
 	#OverlayStateMonitor.push_overlay("[%s]size" % [get_instance_id()], size)
 	#OverlayStateMonitor.push_overlay("[%s]dimensions" % [get_instance_id()], dimensions)
@@ -138,16 +128,18 @@ func set_goods_size(_size: Vector2 = get_goods_size()):
 ## ============================ 接口 =============================
 
 func init_goods() -> void:
+	is_search_finish = false
 	set_goods_size()
+	reset_animation()
+	show_search()
 	
 	goods_texture_node.texture = goods_texture
 	goods_name_node.text = goods_name
 	quality_color_node.self_modulate = quality_color
 	quality_border_node.self_modulate = quality_color
-	reset_animation()
-	show_search()
-	audio_player_node.stream = load("res://art/item_slot/音效/%s.wav" % [RewardPool.quality_to_string(quality)])
+	audio_player_node.stream = load("res://art/sound/%s.wav" % [RewardPool.quality_to_string(quality)])
 	if is_search:
+		is_search_finish = true
 		goods_texture_node.scale = Vector2(1, 1)
 		audio_player_node.stream = sound_stream
 	else:
@@ -193,24 +185,25 @@ func rotated() -> void:
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if anim_name == "search":
-		goods_texture_node.scale = Vector2(1.25, 1.25)
+		goods_texture_node.scale = Vector2(1.45, 1.45)
 		audio_player_node.play()
 		# 淡出（从不透明到透明）
 		var tween = create_tween()
+		tween.set_parallel(true)  # 并行
 		if quality >= RewardPool.Quality.Gold:
-			quality_border_node.self_modulate.a = 0.18
-			tween.tween_property(quality_border_node, "self_modulate:a", 1, 0.15)
-		tween.tween_property(goods_texture_node, "scale", Vector2(1, 1), 0.05)
+			quality_border_node.self_modulate.a = 1
+			tween.tween_property(quality_border_node, "self_modulate:a", 0.18, 0.25)
+		tween.tween_property(goods_texture_node, "scale", Vector2(1, 1), 0.1)
 		if quality >= RewardPool.Quality.Gold:
 			animation_player_node.play("quality_border")
 		else:
 			quality_border_node.visible = false
 		is_search = true
-		on_set_search.emit(global_position, is_search)
 		show_search()
+		on_set_search.emit(global_position, is_search)
 	elif anim_name == "quality_border":
-		if quality_border_node:
-			quality_border_node.visible = false
+		is_search_finish = true
+		show_search()
 	#OverlayStateMonitor.push_overlay("anim_name", anim_name)
 
 func _on_audio_stream_player_finished() -> void:

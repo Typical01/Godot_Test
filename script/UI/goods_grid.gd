@@ -26,6 +26,7 @@ var highlight_node = null
 @onready var slot_data = goods_grid_node.data
 var current_index: int = -1
 var item_sum: Dictionary = {}
+var button_groups = ButtonGroup.new()
 
 
 
@@ -73,6 +74,9 @@ func _on_goods_grid_on_data_fill(self_node) -> void:
 	goods_container_manage.drag_start.emit(_on_goods_drag_start)
 	goods_container_manage.drag_end.emit(_on_goods_drag_end)
 
+func _on_goods_grid_on_node_init(control) -> void:
+	control.button_group = button_groups
+	
 func _on_goods_grid_on_entry_connect_callback(control: Variant) -> void:
 	if control == null: 
 		push_error("control == null!")
@@ -104,6 +108,7 @@ func _on_goods_grid_on_entry_updated(index: int, control, data) -> void:
 	control.visible = true
 
 func _on_goods_grid_on_drag_start_item(index: int, data: Variant, global_mouse_position: Vector2) -> void:
+	return
 	if not data:
 		push_error("[%s]data == null!" % [index])
 		return
@@ -133,6 +138,7 @@ func _on_goods_grid_on_drag_start_item(index: int, data: Variant, global_mouse_p
 		highlight_node.visible = true
 
 func _on_goods_grid_on_drag_move_item(global_mouse_position: Vector2) -> void:
+	return
 	var data
 	if goods_grid_node.drag_index == -2: # 通过容器管理获取
 		data = goods_container_manage.goods_data
@@ -157,6 +163,7 @@ func _on_goods_grid_on_drag_move_item(global_mouse_position: Vector2) -> void:
 		highlight_node.color_change(false)
 
 func _on_goods_grid_on_drag_end_item(index: int, end_index: int, global_mouse_position: Vector2) -> void:
+	return
 	if index == -1:
 		if goods_container_manage.drag_node:
 			goods_container_manage.drag_node.visible = false
@@ -205,7 +212,8 @@ func _on_goods_grid_mouse_exited():
 func get_search_items(number = randi() % 6, is_search = false) -> void:
 	#OverlayStateMonitor.push_overlay("number", number)
 	while(number > 0):
-		var goods = Global.safe_box_reward_pool.allocate_single_reward()
+		var goods = Global.goods_container_reward_pool.allocate_single_reward_goods()
+		if not goods: continue
 		goods.is_search = is_search
 		goods.output()
 		var successful = add_item(goods)

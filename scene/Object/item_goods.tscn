@@ -68,7 +68,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id="Animation_djc1i"]
 resource_name = "quality_border"
-length = 0.15
+length = 0.25
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -76,10 +76,10 @@ tracks/0/path = NodePath("../QualityBorder:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.15),
+"times": PackedFloat32Array(0, 0.25),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(1.4, 1.4)]
+"values": [Vector2(1, 1), Vector2(1.6, 1.6)]
 }
 
 [sub_resource type="Animation" id="Animation_8hf3f"]
@@ -149,18 +149,18 @@ stretch_mode = 3
 [node name="GoodsName" type="Label" parent="." unique_id=1302733923]
 custom_minimum_size = Vector2(56, 0)
 layout_mode = 0
-offset_left = 4.0
-offset_top = 2.0
-offset_right = 60.0
-offset_bottom = 28.0
-theme_override_constants/line_spacing = -2
-theme_override_constants/outline_size = 2
+offset_left = 6.0
+offset_top = 4.0
+offset_right = 62.0
+offset_bottom = 34.0
+theme_override_colors/font_shadow_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
+theme_override_constants/line_spacing = -4
+theme_override_constants/shadow_outline_size = 1
 theme_override_font_sizes/font_size = 10
 text = "非洲之心海洋之泪"
 autowrap_mode = 1
 
 [node name="QualityBorder" type="TextureRect" parent="." unique_id=796381760]
-visible = false
 self_modulate = Color(1, 0, 0, 1)
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
@@ -172,7 +172,6 @@ texture = ExtResource("4_gqkdw")
 expand_mode = 1
 
 [node name="SearchBackgroundRect" type="ColorRect" parent="." unique_id=1528426914]
-visible = false
 clip_contents = true
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
@@ -190,12 +189,11 @@ mouse_filter = 2
 texture = ExtResource("5_0ym4v")
 
 [node name="SearchIcon" type="TextureRect" parent="." unique_id=747046351]
-visible = false
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_right = 64.0
 offset_bottom = 64.0
-scale = Vector2(0.4, 0.4)
+scale = Vector2(0.65, 0.65)
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 texture = ExtResource("6_gt80q")

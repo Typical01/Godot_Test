@@ -45,7 +45,7 @@ func on_long_press_end(position: Vector2):
 func on_drag_start(position: Vector2):
 	drag_start.emit(position)
 
-func on_drag_move(position: Vector2):
+func on_drag_move(position: Vector2, delta: Vector2):
 	drag_move.emit(position)
 
 func on_drag_end(position: Vector2):

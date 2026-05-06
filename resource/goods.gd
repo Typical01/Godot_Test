@@ -75,8 +75,10 @@ static func get_color(quality_color: RewardPool.Quality, alpha: float = 0.18) ->
 			return Color(0.2, 0.44, 0.64, alpha)
 		RewardPool.Quality.Purple:
 			return Color(0.3, 0.0, 0.4, alpha)
-		RewardPool.Quality.Gold:
+		RewardPool.Quality.Pink:
 			return Color(0.66, 0.48, 0.0, alpha)
+		RewardPool.Quality.Gold:
+			return Color(0.78, 0.0, 0.0, alpha)
 		RewardPool.Quality.Red:
 			return Color(0.78, 0.0, 0.0, alpha)
 		RewardPool.Quality.Orange:
@@ -94,12 +96,14 @@ static func get_quality_time(quality_color: RewardPool.Quality) -> float:
 			return 1.0
 		RewardPool.Quality.Purple:
 			return 1.5
+		RewardPool.Quality.Pink:
+			return 1.5
 		RewardPool.Quality.Gold:
 			return 2.0
 		RewardPool.Quality.Red:
-			return 4.0
+			return 2.0
 		RewardPool.Quality.Orange:
-			return 4.0
+			return 2.0
 		_:
 			return 1.0
 
@@ -141,4 +145,7 @@ static func type_to_string(class_type: int) -> String:
 			return "工具材料"
 		Goods.Type.HomeItem:
 			return "家居物品"
-	return "未知"
+	return "所有"
+
+static func get_all_type() -> Array:
+	return ["工艺藏品", "钥匙", "能源燃料", "资料情报", "医疗道具", "电子物品", "工具材料", "家居物品"]

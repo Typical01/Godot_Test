@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://da1dptr1blh0s"]
+
+[ext_resource type="Script" uid="uid://dnkjkhiu4tj5q" path="res://script/ui/buy_container.gd" id="1_jelhe"]
+
+[node name="BuyContainer" type="Button" unique_id=1484439949]
+offset_right = 8.0
+offset_bottom = 8.0
+script = ExtResource("1_jelhe")
+
+[connection signal="button_up" from="." to="." method="_on_button_up"]

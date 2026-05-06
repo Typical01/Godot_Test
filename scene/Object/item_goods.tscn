@@ -84,7 +84,8 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id="Animation_8hf3f"]
 resource_name = "search"
-length = 4.0
+length = 2.0
+step = 0.01
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -92,10 +93,10 @@ tracks/0/path = NodePath(".:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0)]
+"values": [Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_djc1i"]
@@ -133,6 +134,7 @@ custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_right = 62.0
 offset_bottom = 62.0
+pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 
 [node name="GoodsTexture" type="TextureRect" parent="." unique_id=1109956902]

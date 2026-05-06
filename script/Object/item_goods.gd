@@ -190,11 +190,13 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 		# 淡出（从不透明到透明）
 		var tween = create_tween()
 		tween.set_parallel(true)  # 并行
-		if quality >= RewardPool.Quality.Gold:
+		if quality >= RewardPool.Quality.Purple:
 			quality_border_node.self_modulate.a = 1
+			quality_color_node.self_modulate.a = 0.75
 			tween.tween_property(quality_border_node, "self_modulate:a", 0.18, 0.25)
+			tween.tween_property(quality_color_node, "self_modulate:a", 0.18, 0.25)
 		tween.tween_property(goods_texture_node, "scale", Vector2(1, 1), 0.1)
-		if quality >= RewardPool.Quality.Gold:
+		if quality >= RewardPool.Quality.Purple:
 			animation_player_node.play("quality_border")
 		else:
 			quality_border_node.visible = false

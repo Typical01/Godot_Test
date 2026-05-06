@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b8xqb7apdr7du"
-path="res://.godot/imported/航天测试数据.png-a2d37bd9f7fbd7e6eb10d65458bf589a.ctex"
+path="res://.godot/imported/测试数据.png-6f8c234b50505f8ea92fb85a71e0fbfa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/texture/物品/航天测试数据.png"
-dest_files=["res://.godot/imported/航天测试数据.png-a2d37bd9f7fbd7e6eb10d65458bf589a.ctex"]
+source_file="res://art/texture/物品/测试数据.png"
+dest_files=["res://.godot/imported/测试数据.png-6f8c234b50505f8ea92fb85a71e0fbfa.ctex"]
 
 [params]
 

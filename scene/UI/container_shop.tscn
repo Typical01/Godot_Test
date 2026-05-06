@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://cvb3yq5fe6i8k"]
+
+[ext_resource type="Script" uid="uid://der1sm1jrdd2m" path="res://script/ui/container_shop.gd" id="1_x5bey"]
+[ext_resource type="PackedScene" uid="uid://da1dptr1blh0s" path="res://scene/ui/buy_container.tscn" id="2_c7mab"]
+
+[node name="Control" type="Control" unique_id=2143487260]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_x5bey")
+buy_container_scene = ExtResource("2_c7mab")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=377326158]
+custom_minimum_size = Vector2(260, 500)
+layout_mode = 0
+offset_top = 100.0
+offset_right = 200.0
+offset_bottom = 700.0
+
+[node name="Panel" type="Panel" parent="PanelContainer" unique_id=127525770]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer" unique_id=448834405]
+layout_mode = 2
+theme_override_constants/scrollbar_h_separation = 8
+
+[node name="ShopList" type="VBoxContainer" parent="PanelContainer/ScrollContainer" unique_id=770777849]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3

@@ -14,7 +14,7 @@ const LOCK_FILE_PATH = "user://" + LOCK_FILE_NAME
 
 func _init():
 	_mutex = Mutex.new()
-	print("单例初始化: PID = ", OS.get_process_id())
+	print("单例初始化: (PID: %s)[%s]" % [OS.get_process_id(), Time.get_datetime_string_from_system()])
 
 func _ready():
 	# 尝试获取主实例锁

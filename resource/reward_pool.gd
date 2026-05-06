@@ -43,16 +43,20 @@ func init(reward_pool_name: String, reward_types_name: Array, probabilitys: Arra
 	reward_types = reward_types_name
 	
 	# 加载概率数组
-	if probabilitys.is_empty():
-		probabilitys = [0.02, 0.02, 0.30, 0.41, 0.00, 0.23, 0.0198, 0.0002]
-		push_warning("RewardPool: 概率数组无效, 使用默认值: %s!" % [probabilitys])
+	var sum = 0.0
+	for i in probabilitys.size():
+		sum += probabilitys[i]
+	if sum != 1.0:
+		probabilitys = [0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003]
+		push_error("RewardPool: [%s]概率数组无效, 使用默认值: %s!" % [reward_pool_name, probabilitys])
+	#print("probabilitys: ", probabilitys)
 	probabilitys_data = probabilitys.duplicate()
 	return true
 
 func add_qualitys_reward(quality_reward: Dictionary) -> bool:
 	for key in quality_reward.keys():
 		quality_reward_data.set(key, quality_reward[key].duplicate())
-		print("key: %s, data: %s" % [key, quality_reward[key].size()])
+		#print("key: %s, data: %s" % [key, quality_reward[key])
 	#print("quality_reward_data: ", quality_reward_data)
 	return true
 
@@ -65,12 +69,12 @@ func del_qualitys_reward(reward_name: String) -> bool:
 
 ## 单次分配
 func allocate_single_reward(quality: Quality = Quality.None) -> Object:
-	if quality == Quality.None or quality == Quality.Pink: # 未指定
+	if quality == Quality.None: # 未指定
 		quality = _get_random_quality() # 随机
 	var type = get_reward_types_random()
 	var qualitys_reward = get_qualitys_reward(type, quality) # 白(0)[{奖励}...]
 	if qualitys_reward.is_empty():
-		push_error("品质奖励数组[%s][%s] == null!" % [type, quality_to_string(quality)])
+		print("品质奖励数组[%s][%s] == null!" % [type, quality_to_string(quality)])
 		return null
 	var rand_quality_index = randi() % qualitys_reward.size()
 	var qualitys = qualitys_reward[rand_quality_index] # {奖励}
@@ -88,6 +92,17 @@ func allocate_multiple_rewards(quality: Quality = Quality.None, count: int = 10)
 
 ## ============================ 接口: 获取 =============================
 
+static func get_reward_data() -> Array:
+	var reward_data = []
+	var container_data = quality_reward_data.get("容器")
+	for i in container_data.size():
+		var datas = container_data.get(quality_to_string(i), [])
+		if datas.is_empty():
+			push_error("[%s]datas == null!" % [quality_to_string(i)])
+			continue
+		reward_data.append_array(datas)
+	return reward_data
+
 func get_reward_types_random() -> String:
 	return reward_types[randi() % reward_types.size()]
 
@@ -104,10 +119,12 @@ func _get_random_quality() -> Quality:
 	var rand_value = randf()
 	var cumulative = 0.0 # 累计奖励阈值
 	for i in range(probabilities.size()):
+		#print("probabilities: [%s | %s](%s)" % [i, probabilities[i], rand_value])
 		if probabilities[i] == 0.0:
 			continue
 		cumulative += probabilities[i]
 		if rand_value <= cumulative:
+			#print("probabilities: ", quality_to_string(index_to_quality(i)))
 			return index_to_quality(i)
 	return Quality.None
 
@@ -121,6 +138,13 @@ func get_qualitys_reward(reward_name: String, quality: Quality) -> Array:
 	if reward.is_empty():
 		return []
 	var object = reward.get(quality_to_string(quality), [])
+	if object.is_empty():
+		if quality == Quality.Orange:
+			object = reward[reward.keys()[0]] # 补大红
+		else:
+			var keys_array = reward.keys()
+			object = reward[keys_array[keys_array.size() - 1]] # 补小蓝
+			#print("get_qualitys_reward: 补小蓝", keys_array[keys_array.size() - 1])
 	return object
 
 ## 字符串 转 品质
@@ -156,6 +180,8 @@ static func quality_to_string(quality: RewardPool.Quality) -> String:
 			return "蓝"
 		RewardPool.Quality.Purple:
 			return "紫"
+		RewardPool.Quality.Pink:
+			return "粉"
 		RewardPool.Quality.Gold:
 			return "金"
 		RewardPool.Quality.Red:

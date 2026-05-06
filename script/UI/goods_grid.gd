@@ -23,6 +23,7 @@ var highlight_node = null
 @export var dimensions: Vector2i = Vector2i(5, 5) ## 网格大小: X,Y
 @export var is_search_container: bool = false ## 是否为: 搜索/物品容器
 
+var searching = false
 @onready var slot_data = goods_grid_node.data
 var current_index: int = -1
 var item_sum: Dictionary = {}
@@ -195,7 +196,7 @@ func _on_goods_grid_on_drag_end_item(index: int, end_index: int, global_mouse_po
 func _on_goods_grid_mouse_entered():
 	 # 通过容器管理转移
 	if not goods_container_manage.goods_data:
-		push_error("goods_data == null!")
+		#push_error("goods_data == null!")
 		return
 	goods_grid_node.drag_index = -2
 
@@ -209,13 +210,17 @@ func _on_goods_grid_mouse_exited():
 
 ## 搜索物品
 ## is_search: 是否搜索
-func get_search_items(number = randi() % 6, is_search = false) -> void:
+func get_search_items(container_name: String, is_search = false, number = clampi(randi() % 6, 1, 6)) -> void:
+	if searching: 
+		return
+	searching = true
 	#OverlayStateMonitor.push_overlay("number", number)
+	var quality = RewardPool.Quality.None
 	while(number > 0):
-		var goods = Global.goods_container_reward_pool.allocate_single_reward_goods()
+		var goods = Global.goods_container_reward_pool.allocate_single_reward_goods(container_name, quality)
 		if not goods: continue
 		goods.is_search = is_search
-		goods.output()
+		#goods.output()
 		var successful = add_item(goods)
 		if not successful: # 添加到容器失败, 重新生成
 			var count = 0
@@ -223,18 +228,26 @@ func get_search_items(number = randi() % 6, is_search = false) -> void:
 				if i != null:
 					count += 1
 			if count == slot_data.size():
-				push_error("容器已满!")
+				#push_error("容器已满!")
 				return
+			if quality == RewardPool.Quality.None:
+				quality = goods.quality
+			else:
+				#push_error("容器无法放入!")
+				return
+			print("get_search_items: 重新生成[%s][%s][%s]" % [number, RewardPool.quality_to_string(quality), goods.name])
 			continue
 		elif successful and not goods.is_search: # 等待动画
+			quality = RewardPool.Quality.None
 			await get_tree().create_timer(Goods.get_quality_time(goods.quality)).timeout
 		number -= 1
 		#OverlayStateMonitor.push_overlay("number", number)
+	searching = false
 
 func add_item(data: Goods, index: int = -1) -> bool:
 	var successful = attempt_to_place_item(data, index)
 	if successful == -1:
-		push_error("添加[%s][%s]失败!" % [index, data.name])
+		#push_error("添加[%s][%s]失败!" % [index, data.name])
 		return false
 	data.start_index = successful
 	goods_grid_node.update_item(successful, data)

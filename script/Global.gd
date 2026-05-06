@@ -11,7 +11,7 @@ var goods_container_reward_pool = null
 
 
 func _ready() -> void:
-	load_setting(true)
+	load_setting()
 	#print("\n=== 测试普通奖励池 ===")
 	#var normal_reward = safe_box_reward_pool.allocate_single_reward()
 	#if normal_reward:
@@ -41,7 +41,7 @@ func load_setting(create_config: bool = false):
 		game_config = goods_container_reward_pool.create_config()
 		save_data()
 	
-	if game_config.is_empty():
+	if game_config.is_empty() or not game_config.has("容器")or not game_config.has("物品"):
 		print("Global: game_config == null!")
 		game_config = goods_container_reward_pool.create_config()
 		data_manage.save_data_json()

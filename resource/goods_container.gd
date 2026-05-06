@@ -1,10 +1,12 @@
 class_name GoodsContainer extends ItemData
 
 @export var types: Array
+@export var quality: RewardPool.Quality
 
-func init(tmp_name: String, _types: Array) -> void:
+func init(tmp_name: String, _types: Array, _quality: RewardPool.Quality = RewardPool.Quality.White) -> void:
 	name = tmp_name
 	types = _types
+	quality = _quality
 	texture = load("res://art/texture/ui/container/%s.png" % name)
 
 func output():
@@ -25,8 +27,8 @@ static func string_to_type(category_name: String) -> RewardPool.Quality:
 			return RewardPool.Quality.None
 
 ## 容器类型
-static func type_to_string(class_enum: RewardPool.Quality) -> String:
-	match class_enum:
+static func type_to_string(type: RewardPool.Quality) -> String:
+	match type:
 		RewardPool.Quality.White:
 			return "普通"
 		RewardPool.Quality.Green:
@@ -35,3 +37,15 @@ static func type_to_string(class_enum: RewardPool.Quality) -> String:
 			return "绝密"
 		_:
 			return "普通"
+
+## 容器类型
+static func quality_to_value(_quality: RewardPool.Quality) -> int:
+	match _quality:
+		RewardPool.Quality.White:
+			return 0
+		RewardPool.Quality.Green:
+			return 300000
+		RewardPool.Quality.Blue:
+			return 800000
+		_:
+			return 0

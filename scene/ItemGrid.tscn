@@ -7,7 +7,8 @@
 [ext_resource type="Texture2D" uid="uid://cnoueieisg747" path="res://art/texture/ui/slot/格子.png" id="5_ovg48"]
 [ext_resource type="Script" uid="uid://v1p4sbghyfrb" path="res://script/object/item_simple_information.gd" id="6_t8s18"]
 [ext_resource type="Texture2D" uid="uid://cy8jagcgmc7le" path="res://art/texture/ui/slot/哈夫币.png" id="9_npv8c"]
-[ext_resource type="Script" uid="uid://b010s0dxio86v" path="res://script/utils/input_recognizer.gd" id="13_b88fm"]
+[ext_resource type="PackedScene" uid="uid://cvb3yq5fe6i8k" path="res://scene/ui/container_shop.tscn" id="10_44fev"]
+[ext_resource type="PackedScene" uid="uid://xk8cn281i66g" path="res://scene/ui/popup_tips.tscn" id="11_0hlyf"]
 [ext_resource type="PackedScene" uid="uid://dt8rwxirflj4v" path="res://scene/ui/goods_grid.tscn" id="15_715jb"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_p0l2g"]
@@ -40,21 +41,29 @@ bg_color = Color(0.25490198, 0.25490198, 0.25490198, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_b88fm"]
 
-[node name="Main" type="Node" unique_id=308838927]
+[node name="Main" type="Control" unique_id=1863597324]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_t8s18")
 
 [node name="GoodsContainer" parent="." unique_id=455152987 instance=ExtResource("15_715jb")]
 unique_name_in_owner = true
 clip_contents = false
-custom_minimum_size = Vector2(1024, 512)
-offset_top = 96.0
-offset_right = 1024.0
-offset_bottom = 608.0
-dimensions = Vector2i(16, 8)
+layout_mode = 0
+offset_left = 400.0
+offset_top = 200.0
+offset_right = 720.0
+offset_bottom = 520.0
 is_search_container = true
 
 [node name="GoodsStore" parent="." unique_id=122668884 instance=ExtResource("15_715jb")]
+visible = false
 custom_minimum_size = Vector2(192, 192)
+layout_mode = 0
 offset_left = 1088.0
 offset_top = 96.0
 offset_right = 1280.0
@@ -62,6 +71,8 @@ offset_bottom = 288.0
 dimensions = Vector2i(3, 3)
 
 [node name="Search" type="Button" parent="." unique_id=938154618]
+visible = false
+layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -82,6 +93,7 @@ shortcut = SubResource("Shortcut_uqtin")
 text = "开始"
 
 [node name="Search2" type="Button" parent="." unique_id=1937641141]
+layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -99,12 +111,11 @@ theme_override_styles/pressed = SubResource("StyleBoxTexture_j6k87")
 theme_override_styles/hover = SubResource("StyleBoxTexture_jhtiy")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_63qnd")
 shortcut = SubResource("Shortcut_uqtin")
-text = "清空"
+text = "出售"
 
 [node name="Info" type="Control" parent="." unique_id=1199282015]
 unique_name_in_owner = true
 z_index = 4
-layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
@@ -185,6 +196,7 @@ text = "出售"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1234065973]
 custom_minimum_size = Vector2(200, 16)
+layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -204,10 +216,20 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 11
 text = "0"
 
-[node name="InputRecognizer" type="Node" parent="." unique_id=7952742]
+[node name="Control" parent="." unique_id=2143487260 instance=ExtResource("10_44fev")]
+layout_mode = 0
+
+[node name="PopupTips" parent="." unique_id=1585343465 instance=ExtResource("11_0hlyf")]
 unique_name_in_owner = true
-script = ExtResource("13_b88fm")
-metadata/_custom_type_script = "uid://b010s0dxio86v"
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -120.0
+offset_right = 120.0
+grow_horizontal = 2
+item_name = "没钱不要硬玩!"
 
 [connection signal="cancel" from="GoodsContainer" to="." method="_on_item_inventory_cancel"]
 [connection signal="move" from="GoodsContainer" to="." method="_on_item_inventory_move"]
@@ -218,3 +240,4 @@ metadata/_custom_type_script = "uid://b010s0dxio86v"
 [connection signal="button_up" from="Search" to="." method="_on_search_button_up"]
 [connection signal="button_up" from="Search2" to="." method="_on_search_2_button_up"]
 [connection signal="button_up" from="Info/ItemSimpleInformation/InfoContainer/Control/Sell" to="." method="_on_sell_button_up"]
+[connection signal="buy_container" from="Control" to="." method="_on_control_buy_container"]

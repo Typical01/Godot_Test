@@ -28,7 +28,7 @@ func init(_config) -> bool:
 	
 ## 设置: 容器本身的概率
 ## container_probabilitys: ["普通"] = [0.6, 0.3, 0.1, 0, 0, 0, 0]
-## container_qualitys_reward: ["品质] = {"白": ["收纳袋", "收纳盒", "快递盒", "抽屉柜", "储物柜", "井盖", "鸟窝", "电脑机箱"]...}
+## container_qualitys_reward: ["品质] = {"白": [&收纳袋, &收纳盒, &快递盒, &抽屉柜, &储物柜, &井盖, &鸟窝, &电脑机箱]...}
 func set_container_reward(container_qualitys_reward: Dictionary) -> bool:
 	var reward = RewardPool.new()
 	for key in container_probabilitys.keys(): # [0.6, 0.3, 0.1, 0, 0, 0, 0]
@@ -39,9 +39,9 @@ func set_container_reward(container_qualitys_reward: Dictionary) -> bool:
 		if not reward_pool.init(key, ["容器"], container_probabilitys[key]):
 			push_error("容器: [%s] 奖励池初始化失败!" % [key])
 			return false
-		reward_pool.output()
+		#reward_pool.output()
 		reward_pools.set(key, reward_pool)
-		print("GoodsContainerRewardPool: 容器: [%s]奖励池创建成功！" % [key])
+		#print("GoodsContainerRewardPool: 容器: [%s]奖励池创建成功！" % [key])
 	reward.add_qualitys_reward(container_qualitys_reward)
 	return true
 	
@@ -60,9 +60,9 @@ func set_goods_reward(goods_qualitys_reward: Dictionary) -> bool:
 		if not reward_pool.init(key, get_container_types(key), goods_probabilitys[key]):
 			push_error("物品: [%s]奖励池初始化失败!" % [key])
 			return false
-		reward_pool.output()
+		#reward_pool.output()
 		reward_pools.set(key, reward_pool)
-		print("GoodsContainerRewardPool: 物品: [%s]奖励池创建成功！" % [key])
+		#print("GoodsContainerRewardPool: 物品: [%s]奖励池创建成功！" % [key])
 	reward.add_qualitys_reward(goods_qualitys_reward)
 	return true
 
@@ -72,12 +72,11 @@ func get_map_level_probabilitys(_map_level: String) -> Array:
 
 ## 获取: 奖励池
 func get_reward_pool(reward_pool_name: String) -> RewardPool:
-	print("获取: 物品奖励池[%s]." % [reward_pool_name])
+	#print("获取: 物品奖励池[%s]." % [reward_pool_name])
 	return reward_pools.get(reward_pool_name, null)
 
 func is_empty() -> bool:
 	return reward_pools.is_empty()
-
 
 ## 提取: 容器奖励池
 func extract_container_reward_pool() -> Dictionary:
@@ -112,16 +111,22 @@ func extract_container_reward_pool() -> Dictionary:
 	var container_quality_array = {}
 	for key in container_qualitys.keys(): #"白": [{"名称": "收纳袋", "类型": ...}...]
 		var quality_array = []
+		#print("key: ", key)
 		var data = container_qualitys[key] #[{"名称": "收纳袋", "类型": ...}...]
 		for i in data.size(): # {"名称": "收纳袋", "类型": ...}
 			var container_name = data[i]["名称"]
 			var container_types = data[i]["类型"]
+			var container_quality = RewardPool.string_to_quality(key)
 			var container_ins = GoodsContainer.new()
-			container_ins.init(container_name, container_types)
+			container_ins.init(container_name, container_types, container_quality)
 			quality_array.append(container_ins)
 			var types = []
 			for i2 in container_types.size():
-				types.append(Goods.type_to_string(container_types[i2]))
+				var type_name = Goods.type_to_string(container_types[i2])
+				if type_name == "所有":
+					types = Goods.get_all_type()
+				else:
+					types.append(type_name)
 			container_data.set(container_name, types.duplicate())
 		container_quality_array.set(key, quality_array.duplicate())
 	qualitys.set("容器", container_quality_array.duplicate())
@@ -180,21 +185,24 @@ func extract_goods_reward_pool() -> Dictionary:
 		goods_qualitys.set(key, quality_array.duplicate())
 	return goods_qualitys
 
-func allocate_single_reward_container() -> Object:
+func allocate_single_reward_container(quality: RewardPool.Quality = RewardPool.Quality.None) -> Object:
 	var container_reward_pool = get_reward_pool(GoodsContainer.type_to_string(randi() % 3))
 	if not container_reward_pool:
 		push_error("容器池 == null!")
 		return null
-	var reward_object = container_reward_pool.allocate_single_reward(randi() % 3)
+	#container_reward_pool.output()
+	var reward_object = container_reward_pool.allocate_single_reward(quality)
+	reward_object.output()
 	return reward_object
 	
-func allocate_single_reward_goods() -> Object:
-	var goods_reward_pool = get_reward_pool(get_goods_reward_random())
-	if not goods_reward_pool:
+func allocate_single_reward_goods(container_name: String = "航空箱", quality: RewardPool.Quality = RewardPool.Quality.None) -> Object:
+	var current_container = get_reward_pool(container_name)
+	if not current_container:
 		push_error("容器池 == null!")
 		return
-	var random = RewardPool.get_quality_random()
-	var reward_object = goods_reward_pool.allocate_single_reward(random)
+	#current_container.output()
+	var reward_object = current_container.allocate_single_reward(quality)
+	#reward_object.output()
 	return reward_object
 
 func test():
@@ -203,19 +211,18 @@ func test():
 		if not container_reward_pool:
 			push_error("容器池 == null!")
 			return
-		var reward_object = container_reward_pool.allocate_single_reward(randi() % 3)
-		if reward_object:
-			reward_object.output()
+		var reward_object = container_reward_pool.allocate_single_reward()
+		#if reward_object:
+			#reward_object.output()
 	
 	for i in range(10):
 		var goods_reward_pool = get_reward_pool(get_goods_reward_random())
 		if not goods_reward_pool:
 			push_error("容器池 == null!")
 			return
-		var random = RewardPool.get_quality_random()
-		var reward_object = goods_reward_pool.allocate_single_reward(random)
-		if reward_object:
-			reward_object.output()
+		var reward_object = goods_reward_pool.allocate_single_reward()
+		#if reward_object:
+			#reward_object.output()
 
 func get_goods_reward_random() -> String:
 	var keys = container_data.keys()
@@ -247,25 +254,6 @@ func create_config() -> Dictionary:
 	container_class["橙"] = qualitys.duplicate()
 	qualitys.clear()
 	
-	# 红 品质数组
-	qualitys.append({
-		"物品名称": "鎏金卡牌",
-		"物品类型": Goods.Type.CraftCollection,
-		"物品格数": [1, 1],
-		"物品价值": 240000
-	})
-	qualitys.append({
-		"物品名称": "万足金条",
-		"物品类型": Goods.Type.CraftCollection,
-		"物品格数": [1, 2],
-		"物品价值": 500000
-	})
-	qualitys.append({
-		"物品名称": "名贵机械表",
-		"物品类型": Goods.Type.CraftCollection,
-		"物品格数": [1, 1],
-		"物品价值": 240000
-	})
 	qualitys.append({
 		"物品名称": "印象派名画",
 		"物品类型": Goods.Type.CraftCollection,
@@ -283,6 +271,51 @@ func create_config() -> Dictionary:
 		"物品类型": Goods.Type.CraftCollection,
 		"物品格数": [3, 2],
 		"物品价值": 2600000
+	})
+	qualitys.append({
+		"物品名称": "克劳迪乌斯半身像",
+		"物品类型": Goods.Type.CraftCollection,
+		"物品格数": [2, 3],
+		"物品价值": 3200000
+	})
+	qualitys.append({
+		"物品名称": "雷斯的留声机",
+		"物品类型": Goods.Type.CraftCollection,
+		"物品格数": [2, 3],
+		"物品价值": 2800000
+	})
+	qualitys.append({
+		"物品名称": "万金泪冠",
+		"物品类型": Goods.Type.CraftCollection,
+		"物品格数": [3, 3],
+		"物品价值": 4000000
+	})
+	qualitys.append({
+		"物品名称": "纵横",
+		"物品类型": Goods.Type.CraftCollection,
+		"物品格数": [3, 3],
+		"物品价值": 4500000
+	})
+	container_class["红"] = qualitys.duplicate()
+	qualitys.clear()
+	
+	qualitys.append({
+		"物品名称": "鎏金卡牌",
+		"物品类型": Goods.Type.CraftCollection,
+		"物品格数": [1, 1],
+		"物品价值": 240000
+	})
+	qualitys.append({
+		"物品名称": "万足金条",
+		"物品类型": Goods.Type.CraftCollection,
+		"物品格数": [1, 2],
+		"物品价值": 500000
+	})
+	qualitys.append({
+		"物品名称": "名贵机械表",
+		"物品类型": Goods.Type.CraftCollection,
+		"物品格数": [1, 1],
+		"物品价值": 240000
 	})
 	qualitys.append({
 		"物品名称": "滑膛枪展示品",
@@ -303,18 +336,6 @@ func create_config() -> Dictionary:
 		"物品价值": 1000000
 	})
 	qualitys.append({
-		"物品名称": "克劳迪乌斯半身像",
-		"物品类型": Goods.Type.CraftCollection,
-		"物品格数": [2, 3],
-		"物品价值": 3200000
-	})
-	qualitys.append({
-		"物品名称": "雷斯的留声机",
-		"物品类型": Goods.Type.CraftCollection,
-		"物品格数": [2, 3],
-		"物品价值": 2800000
-	})
-	qualitys.append({
 		"物品名称": "赛伊德的怀表",
 		"物品类型": Goods.Type.CraftCollection,
 		"物品格数": [1, 1],
@@ -327,21 +348,14 @@ func create_config() -> Dictionary:
 		"物品价值": 1200000
 	})
 	qualitys.append({
-		"物品名称": "万金泪冠",
-		"物品类型": Goods.Type.CraftCollection,
-		"物品格数": [3, 3],
-		"物品价值": 4000000
+		"物品名称": "鱼子酱",
+		"物品类型": Goods.Type.HomeItem,
+		"物品格数": [1, 1],
+		"物品价值": 240000
 	})
-	qualitys.append({
-		"物品名称": "纵横",
-		"物品类型": Goods.Type.CraftCollection,
-		"物品格数": [3, 3],
-		"物品价值": 4500000
-	})
-	container_class["红"] = qualitys.duplicate()
+	container_class["金"] = qualitys.duplicate()
 	qualitys.clear()
 	
-	# 金 品质数组
 	qualitys.append({
 		"物品名称": "雷斯的乐谱本",
 		"物品类型": Goods.Type.CraftCollection,
@@ -408,7 +422,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 80000
 	})
-	container_class["金"] = qualitys.duplicate()
+	container_class["粉"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	# 紫 品质数组
@@ -554,6 +568,9 @@ func create_config() -> Dictionary:
 		"物品格数": [2, 3],
 		"物品价值": 2000000
 	})
+	container_class["红"] = qualitys.duplicate()
+	qualitys.clear()
+	
 	qualitys.append({
 		"物品名称": "香槟",
 		"物品类型": Goods.Type.HomeItem,
@@ -566,7 +583,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 240000
 	})
-	container_class["红"] = qualitys.duplicate()
+	container_class["金"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -611,7 +628,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 80000
 	})
-	container_class["金"] = qualitys.duplicate()
+	container_class["粉"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -878,6 +895,9 @@ func create_config() -> Dictionary:
 		"物品格数": [3, 2],
 		"物品价值": 3000000
 	})
+	container_class["红"] = qualitys.duplicate()
+	qualitys.clear()
+	
 	qualitys.append({
 		"物品名称": "军用信息终端",
 		"物品类型": Goods.Type.Electronic,
@@ -932,7 +952,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 240000
 	})
-	container_class["红"] = qualitys.duplicate()
+	container_class["金"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -1025,7 +1045,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 80000
 	})
-	container_class["金"] = qualitys.duplicate()
+	container_class["粉"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -1232,6 +1252,9 @@ func create_config() -> Dictionary:
 		"物品格数": [3, 2],
 		"物品价值": 2400000
 	})
+	container_class["红"] = qualitys.duplicate()
+	qualitys.clear()
+	
 	qualitys.append({
 		"物品名称": "飞秒激光器",
 		"物品类型": Goods.Type.ToolMaterial,
@@ -1244,7 +1267,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 240000
 	})
-	container_class["红"] = qualitys.duplicate()
+	container_class["金"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -1277,7 +1300,7 @@ func create_config() -> Dictionary:
 		"物品格数": [2, 2],
 		"物品价值": 340000
 	})
-	container_class["金"] = qualitys.duplicate()
+	container_class["粉"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -1346,8 +1369,8 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "高精数卡尺",
 		"物品类型": Goods.Type.ToolMaterial,
-		"物品格数": [1, 2],
-		"物品价值": 25000
+		"物品格数": [1, 1],
+		"物品价值": 10000
 	})
 	qualitys.append({
 		"物品名称": "转换插座",
@@ -1409,8 +1432,8 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "LED灯管",
 		"物品类型": Goods.Type.ToolMaterial,
-		"物品格数": [1, 1],
-		"物品价值": 2000
+		"物品格数": [2, 1],
+		"物品价值": 4500
 	})
 	qualitys.append({
 		"物品名称": "螺丝刀",
@@ -1529,19 +1552,19 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "微型反应炉",
 		"物品类型": Goods.Type.EnergyFuel,
-		"物品格数": [1, 1],
+		"物品格数": [3, 3],
 		"物品价值": 8000000
 	})
 	qualitys.append({
 		"物品名称": "试制聚变供能单元",
 		"物品类型": Goods.Type.EnergyFuel,
-		"物品格数": [1, 1],
+		"物品格数": [3, 3],
 		"物品价值": 4000000
 	})
 	qualitys.append({
 		"物品名称": "动力电池组",
 		"物品类型": Goods.Type.EnergyFuel,
-		"物品格数": [3, 2],
+		"物品格数": [4, 3],
 		"物品价值": 4000000
 	})
 	qualitys.append({
@@ -1550,13 +1573,16 @@ func create_config() -> Dictionary:
 		"物品格数": [3, 2],
 		"物品价值": 7000000
 	})
+	container_class["红"] = qualitys.duplicate()
+	qualitys.clear()
+	
 	qualitys.append({
 		"物品名称": "高能瓦斯罐",
 		"物品类型": Goods.Type.EnergyFuel,
 		"物品格数": [2, 2],
 		"物品价值": 1000000
 	})
-	container_class["红"] = qualitys.duplicate()
+	container_class["金"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -1589,7 +1615,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 80000
 	})
-	container_class["金"] = qualitys.duplicate()
+	container_class["粉"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -1676,8 +1702,8 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "盒装蜡烛",
 		"物品类型": Goods.Type.EnergyFuel,
-		"物品格数": [1, 1],
-		"物品价值": 1000
+		"物品格数": [2, 2],
+		"物品价值": 6000
 	})
 	container_class["白"] = qualitys.duplicate()
 	qualitys.clear()
@@ -1712,13 +1738,16 @@ func create_config() -> Dictionary:
 		"物品格数": [2, 3],
 		"物品价值": 2000000
 	})
+	container_class["红"] = qualitys.duplicate()
+	qualitys.clear()
+	
 	qualitys.append({
 		"物品名称": "呼吸机",
 		"物品类型": Goods.Type.Medical,
 		"物品格数": [2, 2],
 		"物品价值": 100000
 	})
-	container_class["红"] = qualitys.duplicate()
+	container_class["金"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -1769,7 +1798,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 80000
 	})
-	container_class["金"] = qualitys.duplicate()
+	container_class["粉"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -1922,6 +1951,9 @@ func create_config() -> Dictionary:
 		"物品格数": [3, 2],
 		"物品价值": 2000000
 	})
+	container_class["红"] = qualitys.duplicate()
+	qualitys.clear()
+	
 	qualitys.append({
 		"物品名称": "已封存音源",
 		"物品类型": Goods.Type.Document,
@@ -1940,7 +1972,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 240000
 	})
-	container_class["红"] = qualitys.duplicate()
+	container_class["金"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -1958,8 +1990,8 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "脑机报告",
 		"物品类型": Goods.Type.Document,
-		"物品格数": [1, 2],
-		"物品价值": 25000
+		"物品格数": [2, 2],
+		"物品价值": 100000
 	})
 	qualitys.append({
 		"物品名称": "作战计划书",
@@ -1968,7 +2000,7 @@ func create_config() -> Dictionary:
 		"物品价值": 25000
 	})
 	qualitys.append({
-		"物品名称": "航天测试数据",
+		"物品名称": "测试数据",
 		"物品类型": Goods.Type.Document,
 		"物品格数": [1, 1],
 		"物品价值": 80000
@@ -1985,7 +2017,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 80000
 	})
-	container_class["金"] = qualitys.duplicate()
+	container_class["粉"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -2009,8 +2041,8 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "加密手记",
 		"物品类型": Goods.Type.Document,
-		"物品格数": [2, 2],
-		"物品价值": 100000
+		"物品格数": [1, 1],
+		"物品价值": 20000
 	})
 	qualitys.append({
 		"物品名称": "袖珍录像带",
@@ -2067,25 +2099,25 @@ func create_config() -> Dictionary:
 		"物品名称": "人像照片",
 		"物品类型": Goods.Type.Document,
 		"物品格数": [2, 1],
-		"物品价值": 2000
+		"物品价值": 2500
 	})
 	qualitys.append({
 		"物品名称": "军情照片",
 		"物品类型": Goods.Type.Document,
 		"物品格数": [2, 1],
-		"物品价值": 2000
+		"物品价值": 2500
 	})
 	qualitys.append({
 		"物品名称": "当地小报",
 		"物品类型": Goods.Type.Document,
 		"物品格数": [2, 1],
-		"物品价值": 2000
+		"物品价值": 2500
 	})
 	qualitys.append({
 		"物品名称": "物流信息单",
 		"物品类型": Goods.Type.Document,
-		"物品格数": [1, 2],
-		"物品价值": 2000
+		"物品格数": [1, 1],
+		"物品价值": 1000
 	})
 	container_class["白"] = qualitys.duplicate()
 	qualitys.clear()
@@ -2100,6 +2132,15 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 9000000
 	})
+	qualitys.append({
+		"物品名称": "变电技术室",
+		"物品类型": Goods.Type.KeyCar,
+		"物品格数": [1, 1],
+		"物品价值": 9000000
+	})
+	container_class["红"] = qualitys.duplicate()
+	qualitys.clear()
+	
 	qualitys.append({
 		"物品名称": "黑室服务器",
 		"物品类型": Goods.Type.KeyCar,
@@ -2118,13 +2159,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 6000000
 	})
-	qualitys.append({
-		"物品名称": "变电技术室",
-		"物品类型": Goods.Type.KeyCar,
-		"物品格数": [1, 1],
-		"物品价值": 9000000
-	})
-	container_class["红"] = qualitys.duplicate()
+	container_class["金"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -2157,7 +2192,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 300000
 	})
-	container_class["金"] = qualitys.duplicate()
+	container_class["粉"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	
@@ -2268,52 +2303,51 @@ func create_config() -> Dictionary:
 			{"名称": "登山包", "类型": [Goods.Type.HomeItem]},
 			{"名称": "旅行箱", "类型": [Goods.Type.HomeItem]},
 			{"名称": "工具柜", "类型": [Goods.Type.ToolMaterial]},
-			{"名称": "野外物资箱", "类型": [Goods.Type.None]},
-			{"名称": "军用医疗包", "类型": [Goods.Type.Medical]},
+			{"名称": "野外物资箱", "类型": [Goods.Type.EnergyFuel, Goods.Type.ToolMaterial]},
 			{"名称": "电脑", "类型": [Goods.Type.Electronic]},
+			{"名称": "军用医疗包", "类型": [Goods.Type.Medical]},
 			{"名称": "小保险箱", "类型": [Goods.Type.CraftCollection]}
 		], 
 		"蓝": [
 			{"名称": "手提箱", "类型": [Goods.Type.Document]},
-			{"名称": "高级储物箱", "类型": [Goods.Type.CraftCollection, Goods.Type.Electronic, Goods.Type.HomeItem]},
-			{"名称": "医疗物资箱", "类型": [Goods.Type.Medical]},
+			{"名称": "高级储物箱", "类型": [Goods.Type.Electronic, Goods.Type.ToolMaterial, Goods.Type.HomeItem]},
 			{"名称": "服务器", "类型": [Goods.Type.Electronic]},
+			{"名称": "医疗物资箱", "类型": [Goods.Type.Medical]},
 			{"名称": "衣服", "类型": [Goods.Type.KeyCar]},
-			{"名称": "航空箱", "类型": [Goods.Type.None]},
+			{"名称": "航空箱", "类型": [Goods.Type.EnergyFuel, Goods.Type.ToolMaterial]},
 			{"名称": "保险箱", "类型": [Goods.Type.CraftCollection]}
 		]
 	}
 	container["概率"] = {
-		"普通": [0.6, 0.3, 0.1, 0, 0, 0, 0],
-		"机密": [0.4, 0.4, 0.2, 0, 0, 0, 0],
-		"绝密": [0.25, 0.45, 0.3, 0, 0, 0, 0]
+		"普通": [0.7, 0.25, 0.05, 0, 0, 0, 0],
+		"机密": [0.5, 0.4, 0.1, 0, 0, 0, 0],
+		"绝密": [0.2, 0.55, 0.25, 0, 0, 0, 0]
 	}
 	container["物品概率"] = {
-		"默认":			[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"收纳袋": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"收纳盒": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"快递盒": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"抽屉柜": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"储物柜": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"井盖": 			[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"鸟窝": 			[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"电脑机箱": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
+		"收纳袋": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"收纳盒": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"快递盒": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"抽屉柜": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"储物柜": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"井盖": 			[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"鸟窝": 			[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"电脑机箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
 		
-		"登山包": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"旅行箱": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"工具柜": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"野外物资箱": 	[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"军用医疗包": 	[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"电脑": 			[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"小保险箱": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
+		"登山包": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"旅行箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"工具柜": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"野外物资箱": 	[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"军用医疗包": 	[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"电脑": 			[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"小保险箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
 		
-		"手提箱": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"高级储物箱": 	[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"医疗物资箱": 	[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"服务器": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"衣服": 			[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"航空箱": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005],
-		"保险箱": 		[0.02, 0.02, 0.20, 0.40, 0.00, 0.33, 0.0405, 0.0005]
+		"手提箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"高级储物箱": 	[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"医疗物资箱": 	[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"服务器": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"衣服": 			[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"航空箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"保险箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003]
 	}
 	base_setting["容器"] = container
 	return base_setting

@@ -21,7 +21,7 @@ func _on_search_button_up() -> void:
 	pass
 
 func _on_search_2_button_up() -> void:
-	%GoodsContainer.clear(self.sell)
+	%GoodsContainer.sells(sell, move_to)
 
 func _on_item_inventory_select(self_node, item: Node) -> void:
 	current_inventory = self_node
@@ -29,10 +29,17 @@ func _on_item_inventory_select(self_node, item: Node) -> void:
 	%Info.show_info(true, item.data)
 
 func sell(data) -> void:
-	if not data:
-		return
 	add_value(data.value)
 
+func move_to(data) -> void:
+	%GoodsStore.add_item(data)
+
+func save_goods_data(goods_names):
+	Global.game_config["仓库"] = goods_names
+
+func _on_goods_store_save(_self_node: Variant) -> void:
+	%GoodsStore.save_goods_data(save_goods_data)
+	
 func add_value(number: int) -> void:
 	%LabelValue.text = str(%LabelValue.text.to_int() + number)
 	Global.game_config["货币"] = %LabelValue.text.to_int()

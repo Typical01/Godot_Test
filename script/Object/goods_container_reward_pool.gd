@@ -192,10 +192,10 @@ func allocate_single_reward_container(quality: RewardPool.Quality = RewardPool.Q
 		return null
 	#container_reward_pool.output()
 	var reward_object = container_reward_pool.allocate_single_reward(quality)
-	reward_object.output()
+	#reward_object.output()
 	return reward_object
 	
-func allocate_single_reward_goods(container_name: String = "航空箱", quality: RewardPool.Quality = RewardPool.Quality.None) -> Object:
+func allocate_single_reward_goods(container_name: String = "收纳袋", quality: RewardPool.Quality = RewardPool.Quality.None) -> Object:
 	var current_container = get_reward_pool(container_name)
 	if not current_container:
 		push_error("容器池 == null!")
@@ -860,16 +860,19 @@ func create_config() -> Dictionary:
 ## ============================ 电子物品 =============================
 
 	qualitys.append({
-		"物品名称": "便携军用雷达",
-		"物品类型": Goods.Type.Electronic,
-		"物品格数": [3, 3],
-		"物品价值": 5000000
-	})
-	qualitys.append({
 		"物品名称": "曼德尔超算单元",
 		"物品类型": Goods.Type.Electronic,
 		"物品格数": [3, 3],
 		"物品价值": 8000000
+	})
+	container_class["橙"] = qualitys.duplicate()
+	qualitys.clear()
+	
+	qualitys.append({
+		"物品名称": "便携军用雷达",
+		"物品类型": Goods.Type.Electronic,
+		"物品格数": [3, 3],
+		"物品价值": 5000000
 	})
 	qualitys.append({
 		"物品名称": "高速磁盘阵列",
@@ -1555,6 +1558,9 @@ func create_config() -> Dictionary:
 		"物品格数": [3, 3],
 		"物品价值": 8000000
 	})
+	container_class["橙"] = qualitys.duplicate()
+	qualitys.clear()
+	
 	qualitys.append({
 		"物品名称": "试制聚变供能单元",
 		"物品类型": Goods.Type.EnergyFuel,
@@ -1720,6 +1726,9 @@ func create_config() -> Dictionary:
 		"物品格数": [3, 3],
 		"物品价值": 9000000
 	})
+	container_class["橙"] = qualitys.duplicate()
+	qualitys.clear()
+	
 	qualitys.append({
 		"物品名称": "ECMO",
 		"物品类型": Goods.Type.Medical,
@@ -1745,7 +1754,7 @@ func create_config() -> Dictionary:
 		"物品名称": "呼吸机",
 		"物品类型": Goods.Type.Medical,
 		"物品格数": [2, 2],
-		"物品价值": 100000
+		"物品价值": 1000000
 	})
 	container_class["金"] = qualitys.duplicate()
 	qualitys.clear()
@@ -1943,13 +1952,16 @@ func create_config() -> Dictionary:
 		"物品名称": "绝密服务器",
 		"物品类型": Goods.Type.Document,
 		"物品格数": [3, 3],
-		"物品价值": 5000000
+		"物品价值": 6000000
 	})
+	container_class["橙"] = qualitys.duplicate()
+	qualitys.clear()
+	
 	qualitys.append({
 		"物品名称": "云存储阵列",
 		"物品类型": Goods.Type.Document,
 		"物品格数": [3, 2],
-		"物品价值": 2000000
+		"物品价值": 3000000
 	})
 	container_class["红"] = qualitys.duplicate()
 	qualitys.clear()
@@ -2138,7 +2150,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 9000000
 	})
-	container_class["红"] = qualitys.duplicate()
+	container_class["橙"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -2159,7 +2171,7 @@ func create_config() -> Dictionary:
 		"物品格数": [1, 1],
 		"物品价值": 6000000
 	})
-	container_class["金"] = qualitys.duplicate()
+	container_class["红"] = qualitys.duplicate()
 	qualitys.clear()
 	
 	qualitys.append({
@@ -2350,4 +2362,6 @@ func create_config() -> Dictionary:
 		"保险箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003]
 	}
 	base_setting["容器"] = container
+	base_setting["仓库"] = []
+	base_setting["版本"] = "0.0.101"
 	return base_setting

@@ -7,7 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://bqau8wo5ooslc" path="res://scene/ui/utils/v_list_view.tscn" id="7_y03jg"]
 
 [node name="GoodsContainer" type="Control" unique_id=2123018299]
-clip_contents = true
 custom_minimum_size = Vector2(320, 320)
 layout_mode = 3
 anchors_preset = 0
@@ -25,14 +24,16 @@ highlight_scene = ExtResource("4_k4abw")
 unique_name_in_owner = true
 layout_mode = 0
 mouse_filter = 2
+buffer_rows = 1
 
 [node name="GoodsGrid" parent="." unique_id=727001819 instance=ExtResource("7_y03jg")]
 unique_name_in_owner = true
 z_index = 1
 layout_mode = 0
-item_size = Vector2i(64, 64)
+buffer_rows = 4
 is_size_change = false
 aligning = false
+show_drag_node = false
 default_node_visible = false
 
 [connection signal="on_data_fill" from="SlotGrid" to="." method="_on_slot_grid_on_data_fill"]
@@ -46,3 +47,4 @@ default_node_visible = false
 [connection signal="on_entry_disconnect_callback" from="GoodsGrid" to="." method="_on_goods_grid_on_entry_disconnect_callback"]
 [connection signal="on_entry_updated" from="GoodsGrid" to="." method="_on_goods_grid_on_entry_updated"]
 [connection signal="on_node_init" from="GoodsGrid" to="." method="_on_goods_grid_on_node_init"]
+[connection signal="on_v_value_changed" from="GoodsGrid" to="." method="_on_goods_grid_on_v_value_changed"]

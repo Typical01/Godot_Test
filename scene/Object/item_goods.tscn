@@ -106,11 +106,18 @@ _data = {
 &"search": SubResource("Animation_8hf3f")
 }
 
+[sub_resource type="Curve2D" id="Curve2D_g2ywv"]
+bake_interval = 0.1
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 12, 32, -21.93003, -0.024439983, 21.93003, 0.024439983, 32, 12, 0, 0, 0, 0, 52, 32, 22.077188, 0, -22.077188, 0, 32, 52, 0, 0, 0, 0, 12, 32)
+}
+point_count = 5
+
 [node name="Button" type="Button" unique_id=1501948871]
 z_index = 10
 custom_minimum_size = Vector2(64, 64)
-offset_right = 64.0
-offset_bottom = 64.0
+offset_right = 63.0
+offset_bottom = 63.0
 pivot_offset_ratio = Vector2(0.5, 0.5)
 theme_override_styles/normal = SubResource("StyleBoxFlat_g2ywv")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_m62xi")
@@ -145,8 +152,6 @@ offset_bottom = 64.0
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 texture = ExtResource("3_g2ywv")
-expand_mode = 1
-stretch_mode = 3
 
 [node name="GoodsName" type="Label" parent="." unique_id=1302733923]
 custom_minimum_size = Vector2(56, 0)
@@ -171,7 +176,6 @@ offset_bottom = 64.0
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 texture = ExtResource("4_gqkdw")
-expand_mode = 1
 
 [node name="SearchBackgroundRect" type="ColorRect" parent="." unique_id=1528426914]
 clip_contents = true
@@ -191,6 +195,7 @@ mouse_filter = 2
 texture = ExtResource("5_0ym4v")
 
 [node name="SearchIcon" type="TextureRect" parent="." unique_id=747046351]
+visible = false
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
 offset_right = 64.0
@@ -199,8 +204,29 @@ scale = Vector2(0.65, 0.65)
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 texture = ExtResource("6_gt80q")
-expand_mode = 1
 stretch_mode = 3
+
+[node name="Path2D" type="Path2D" parent="SearchIcon" unique_id=692090257]
+position = Vector2(13.538464, 13.538462)
+scale = Vector2(0.15384617, 0.15384617)
+curve = SubResource("Curve2D_g2ywv")
+
+[node name="PathFollow2D" type="PathFollow2D" parent="SearchIcon/Path2D" unique_id=1044238085]
+position = Vector2(12, 32)
+rotation = -1.6668832
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="SearchIcon/Path2D/PathFollow2D" unique_id=1971791570]
+position = Vector2(30.173382, -21.202995)
+rotation = 1.6668832
+remote_path = NodePath("../../../../Sprite2D")
+update_rotation = false
+update_scale = false
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=805152902]
+position = Vector2(18.800001, 20.4)
+scale = Vector2(0.65, 0.65)
+texture = ExtResource("6_gt80q")
+offset = Vector2(16, 16)
 
 [connection signal="button_down" from="." to="." method="piked_up"]
 [connection signal="button_up" from="." to="." method="placed"]

@@ -1,8 +1,7 @@
 class_name ItemData extends Resource
 
-@export var name: String = "ItemData == null"
-@export var texture: Texture2D = null
-@export var dimensions: Vector2i = Vector2i(0, 0)
+@export var name: String = "ItemData == null"		## 名称
+@export var texture: Texture2D = null				## 图标
 
-var is_rotated: bool = false
-@export var color = Color(1, 1, 1)
+var rotate: bool = false							## 是否旋转
+@export var color = Color(1, 1, 1)				## 颜色

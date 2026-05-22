@@ -78,7 +78,6 @@ func allocate_single_reward(quality: Quality = Quality.None) -> Object:
 		return null
 	var rand_quality_index = randi() % qualitys_reward.size()
 	var qualitys = qualitys_reward[rand_quality_index] # {奖励}
-	#var rand_reward_index = randi() % qualitys.size()
 	return qualitys.duplicate()
 
 ## 指定数量分配

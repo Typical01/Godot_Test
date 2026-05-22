@@ -21,7 +21,7 @@ layout_mode = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer" unique_id=448834405]
 layout_mode = 2
-theme_override_constants/scrollbar_h_separation = 8
+theme_override_constants/scrollbar_h_separation = 16
 
 [node name="ShopList" type="VBoxContainer" parent="PanelContainer/ScrollContainer" unique_id=770777849]
 unique_name_in_owner = true

@@ -14,7 +14,7 @@ const LOCK_FILE_PATH = "user://" + LOCK_FILE_NAME
 
 func _init():
 	_mutex = Mutex.new()
-	print("单例初始化: (PID: %s)[%s]" % [OS.get_process_id(), Time.get_datetime_string_from_system()])
+	print("application_mutex: _init(PID: %s)[%s]" % [OS.get_process_id(), Time.get_datetime_string_from_system(false, true)])
 
 func _ready():
 	# 尝试获取主实例锁
@@ -24,7 +24,7 @@ func _ready():
 		# 不是主实例，显示警告并退出
 		call_deferred("_handle_secondary_instance")
 	else:
-		print("成功获取主实例锁，程序将继续运行")
+		print("application_mutex: App 程序运行.")
 
 func _acquire_lock() -> bool:
 	_mutex.lock()
@@ -43,12 +43,12 @@ func _acquire_lock() -> bool:
 			# 检查存储的进程是否仍在运行
 			if _is_process_running(stored_pid):
 				# 另一个实例正在运行，获取锁失败
-				print("检测到运行中的实例 (PID: ", stored_pid, ")")
+				print("application_mutex: 检测到运行中的实例 (PID: %s)." % [stored_pid])
 				_mutex.unlock()
 				return false
 			else:
 				# 存储的进程已不存在，删除失效的锁文件
-				print("发现失效的锁文件 (PID: ", stored_pid, ")，将覆盖")
+				print("application_mutex: 覆盖失效的锁文件(PID: %s)." % [stored_pid])
 				DirAccess.remove_absolute(LOCK_FILE_PATH)
 	
 	# 创建新的锁文件
@@ -57,9 +57,9 @@ func _acquire_lock() -> bool:
 		_lock_file.store_64(OS.get_process_id())
 		_lock_file.flush()  # 确保写入磁盘
 		success = true
-		print("创建锁文件成功，PID: ", OS.get_process_id())
+		print("application_mutex: 创建锁文件成功(PID: %s)." % [OS.get_process_id()])
 	else:
-		print("创建锁文件失败")
+		print("application_mutex: 创建锁文件失败!")
 	
 	_mutex.unlock()
 	return success
@@ -83,7 +83,7 @@ func _is_process_running(pid: int) -> bool:
 			return false
 		_:
 			# 未知平台，保守处理：假设进程不存在
-			print("未知平台，无法检查进程状态")
+			print("application_mutex: 未知平台，无法检查进程状态")
 			return false
 
 func _is_process_running_windows(pid: int) -> bool:
@@ -138,7 +138,7 @@ func _exit_tree():
 			var file = FileAccess.open(LOCK_FILE_PATH, FileAccess.READ)
 			if file and file.get_64() == OS.get_process_id():
 				DirAccess.remove_absolute(LOCK_FILE_PATH)
-				print("锁文件已删除")
+				print("application_mutex: 锁文件已删除.")
 	_mutex.unlock()
 
 # 公共方法：检查当前是否为主实例

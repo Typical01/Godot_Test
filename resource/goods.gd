@@ -12,58 +12,106 @@ enum Type {
 	HomeItem,          ## 家居物品
 }
 
-@export var quality: RewardPool.Quality = RewardPool.Quality.None
-@export var value: int = 0
-@export var goods_class: Type = Type.None
-@export var is_search = false
-@export var start_index: int = -1
-var slot_index: Array[int] = []
+@export var dimensions: Vector2i = Vector2i(0, 0):					## 形状规格
+	get():
+		if rotate:
+			return Vector2i(dimensions.y, dimensions.x)
+		else:
+			return dimensions
+@export var start_index: int = -1									## 起始索引
+@export var shape: Array = []:										## 形状矩阵
+	get():
+		if rotate:
+			return rotated()
+		else:
+			return shape
+@export var quality: RewardPool.Quality = RewardPool.Quality.None	## 品质
+@export var value: int = 0											## 价值
+@export var type: Type = Type.None									## 物品类型
+@export var search = false											## 是否搜索
 
 
 
 func init(tmp_name: String, tmp_quality: RewardPool.Quality, _dimensions: Vector2i, 
-	tmp_value: int, tmp_class: Type = Type.CraftCollection) -> void:
+	tmp_value: int, tmp_type: Type = Type.None, tmp_shape: Array = []) -> void:
 	name = tmp_name
 	quality = tmp_quality
 	dimensions = _dimensions
+	if tmp_shape.is_empty():
+		shape = Goods.rect(dimensions.x, dimensions.y)
 	value = tmp_value
-	goods_class = tmp_class
+	type = tmp_type
 	texture = load("res://art/texture/物品/%s.png" % name)
 
 func output():
-	print("Goods::output: [%s]%s (价值: %d) | %s (%s, 共%d格)" % [
+	print("Goods::output: [%s]%s (价值: %d) | %s, 共%s格 | \n%s" % [
 		RewardPool.quality_to_string(quality), 
 		name,
 		value,
-		slot_to_string(dimensions),
-		"正方形" if is_square(dimensions) else "长方形",
-		get_slot_count(dimensions)
+		"正方形" if is_square() else "长方形",
+		dimensions_to_string(),
+		shape_to_string()
 	])
 
+## 是否有效
 func is_valid() -> bool:
 	if dimensions.x <= 0 or dimensions.y <= 0:
 		return false
 	return true
-	
-##获取物品占用的格子总数
-static func get_slot_count(data_dimensions: Vector2i) -> int:
-	return data_dimensions.x * data_dimensions.y
 
-##检查是否为正方形物品
-static func is_square(data_dimensions: Vector2i) -> bool:
-	return data_dimensions.x == data_dimensions.y
+## 获取物品占用的相对偏移坐标
+func get_occupy_offsets() -> Array:
+	var offsets = []
+	for y in range(shape.size()):
+		for x in range(shape[y].size()):
+			if shape[y][x] == 1:
+				offsets.append(Vector2(x, y))
+	return offsets
 
-##检查物品是否可以旋转（非正方形）
-static func can_rotate(data_dimensions: Vector2i) -> bool:
-	return data_dimensions.x != data_dimensions.y
+## 获取旋转后物品的形状
+func rotated() -> Array:
+	var rows = shape.size()
+	var cols = shape[0].size()
+	var rotates = []
+	for x in range(cols):
+		var new_row = []
+		for y in range(rows - 1, -1, -1):
+			new_row.append(shape[y][x])
+		rotates.append(new_row)
+	return rotates
 
-##获取旋转后的尺寸（交换宽高）
-static func get_rotated_dimensions(data_dimensions: Vector2i) -> Vector2i:
-	return Vector2i(data_dimensions.y, data_dimensions.x)
+## 检查是否为正方形物品
+func is_square() -> bool:
+	return dimensions.x == dimensions.y
 
-##Slot转换为字符串表示
-static func slot_to_string(ata_dimensions: Vector2i) -> String:
-	return "%dx%d" % [ata_dimensions.x, ata_dimensions.y]
+## 检查物品是否可以旋转(非正方形)
+func can_rotate() -> bool:
+	return not is_square()
+
+## 形状转换为字符串表示
+func shape_to_string() -> String:
+	var result = "\t"
+	for y in range(shape.size()):
+		var row = shape[y]
+		for x in range(row.size()):
+			var cell = row[x]
+			result += "X" if cell == 1 else " "
+		result += "\n\t"
+	return result
+
+## 规格转换为字符串表示
+func dimensions_to_string() -> String:
+	return "%dx%d" % [dimensions.x, dimensions.y]
+
+## 规则形状生成
+static func rect(x: int, y: int) -> Array:
+	var tmp_shape = []
+	for i in range(y):
+		var row = []
+		for j in range(x):
+			row.append(1)
+		tmp_shape.append(row)
+	return tmp_shape
 
 static func get_color(quality_color: RewardPool.Quality, alpha: float = 0.18) -> Color:
 	match quality_color:

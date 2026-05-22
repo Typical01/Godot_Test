@@ -22,6 +22,7 @@ var monitors: Dictionary = {}
 func _ready() -> void:
 	if not is_editor: 
 		timer_node.stop()
+		visible = false
 	_update_performance()
 	print("OverlayStateMonitor 启动.")
 
@@ -36,7 +37,7 @@ func push_overlay(monitor_name: String, value = null, color := Color.WHITE) -> v
 	if not monitors.has(monitor_name):
 		_add_item(monitor_name)
 	var label = monitors[monitor_name]
-	if value:
+	if value != null:
 		label.text = "%s: %s" % [monitor_name, value]
 	else:
 		label.text = "%s" % [monitor_name]

@@ -49,26 +49,24 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_t8s18")
+is_search = true
 
 [node name="GoodsContainer" parent="." unique_id=455152987 instance=ExtResource("15_715jb")]
 unique_name_in_owner = true
-clip_contents = false
 layout_mode = 0
 offset_left = 400.0
 offset_top = 200.0
 offset_right = 720.0
 offset_bottom = 520.0
-is_search_container = true
 
 [node name="GoodsStore" parent="." unique_id=122668884 instance=ExtResource("15_715jb")]
-visible = false
-custom_minimum_size = Vector2(192, 192)
+unique_name_in_owner = true
 layout_mode = 0
-offset_left = 1088.0
+offset_left = 960.0
 offset_top = 96.0
-offset_right = 1280.0
+offset_right = 1152.0
 offset_bottom = 288.0
-dimensions = Vector2i(3, 3)
+dimensions = Vector2i(5, 100)
 
 [node name="Search" type="Button" parent="." unique_id=938154618]
 visible = false
@@ -236,6 +234,7 @@ item_name = "没钱不要硬玩!"
 [connection signal="select" from="GoodsContainer" to="." method="_on_item_inventory_select"]
 [connection signal="cancel" from="GoodsStore" to="." method="_on_item_inventory_cancel"]
 [connection signal="move" from="GoodsStore" to="." method="_on_item_inventory_move"]
+[connection signal="save" from="GoodsStore" to="." method="_on_goods_store_save"]
 [connection signal="select" from="GoodsStore" to="." method="_on_item_inventory_select"]
 [connection signal="button_up" from="Search" to="." method="_on_search_button_up"]
 [connection signal="button_up" from="Search2" to="." method="_on_search_2_button_up"]

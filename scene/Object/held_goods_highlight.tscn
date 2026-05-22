@@ -6,6 +6,9 @@
 [node name="HeldItemHighlight" type="TextureRect" unique_id=1938506357]
 z_index = 10
 custom_minimum_size = Vector2(64, 64)
+offset_right = 64.0
+offset_bottom = 64.0
 mouse_filter = 2
 texture = ExtResource("1_l5vg6")
+expand_mode = 1
 script = ExtResource("2_3fv8a")

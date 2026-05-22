@@ -8,23 +8,26 @@ border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.33333334, 0.33333334, 0.33333334, 1)
+border_color = Color(0.33361515, 0.33361515, 0.33361515, 0.5)
+shadow_color = Color(0, 0, 0, 0.5)
 shadow_size = 1
 
 [node name="SlotBackground" type="Button" unique_id=1256827381]
 self_modulate = Color(1, 1, 1, 0.92156863)
 clip_contents = true
 custom_minimum_size = Vector2(64, 64)
-offset_right = 64.0
-offset_bottom = 64.0
+offset_right = 63.0
+offset_bottom = 63.0
 mouse_filter = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_s8y2l")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1959724202]
 self_modulate = Color(1, 1, 1, 0.5)
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(62, 62)
 layout_mode = 0
-offset_right = 64.0
-offset_bottom = 64.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 61.0
+offset_bottom = 61.0
 texture = ExtResource("1_s8y2l")
-stretch_mode = 3
+expand_mode = 1

@@ -76,8 +76,8 @@ func set_data(data: Goods) -> void:
 	quality = data.quality
 	quality_color = Goods.get_color(data.quality)
 	dimensions = data.dimensions
-	is_search = data.is_search
-	is_rotated = data.is_rotated
+	is_search = data.search
+	is_rotated = data.rotate
 
 ## 返回: 物品大小
 func get_goods_size() -> Vector2:
@@ -142,9 +142,10 @@ func init_goods() -> void:
 		is_search_finish = true
 		goods_texture_node.scale = Vector2(1, 1)
 		audio_player_node.stream = sound_stream
-	else:
-		#print("ItemGoods: [%s]搜索中..." % [goods_name_node.text])
-		animation_player_node.play_section("search", 0.0, Goods.get_quality_time(quality))
+
+func search() -> void:
+	#print("ItemGoods: [%s]搜索中..." % [goods_name_node.text])
+	animation_player_node.play_section("search", 0.0, Goods.get_quality_time(quality))
 
 ## 拿起
 func piked_up() -> void:

@@ -5,6 +5,10 @@
 [node name="BuyContainer" type="Button" unique_id=1484439949]
 offset_right = 8.0
 offset_bottom = 8.0
+mouse_filter = 1
 script = ExtResource("1_jelhe")
 
+[connection signal="button_down" from="." to="." method="_on_button_down"]
 [connection signal="button_up" from="." to="." method="_on_button_up"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

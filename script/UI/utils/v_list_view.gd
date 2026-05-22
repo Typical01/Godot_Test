@@ -6,8 +6,8 @@ class_name VListView extends ScrollContainer
 signal on_refresh_requested() ## 强制刷新
 signal on_items_changed(start_index: int, count: int) ## 条目范围变化
 signal on_entry_updated(index: int, control, data) ## 条目刷新
+signal on_v_value_changed(value: float) ## 垂直滚动条变化
 signal on_visible_range_changed(first: int, last: int) ## 可见范围变化
-#signal on_scroll_completed()
 
 ## 拖拽: 假定节点继承[Control], 包含函数[set_dray_hover]
 signal on_drag_start_item(index: int, data, global_mouse_position: Vector2) ## 拖拽开始
@@ -46,8 +46,10 @@ var _visible_rows: int = 0 ## 显示范围: 行数
 @export var item_size: Vector2i = Vector2i(0, 0) ## 项: 高度x宽度
 @export var buffer_rows: int = 0 ## 缓冲: 行数
 @export var drag_roll_rows: int = 1 ## 拖拽滚动触发的首尾行数
+@export var item_interval: int = 1 ## 项之间的间距
 @export var is_size_change: bool = true ## 项大小可变化
 @export var aligning: bool = true ## 对齐列表/网格
+@export var show_drag_node: bool = true ## 显示拖拽节点
 @export var default_node_visible: bool = true ## 默认节点显示
 
 var drag_index: int = -1
@@ -189,6 +191,8 @@ func _setup_scroll_range():
 
 ## 刷新可见项
 func _update_visible_items(scroll_y: float = v_scroll_bar.value):
+	on_v_value_changed.emit(scroll_y)
+	
 	#OverlayStateMonitor.push_overlay("scroll_y", scroll_y)
 	if not node_scene_template:
 		push_error("VListView: 节点模板为 null!")
@@ -196,13 +200,20 @@ func _update_visible_items(scroll_y: float = v_scroll_bar.value):
 	if not item_container:
 		return
 	# 计算可见范围(带缓冲)
-	var first_row = max(0, int(scroll_y / item_size.y) - buffer_rows)
+	var first_row = max(0, int(scroll_y / (item_size.y + item_interval)) - buffer_rows)
 	var first_index = first_row * columns
 	var last_row = first_row + _visible_rows + buffer_rows * 2
 	var last_index = min(data.size() - 1, (last_row + 1) * columns - 1)
+	var nodes = []
 	
 	# 可见范围变化
 	if first_index != _last_visible_first and last_index != _last_visible_last:
+		var first = range(abs(first_index - _last_visible_first))
+		var last = range(abs(last_index - _last_visible_last))
+		for i in first:
+			nodes.append(Vector2(first[i], last[i]))
+		OverlayStateMonitor.push_overlay("nodes", nodes)
+		
 		_last_visible_first = first_index
 		_last_visible_last = last_index
 		#_visible_rows = last_row - first_row - (buffer_rows * 2)
@@ -376,7 +387,7 @@ func append_items(new_items: Array):
 func drag_start_item(global_mouse_position: Vector2 = get_global_mouse_position()):
 	var index = get_index_of_position(global_mouse_position)
 	drag_index = index
-	if drag_node:
+	if drag_node and show_drag_node:
 		drag_node.visible = true
 	on_drag_start_item.emit(drag_index, data[drag_index], global_mouse_position)
 	clamp_drag_node_position(global_mouse_position)
@@ -395,7 +406,7 @@ func drag_move_item(global_mouse_position: Vector2):
 ## 拖拽结束: 还原状态
 func drag_end_item(global_mouse_position: Vector2 = get_global_mouse_position()):
 	var end_index = get_index_of_position(global_mouse_position)
-	if drag_node:
+	if drag_node and show_drag_node:
 		drag_node.visible = false
 	if end_index != -1:
 		#move_item(drag_index, end_index)

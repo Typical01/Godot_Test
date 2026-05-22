@@ -1,11 +1,12 @@
 extends TextureRect
 
 
+
 func _ready() -> void:
 	visible = false
 
 func set_slot_size(dimensions: Vector2i) -> void:
-	size = Vector2(dimensions) * Global.SLOT_SIZE
+	size = dimensions * Global.SLOT_SIZE
 
 func color_change(highlight: bool) -> void:
 	if highlight:

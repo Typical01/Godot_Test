@@ -18,7 +18,7 @@ enum Type {
 			return Vector2i(dimensions.y, dimensions.x)
 		else:
 			return dimensions
-@export var start_index: int = -1									## 起始索引
+@export var index: int = -1									## 起始索引
 @export var shape: Array = []:										## 形状矩阵
 	get():
 		if rotate:

@@ -49,24 +49,26 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_t8s18")
-is_search = true
 
 [node name="GoodsContainer" parent="." unique_id=455152987 instance=ExtResource("15_715jb")]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(384, 384)
 layout_mode = 0
-offset_left = 400.0
-offset_top = 200.0
-offset_right = 720.0
-offset_bottom = 520.0
+offset_left = 320.0
+offset_top = 120.0
+offset_right = 704.0
+offset_bottom = 504.0
+dimensions = Vector2i(6, 6)
 
 [node name="GoodsStore" parent="." unique_id=122668884 instance=ExtResource("15_715jb")]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(512, 320)
 layout_mode = 0
-offset_left = 960.0
-offset_top = 96.0
-offset_right = 1152.0
-offset_bottom = 288.0
-dimensions = Vector2i(5, 100)
+offset_left = 736.0
+offset_top = 120.0
+offset_right = 1248.0
+offset_bottom = 440.0
+dimensions = Vector2i(8, 100)
 
 [node name="Search" type="Button" parent="." unique_id=938154618]
 visible = false

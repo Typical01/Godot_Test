@@ -13,8 +13,8 @@ signal save(self_node)
 
 ## ============================ 变量 =============================
 
-@onready var slot_grid_node = %SlotGrid
-@onready var goods_grid_node = %GoodsGrid
+@onready var slot_grid_node: VListView = %SlotGrid
+@onready var goods_grid_node: VListView = %GoodsGrid
 @export var slot_grid_scene: PackedScene ## 场景: 槽位列表
 @export var goods_grid_scene: PackedScene ## 场景: 物品列表
 @export var highlight_scene: PackedScene ## 场景: 物品列表
@@ -37,7 +37,7 @@ func _ready() -> void:
 	
 	slot_data.resize(dimensions.x * dimensions.y)
 	slot_data.fill(null)
-	size = dimensions * slot_size
+	custom_minimum_size = dimensions * slot_size
 
 
 
@@ -57,14 +57,14 @@ func _on_goods_grid_on_v_value_changed(value) -> void:
 
 
 func on_goods_set_search(_global_position, search: bool):
-	var index = goods_grid_node.get_index_of_position(_global_position)
+	var index = goods_grid_node.get_index_of_position(_global_position + Vector2(0, goods_grid_node.v_scroll_bar.value))
 	slot_data[index].search = search
 
 func _on_goods_drag_start(_global_position):
 	goods_grid_node.drag_start_item(get_global_mouse_position())
 
 func _on_goods_drag_end(_global_position):
-	goods_grid_node.drag_end_item(get_global_mouse_position())
+	goods_grid_node.drag_end_item(get_global_mouse_position() + Vector2(0, goods_grid_node.v_scroll_bar.value))
 
 ## 创建: 槽位
 func _on_goods_grid_on_data_fill(self_node) -> void:
@@ -106,13 +106,12 @@ func _on_goods_grid_on_entry_updated(index: int, control, data) -> void:
 	if not control:
 		push_error("[%s]control == null!" % [index])
 		return
-	if not data or index != data.start_index:
+	if not data or index != data.index:
 		control.mouse_filter = MOUSE_FILTER_IGNORE
-		control.set_goods_size(Vector2(1 * slot_size, 1 * slot_size))
+		control.set_goods_size(Vector2(slot_size, slot_size))
 		control.visible = false
 		return
 	control.set_data(data)
-	control.init_goods()
 	control.mouse_filter = MOUSE_FILTER_PASS
 	control.visible = true
 
@@ -123,19 +122,33 @@ func _on_goods_grid_on_drag_start_item(index: int, data: Goods, global_mouse_pos
 	if not data.search: # 未搜索物品无法交互
 		return
 		
-	OverlayStateMonitor.push_overlay("index", index)
+	#OverlayStateMonitor.push_overlay("index", index)
 	goods_container_manage.goods_data = data
 	goods_container_manage.set_drag_node_position(global_mouse_position)
 	#OverlayStateMonitor.push_overlay("start_data", data)
 	
 	highlight_node.set_slot_size(data.dimensions)
-	highlight_node.global_position = get_coords_from_slot_index(get_slot_from_center_position(global_mouse_position, data.dimensions))
-	OverlayStateMonitor.push_overlay("global_position", highlight_node.global_position)
-	var occupy = get_current_index_occupy_slot(data, index)
-	if item_is_places(occupy, data):
-		highlight_node.color_change(true)
-	else:
+	highlight_node.global_position = get_coords_from_slot_index(get_slot_from_center_position(global_mouse_position, data.dimensions)) - Vector2(0, goods_grid_node.v_scroll_bar.value)
+	#OverlayStateMonitor.push_overlay("highlight_node.size", highlight_node.size)
+	#OverlayStateMonitor.push_overlay("global_position", highlight_node.global_position)
+	var target_slots = get_current_index_occupy_slot(data, index)
+	var data_slots = get_current_index_occupy_slot(data)
+	var old_datas = item_is_places(target_slots, data, data_slots)
+	if old_datas[0] == -1:
 		highlight_node.color_change(false)
+	elif old_datas[0] == 2: # 重新选择位置填入
+		var old_data_old_slots = old_datas[1] # 旧物品: 旧槽位
+		var old_data_old_index: int = old_data_old_slots[0][0] # 旧物品: 旧索引
+		var old_item: Goods = slot_data[old_data_old_index] # 目标槽位物品
+		var pass_indexs = data_slots.duplicate()
+		var exclude_indexs = target_slots.duplicate()
+		var old_data_new_index = attempt_to_place_item(old_item, -1, false, pass_indexs, exclude_indexs)
+		if old_data_new_index == -1:
+			highlight_node.color_change(false)
+		else:
+			highlight_node.color_change(true)
+	else:
+		highlight_node.color_change(true)
 	highlight_node.visible = true
 
 func _on_goods_grid_on_drag_move_item(global_mouse_position: Vector2) -> void:
@@ -145,34 +158,48 @@ func _on_goods_grid_on_drag_move_item(global_mouse_position: Vector2) -> void:
 		OverlayStateMonitor.push_overlay("[%s]data == null!" % [get_instance_id()], global_mouse_position)
 		push_error("[%s][%s]data == null!" % [get_instance_id(), global_mouse_position])
 		return
-	OverlayStateMonitor.push_overlay("[%s]data == null!" % [get_instance_id()], data.name)
+	#OverlayStateMonitor.push_overlay("[%s]data == null!" % [get_instance_id()], data.name)
 	var index = get_slot_from_center_position(global_mouse_position, data.dimensions)
 	goods_container_manage.set_drag_node_position(global_mouse_position)
 	
 	highlight_node.global_position = get_coords_from_slot_index(index)
-	if global_mouse_position < global_position or \
-	global_mouse_position > global_position + size:
-		highlight_node.visible = false
-	else:
-		highlight_node.visible = true
-	var occupy = get_current_index_occupy_slot(data, index)
-	if item_is_places(occupy, data):
-		highlight_node.color_change(true)
-	else:
+	#if global_mouse_position < global_position or \
+	#global_mouse_position > global_position + size:
+		#highlight_node.visible = false
+	#else:
+		#highlight_node.visible = true
+	var target_slots = get_current_index_occupy_slot(data, index)
+	var data_slots = get_current_index_occupy_slot(data)
+	var old_datas = item_is_places(target_slots, data, data_slots)
+	if old_datas[0] == -1:
 		highlight_node.color_change(false)
+	elif old_datas[0] == 2: # 重新选择位置填入
+		var old_data_old_slots = old_datas[1] # 旧物品: 旧槽位
+		var old_data_old_index: int = old_data_old_slots[0][0] # 旧物品: 旧索引
+		var old_item: Goods = slot_data[old_data_old_index] # 目标槽位物品
+		var pass_indexs = data_slots.duplicate()
+		var exclude_indexs = target_slots.duplicate()
+		var old_data_new_index = attempt_to_place_item(old_item, -1, false, pass_indexs, exclude_indexs)
+		if old_data_new_index == -1:
+			highlight_node.color_change(false)
+		else:
+			highlight_node.color_change(true)
+	else:
+		highlight_node.color_change(true)
 
-func _on_goods_grid_on_drag_end_item(index: int, end_index: int, _global_mouse_position: Vector2) -> void:
+func _on_goods_grid_on_drag_end_item(index: int, end_index: int, global_mouse_position: Vector2) -> void:
 	var message = "\n"
 	for i in slot_data.size():
 		var tmp_data = slot_data[i]
 		if tmp_data:
-			message += "[%s-%s], %s" % [i, tmp_data.name, "\n" if (i % 5) == 4 else ""]
+			message += "[%s-%s], %s" % [i, tmp_data.name, "\n" if (i % dimensions.x) == dimensions.x - 1 else ""]
 		else:
-			message += "[%s-%s], %s" % [i, null, "\n" if (i % 5) == 4 else ""]
+			message += "[%s-%s], %s" % [i, null, "\n" if (i % dimensions.x) == dimensions.x - 1 else ""]
 	OverlayStateMonitor.push_overlay("end_start_index", message)
 	
-	var data = slot_data[index]
-	OverlayStateMonitor.push_overlay("end_index", end_index)
+	var data = goods_container_manage.goods_data
+	#OverlayStateMonitor.push_overlay("end_index", end_index)
+	end_index = get_slot_from_center_position(global_mouse_position, data.dimensions)
 	if not try_place_goods(end_index, data):
 		pass
 	
@@ -180,9 +207,9 @@ func _on_goods_grid_on_drag_end_item(index: int, end_index: int, _global_mouse_p
 	for i in slot_data.size():
 		var tmp_data = slot_data[i]
 		if tmp_data:
-			message += "[%s-%s], %s" % [i, tmp_data.name, "\n" if (i % 5) == 4 else ""]
+			message += "[%s-%s], %s" % [i, tmp_data.name, "\n" if (i % dimensions.x) == dimensions.x - 1 else ""]
 		else:
-			message += "[%s-%s], %s" % [i, null, "\n" if (i % 5) == 4 else ""]
+			message += "[%s-%s], %s" % [i, null, "\n" if (i % dimensions.x) == dimensions.x - 1 else ""]
 	OverlayStateMonitor.push_overlay("end_start_index2", message)
 	
 	highlight_node.visible = false
@@ -195,7 +222,7 @@ func _on_goods_grid_on_drag_end_item(index: int, end_index: int, _global_mouse_p
 ## 搜索物品
 ## is_search: 是否搜索
 func get_search_items(container_name: String, is_search = false, number = clampi(randi() % 6, 1, 6)) -> void:
-	if searching: 
+	if searching:
 		return
 	searching = true
 	#OverlayStateMonitor.push_overlay("number", number)
@@ -213,13 +240,13 @@ func get_search_items(container_name: String, is_search = false, number = clampi
 				if i != null:
 					count += 1
 			if count >= slot_data.size() - 1:
-				push_error("容器已满!")
-				return
+				#push_error("容器已满!")
+				break
 			if quality == RewardPool.Quality.None:
 				quality = goods.quality
 			else:
-				push_error("容器无法放入!")
-				return
+				#push_error("容器无法放入!")
+				break
 			print("get_search_items: 重新生成[%s][%s][%s][%s]" % [count, number, RewardPool.quality_to_string(quality), goods.name])
 			continue
 		goods_index.append(successful)
@@ -239,9 +266,9 @@ func get_search_items(container_name: String, is_search = false, number = clampi
 
 func add_item(data: Goods, index: int = -1) -> int:
 	var successful = attempt_to_place_item(data, index)
-	print("添加[%s][%s]!" % [successful, data.name])
+	#print("添加[%s][%s]!" % [successful, data.name])
 	if successful == -1:
-		push_error("添加[%s][%s]失败!" % [index, data.name])
+		#push_error("添加[%s][%s]失败!" % [index, data.name])
 		return -1
 	return successful
 
@@ -265,7 +292,7 @@ func clear(sell: Callable = Callable()) -> void:
 	cancel.emit(self)
 	for i in slot_data.size():
 		var data = slot_data[i]
-		if data and i == data.start_index:
+		if data and i == data.index:
 			if sell: # 出售物品
 				sell.call(data)
 	slot_data.resize(dimensions.x * dimensions.y)
@@ -279,7 +306,7 @@ func sells(sell: Callable = Callable(), move_to: Callable = Callable()) -> void:
 		var data = slot_data[i]
 		if not data:
 			continue
-		if i == data.start_index:
+		if i == data.index:
 			if data.quality < RewardPool.Quality.Gold:
 				#data.output()
 				if sell: # 出售物品
@@ -297,7 +324,7 @@ func save_goods_data(_save: Callable = Callable()):
 		var data = slot_data[i]
 		if not data:
 			continue
-		if i == data.start_index:
+		if i == data.index:
 			goods_name.append(data.name)
 	if _save:
 		_save.call(goods_name)
@@ -306,22 +333,21 @@ func save_goods_data(_save: Callable = Callable()):
 
 ## 为物品寻找并分配一个合适的位置
 ## data: 要放置的物品
-func attempt_to_place_item(data: Goods, index: int = -1) -> int:
+func attempt_to_place_item(data: Goods, index: int = -1, is_write = true, pass_indexs = [], exclude_indexs = []) -> int:
 	if not data: # 非空
 		return -1
-	if index != -1: # 检查指定索引槽位
-		var slot_array = get_current_index_occupy_slot(data, index)
-		if item_is_place(slot_array, data):
+	var ranges = []
+	if index == -1:
+		ranges = range(slot_data.size())
+	else:
+		ranges.append(index)
+	ranges = ranges.filter(func(item): return not item in exclude_indexs) # 排除索引列表
+	for i in ranges:
+		var slot_array = get_current_index_occupy_slot(data, i)
+		if item_is_place(slot_array, data, pass_indexs, exclude_indexs):
 			# 写入占用数据
-			add_slot_data(index, data, slot_array)
-			return index
-	else: # 扫描所有槽位，寻找可以放置的位置
-		for i in range(slot_data.size()):
-			var slot_array = get_current_index_occupy_slot(data, i)
-			if item_is_place(slot_array, data):
-				# 写入占用数据
-				add_slot_data(i, data, slot_array)
-				return i
+			if is_write: add_slot_data(i, data, slot_array)
+			return i
 	return -1
 
 ## 放置物品
@@ -330,7 +356,7 @@ func try_place_goods(index: int, data: Goods) -> bool:
 	if not data:
 		push_error("[%s]data == null!" % [index])
 		return false
-	if index == data.start_index:
+	if index == data.index:
 		return false # 放回原位: 拿起时, 只隐藏物品
 	return swap_slot_data(index, data) # 替换
 
@@ -354,7 +380,7 @@ func add_slot_data(index: int, data: Goods, slot_array: Array) -> bool:
 	if not canfine(index):
 		return false
 	
-	data.start_index = index
+	data.index = index
 	for i in slot_array:
 		goods_grid_node.update_item(i, data)
 	#print("add: %s" % [slot_array])
@@ -366,7 +392,7 @@ func remove_slot_data(index: int, data: Goods, slot_array: Array) -> bool:
 	if not canfine(index):
 		return false
 	
-	data.start_index = -1
+	data.index = -1
 	for i in slot_array:
 		if slot_data[i] == data:
 			goods_grid_node.update_item(i, null)
@@ -380,45 +406,48 @@ func swap_slot_data(index: int, data: Goods) -> bool:
 		return false
 	
 	var data_slots = get_current_index_occupy_slot(data)
-	var data_start_index = data.start_index
 	var target_slots = get_current_index_occupy_slot(data, index)
 	OverlayStateMonitor.push_overlay("target_slots", target_slots)
 	OverlayStateMonitor.push_overlay("data_slots", data_slots)
 	# 1.物品小于目标槽位: 将目标槽位移除, 并重新自动寻位添加; 物品放入目标槽位
 	# 2.物品大于或等于目标槽位中的所有物品: 交换
-	var old_slots = item_is_places(target_slots, data, data_slots)
-	if old_slots.is_empty():
+	
+	##		[
+	##			-1(无效)/0(空位[包括自身])/1(小)/2(大)), 
+	##			[[旧物品1旧槽位]...], 
+	##			[[旧物品1新槽位]...]
+	##		]
+	var old_datas = item_is_places(target_slots, data, data_slots)
+	var code = old_datas[0]
+	if code == -1:
 		return false
+	elif code == 1: # 将目标槽位物品填入原物品槽位
+		var old_data_old_slots = old_datas[1] # 旧物品: 旧槽位
+		var old_data_new_slots = old_datas[2] # 旧物品: 新槽位
+		for i in old_data_old_slots.size():
+			var old_data_old_index: int = old_data_old_slots[i][0] # 旧物品: 旧索引
+			var old_data_new_index: int = old_data_new_slots[i][0] # 旧物品: 新索引
+			var old_item: Goods = slot_data[old_data_old_index] # 旧物品
+			remove_slot_data(data.index, data, data_slots) # 先移除原物品
+			remove_slot_data(old_data_old_index, old_item, old_data_old_slots[i]) # 再移除目标物品
+			add_slot_data(old_data_new_index, old_item, old_data_new_slots[i]) # 添加目标物品
+		add_slot_data(index, data, target_slots) # 添加原物品
+	elif code == 2: # 重新选择位置填入
+		var old_data_old_slots = old_datas[1] # 旧物品: 旧槽位
+		var old_data_old_index: int = old_data_old_slots[0][0] # 旧物品: 旧索引
+		var old_item: Goods = slot_data[old_data_old_index] # 目标槽位物品
+		var pass_indexs = data_slots.duplicate()
+		var exclude_indexs = target_slots.duplicate()
+		var old_data_new_index = attempt_to_place_item(old_item, -1, false, pass_indexs, exclude_indexs)
+		if old_data_new_index == -1:
+			return false
+		remove_slot_data(data.index, data, data_slots) # 先移除原物品
+		remove_slot_data(old_data_old_index, old_item, old_data_old_slots[0]) # 再移除目标物品
+		add_slot_data(old_data_new_index, old_item, get_current_index_occupy_slot(old_item, old_data_new_index)) # 添加目标物品
+		add_slot_data(index, data, target_slots) # 添加原物品
 	else:
-		# 先移除原物品
-		remove_slot_data(data.start_index, data, data_slots)
-		
-		var max = old_slots[0][0]
-		if max == 1: # 将目标槽位物品填入原物品槽位
-			for i in old_slots.size() - 1:
-				var old_item_slots = old_slots[i + 1] # 目标槽位
-				var old_item_index: int = old_item_slots[0] # 目标槽位起始索引
-				var old_item: Goods = slot_data[old_item_slots[1][0]] # 目标槽位物品
-				remove_slot_data(old_item.start_index, old_item, old_item_slots[1])
-				add_slot_data(data_start_index + old_item_index, old_item, get_current_index_occupy_slot(old_item, data_start_index + old_item_index))
-			add_slot_data(index, data, target_slots)
-		elif max == 0: # 重新选择位置填入
-			var old_item_slots = old_slots[1] # 目标槽位
-			var old_item: Goods = slot_data[old_item_slots[1][0]] # 目标槽位物品
-			remove_slot_data(old_item.start_index, old_item, old_item_slots[1])
-			add_slot_data(index, data, target_slots)
-			attempt_to_place_item(old_item)
-		elif max == -1:
-			add_slot_data(index, data, target_slots)
-		
-	#message = "\n"
-	#for i in slot_data.size():
-		#var tmp_data = slot_data[i]
-		#if tmp_data:
-			#message += "[%s]%s, %s" % [i, tmp_data.name, "\n" if (i % 5) == 4 else ""]
-		#else:
-			#message += "[%s]%s, %s" % [i, null, "\n" if (i % 5) == 4 else ""]
-	#OverlayStateMonitor.push_overlay("end", message)
+		remove_slot_data(data.index, data, data_slots) # 先移除原物品
+		add_slot_data(index, data, target_slots) # 添加原物品
 	return true
 
 ## 移动物品
@@ -428,10 +457,15 @@ func move_slot_data(index: int, data: Goods) -> void:
 			push_error("移动物品时, 原容器中删除物品[%s][%s]失败!" % [index, data.name])
 
 ## 获取: 物品能放入索引的所有槽位
-func item_is_place(occupy_slot: Array, data: Goods) -> bool:
+func item_is_place(occupy_slot: Array, data: Goods, pass_indexs = [], exclude_indexs = []) -> bool:
 	if occupy_slot.is_empty(): return false
 	for i in occupy_slot.size():
-		var new_data = slot_data[occupy_slot[i]]
+		var index = occupy_slot[i]
+		if pass_indexs.find(index) != -1:
+			continue
+		if exclude_indexs.find(index) != -1:
+			return false
+		var new_data = slot_data[index]
 		if new_data and new_data != data: # 已占用
 			return false
 	return true
@@ -439,29 +473,57 @@ func item_is_place(occupy_slot: Array, data: Goods) -> bool:
 ## 获取: 物品能放入索引的所有槽位
 ## target_slot: 目标槽位
 ## data_slots: 原槽位
-## 返回: 所有完全包含/被包含的槽位索引 | [[-1/0/1(空位(包括自身)/小/大于旧槽位), [[旧槽位1起始索引][旧槽位1]]...]
+## 返回: 所有完全包含/被包含的槽位索引:
+##		[
+##			-1(无效)/0(原/空位)/1(小)/2(大)), 
+##			[[旧物品1旧槽位]...], 
+##			[[旧物品1新槽位]...]
+##		]
 func item_is_places(target_slot: Array, data: Goods, data_slots: Array = []) -> Array:
-	if target_slot.is_empty(): return []
-	
-	var rest_slots = target_slot.filter(func(item): return not item in data_slots)
-	
 	var old_slots = []
-	for i in target_slot.size():
-		var old_data = slot_data[target_slot[i]]
+	old_slots.append(0)
+	old_slots.append([])
+	old_slots.append([])
+	if target_slot.is_empty(): return old_slots
+	
+	if target_slot == data_slots: # 原位
+		old_slots[0] = 0
+		return old_slots
+	
+	# 找相同并移除: 得到不会被覆盖的空位
+	var release_slots = data_slots.filter(func(item): return not item in target_slot) # 释放槽位
+	var old_data = null
+	for i in target_slot:
+		if old_data == slot_data[i]: continue
+		old_data = slot_data[i]
 		if old_data and old_data != data:
-			var old_occupys = get_current_index_occupy_slot(old_data)
-			if is_subset(old_occupys, rest_slots): # 大于等于并完全包含旧槽位
-				if old_slots.size() == 0:
-					old_slots.append([1])
-				old_slots.append([i, old_occupys])
-			elif is_subset(target_slot, old_occupys): # 小于并完全属于旧槽位
-				old_slots.append([0])
-				old_slots.append([i, old_occupys])
+			if release_slots.is_empty(): # 剩余的释放槽位
+				if old_data.index == i:
+					# 无效: 跳过
+					old_slots[0] = -1
+					return old_slots
+				else:
+					continue
+			var old_data_old_slots: Array = get_current_index_occupy_slot(old_data)
+			var old_data_new_slots: Array = get_current_index_occupy_slot(old_data, release_slots[0])
+			
+			# 大于等于并完全包含旧槽位
+			if is_subset(old_data_new_slots, release_slots): 
+				old_slots[0] = 1
+				old_slots[1].append(old_data_old_slots)
+				old_slots[2].append(old_data_new_slots)
+				release_slots = release_slots.filter(
+					func(item): return not item in old_data_new_slots) # 排除已占用槽位
+				continue
+			# 小于并完全被旧槽位包含
+			if is_subset(target_slot, old_data_old_slots): 
+				old_slots[0] = 2
+				old_slots[1].append(old_data_old_slots)
+				old_slots[2].append([-1]) # 自动重新寻位
 				return old_slots
-			else:
-				return []
-	if old_slots.size() == 0:
-		old_slots.append([-1])
+			# 无效: 跳过
+			old_slots[0] = -1
+			return old_slots
 	return old_slots
 
 
@@ -470,10 +532,18 @@ func item_is_places(target_slot: Array, data: Goods, data_slots: Array = []) -> 
 
 ## 父集是否包含子集
 func is_subset(subset: Array, superset: Array) -> bool:
+	if subset.is_empty(): return false
 	for element in subset:
 		if not superset.has(element):
 			return false
 	return true
+
+# 去重
+func merge_unique(left: Array, right: Array) -> Array:
+	var dict = {}
+	for v in left + right:
+		dict[v] = true
+	return dict.keys()
 
 ## 获取: 物品当前索引会占用的槽位
 ## data: 数据尺寸
@@ -482,7 +552,7 @@ func get_current_index_occupy_slot(data: Goods, index: int = -1) -> Array:
 	if not data:
 		return []
 	if index == -1:
-		index = data.start_index
+		index = data.index
 	if not canfine(index, data.dimensions): return [] # 越界
 	
 	var indexs = []
@@ -543,8 +613,9 @@ func get_slot_index_from_coords(coords: Vector2) -> int:
 
 ## 获取: 槽位索引 > 坐标
 func get_coords_from_slot_index(index: int) -> Vector2:
-	var coords = _to_coord(index)
-	return global_position + Vector2(coords.x * slot_size, coords.y * slot_size)
+	var row = index % dimensions.x
+	var col = floor(float(index) / dimensions.x)
+	return global_position + Vector2(row * slot_size, col * slot_size)
 
 ## 坐标是否在指定范围
 func has_point(_global_position: Vector2) -> bool:

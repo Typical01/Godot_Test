@@ -24,13 +24,19 @@ var search_background_rect_node:
 var search_icon_node:
 	get():
 		return $SearchIcon
+var search_path_node: Path2D:
+	get():
+		return $Path2D
+var search_path_follow_node: PathFollow2D:
+	get():
+		return $Path2D/PathFollow2D
 var search_background_node:
 	get():
 		return $SearchBackgroundRect/SearchBackground
 var goods_name_node:
 	get():
 		return $GoodsName
-var animation_player_node:
+var animation_player_node: AnimationPlayer:
 	get():
 		return $AnimationPlayer
 var audio_player_node:
@@ -46,8 +52,7 @@ var sound_stream = preload("res://art/sound/打开背包.wav")
 @export var quality: RewardPool.Quality = RewardPool.Quality.None ## 品质颜色
 @export var quality_color: Color = Color() ## 品质颜色
 @export var dimensions: Vector2i = Vector2i(1, 1) ## 物品规格
-var is_search = false ## 搜索物品
-var is_search_finish = false ## 搜索物品播放完成
+var is_search = false ## 搜索物品播放完成
 var is_rotated = false ## 旋转物品
 var is_held = false ## 拿起物品
 
@@ -67,18 +72,6 @@ func _input(event: InputEvent) -> void:
 
 ## ============================ 接口 =============================
 
-func set_data(data: Goods) -> void:
-	if not data:
-		push_error("ItemGoods: set_data: data == null!")
-		return
-	goods_name = data.name
-	goods_texture = data.texture
-	quality = data.quality
-	quality_color = Goods.get_color(data.quality)
-	dimensions = data.dimensions
-	is_search = data.search
-	is_rotated = data.rotate
-
 ## 返回: 物品大小
 func get_goods_size() -> Vector2:
 	return Vector2(dimensions.x * slot_size, dimensions.y * slot_size)
@@ -91,17 +84,25 @@ func show_image_background(is_show: bool):
 	if is_show:
 		goods_name_node.visible = true
 		quality_color_node.visible = true
+		self.self_modulate.a = 1.0
 	else:
 		goods_name_node.visible = false
 		quality_color_node.visible = false
+		self.self_modulate.a = 0.0
 
-func show_search():
-	if not is_search: # 未搜索
+## 显示状态: -1(初始)/0(未搜索)/1(已搜索)
+func show_status(code: int = 0):
+	if code == -1: # 初始
+		quality_border_node.visible = true
+		search_background_rect_node.visible = true
+		search_icon_node.visible = false
+		show_image_background(true)
+	elif code == 0: # 未搜索
 		quality_border_node.visible = true
 		search_background_rect_node.visible = true
 		search_icon_node.visible = true
-	else:
-		if is_search_finish: quality_border_node.visible = false
+	elif code == 1: # 已搜索
+		if is_search: quality_border_node.visible = false
 		search_background_rect_node.visible = false
 		search_icon_node.visible = false
 
@@ -112,7 +113,7 @@ func set_goods_size(_size: Vector2 = get_goods_size()):
 		
 	quality_color_node.size = size
 	goods_texture_node.size = size
-		#OverlayStateMonitor.push_overlay("[%s]goods_texture_node.size" % [get_instance_id()], goods_texture_node.size)
+	#OverlayStateMonitor.push_overlay("[%s]goods_texture_node.size" % [get_instance_id()], goods_texture_node.size)
 	if goods_name_node.size.x != size.x:
 		if size.x > slot_size:
 			goods_name_node.size.x = size.x
@@ -120,18 +121,30 @@ func set_goods_size(_size: Vector2 = get_goods_size()):
 			goods_name_node.size.x = 54
 	quality_border_node.size = size
 	search_background_rect_node.size = size
-	search_icon_node.size = size
+	search_path_node.position = size / 2 - Vector2(16, 16)
 	
 	#OverlayStateMonitor.push_overlay("[%s]size" % [get_instance_id()], size)
 	#OverlayStateMonitor.push_overlay("[%s]dimensions" % [get_instance_id()], dimensions)
 
 ## ============================ 接口 =============================
 
+func set_data(data: Goods) -> void:
+	if not data:
+		push_error("ItemGoods: set_data: data == null!")
+		return
+	goods_name = data.name
+	goods_texture = data.texture
+	quality = data.quality
+	quality_color = Goods.get_color(data.quality)
+	dimensions = data.dimensions
+	is_search = data.search
+	is_rotated = data.rotate
+	init_goods()
+
 func init_goods() -> void:
-	is_search_finish = false
 	set_goods_size()
 	reset_animation()
-	show_search()
+	show_status(1 if is_search else -1)
 	
 	goods_texture_node.texture = goods_texture
 	goods_name_node.text = goods_name
@@ -139,13 +152,41 @@ func init_goods() -> void:
 	quality_border_node.self_modulate = quality_color
 	audio_player_node.stream = load("res://art/sound/%s.wav" % [RewardPool.quality_to_string(quality)])
 	if is_search:
-		is_search_finish = true
 		goods_texture_node.scale = Vector2(1, 1)
 		audio_player_node.stream = sound_stream
 
 func search() -> void:
 	#print("ItemGoods: [%s]搜索中..." % [goods_name_node.text])
-	animation_player_node.play_section("search", 0.0, Goods.get_quality_time(quality))
+	search_icon_node.visible = true
+	var tween = create_tween()
+	var time = Goods.get_quality_time(quality)
+	var timer = get_tree().create_timer(time)
+	while(time > 1.0):
+		tween.tween_property(search_path_follow_node, "progress_ratio", 1, 1)
+		tween.tween_callback(func(): search_path_follow_node.progress_ratio = 0.0)
+		time -= 1
+	tween.tween_property(search_path_follow_node, "progress_ratio", time, time)
+	tween.tween_callback(func(): search_path_follow_node.progress_ratio = 0.0)
+	await timer.timeout
+	
+	var tween2 = create_tween()
+	tween2.set_parallel(true)  # 并行
+	goods_texture_node.scale = Vector2(1.45, 1.45)
+	audio_player_node.play()
+	# 淡出（从不透明到透明）
+	#if quality >= RewardPool.Quality.Purple:
+	quality_border_node.self_modulate.a = 1
+	quality_color_node.self_modulate.a = 0.75
+	tween2.tween_property(quality_border_node, "self_modulate:a", 0.18, 0.25)
+	tween2.tween_property(quality_color_node, "self_modulate:a", 0.18, 0.25)
+	tween2.tween_property(goods_texture_node, "scale", Vector2(1, 1), 0.1)
+	if quality >= RewardPool.Quality.Purple:
+		show_status(1)
+		animation_player_node.play("quality_border")
+		await get_tree().create_timer(0.25).timeout
+	is_search = true
+	show_status(1)
+	on_set_search.emit(global_position, is_search)
 
 ## 拿起
 func piked_up() -> void:
@@ -185,33 +226,11 @@ func rotated() -> void:
 ## ============================ 信号 =============================
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	if anim_name == "search":
-		goods_texture_node.scale = Vector2(1.45, 1.45)
-		audio_player_node.play()
-		# 淡出（从不透明到透明）
-		var tween = create_tween()
-		tween.set_parallel(true)  # 并行
-		if quality >= RewardPool.Quality.Purple:
-			quality_border_node.self_modulate.a = 1
-			quality_color_node.self_modulate.a = 0.75
-			tween.tween_property(quality_border_node, "self_modulate:a", 0.18, 0.25)
-			tween.tween_property(quality_color_node, "self_modulate:a", 0.18, 0.25)
-		tween.tween_property(goods_texture_node, "scale", Vector2(1, 1), 0.1)
-		if quality >= RewardPool.Quality.Purple:
-			animation_player_node.play("quality_border")
-		else:
-			quality_border_node.visible = false
-		is_search = true
-		show_search()
-		on_set_search.emit(global_position, is_search)
-	elif anim_name == "quality_border":
-		is_search_finish = true
-		show_search()
+	if anim_name == "quality_border":
+		#is_search = true
+		#show_status(1)
+		pass
 	#OverlayStateMonitor.push_overlay("anim_name", anim_name)
 
 func _on_audio_stream_player_finished() -> void:
 	audio_player_node.stream = sound_stream
-
-func _on_mouse_entered() -> void:
-	pass
-	#OverlayStateMonitor.push_overlay("id", [get_instance_id()])

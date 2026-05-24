@@ -8,12 +8,12 @@
 [ext_resource type="Texture2D" uid="uid://cucnim26pify5" path="res://art/texture/ui/slot/搜索图标.png" id="6_gt80q"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g2ywv"]
-bg_color = Color(0, 0, 0, 0)
+bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.4, 0.4, 0.4, 1)
+border_color = Color(0.33333334, 0.33333334, 0.33333334, 0.7490196)
 shadow_color = Color(0, 0, 0, 0.2)
 shadow_size = 1
 
@@ -44,22 +44,10 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath(".:position")
+tracks/0/path = NodePath("QualityBorder:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("../QualityBorder:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
@@ -72,7 +60,7 @@ length = 0.25
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../QualityBorder:scale")
+tracks/0/path = NodePath("QualityBorder:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -82,32 +70,14 @@ tracks/0/keys = {
 "values": [Vector2(1, 1), Vector2(1.6, 1.6)]
 }
 
-[sub_resource type="Animation" id="Animation_8hf3f"]
-resource_name = "search"
-length = 2.0
-step = 0.01
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0), Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0)]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_djc1i"]
 _data = {
 &"RESET": SubResource("Animation_f4n6m"),
-&"quality_border": SubResource("Animation_djc1i"),
-&"search": SubResource("Animation_8hf3f")
+&"quality_border": SubResource("Animation_djc1i")
 }
 
 [sub_resource type="Curve2D" id="Curve2D_g2ywv"]
-bake_interval = 0.1
+bake_interval = 1.0
 _data = {
 "points": PackedVector2Array(0, 0, 0, 0, 12, 32, -21.93003, -0.024439983, 21.93003, 0.024439983, 32, 12, 0, 0, 0, 0, 52, 32, 22.077188, 0, -22.077188, 0, 32, 52, 0, 0, 0, 0, 12, 32)
 }
@@ -116,8 +86,8 @@ point_count = 5
 [node name="Button" type="Button" unique_id=1501948871]
 z_index = 10
 custom_minimum_size = Vector2(64, 64)
-offset_right = 63.0
-offset_bottom = 63.0
+offset_right = 64.0
+offset_bottom = 64.0
 pivot_offset_ratio = Vector2(0.5, 0.5)
 theme_override_styles/normal = SubResource("StyleBoxFlat_g2ywv")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_m62xi")
@@ -129,7 +99,6 @@ toggle_mode = true
 script = ExtResource("1_m62xi")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=318845119]
-root_node = NodePath("../SearchIcon")
 libraries/ = SubResource("AnimationLibrary_djc1i")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1591181606]
@@ -139,8 +108,8 @@ stream = ExtResource("2_drnxo")
 self_modulate = Color(0.8509804, 0, 0, 0.18039216)
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 0
-offset_right = 62.0
-offset_bottom = 62.0
+offset_right = 64.0
+offset_bottom = 64.0
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 
@@ -152,6 +121,7 @@ offset_bottom = 64.0
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 texture = ExtResource("3_g2ywv")
+expand_mode = 1
 
 [node name="GoodsName" type="Label" parent="." unique_id=1302733923]
 custom_minimum_size = Vector2(56, 0)
@@ -194,36 +164,23 @@ offset_bottom = 256.0
 mouse_filter = 2
 texture = ExtResource("5_0ym4v")
 
-[node name="SearchIcon" type="TextureRect" parent="." unique_id=747046351]
-visible = false
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 0
-offset_right = 64.0
-offset_bottom = 64.0
-scale = Vector2(0.65, 0.65)
-pivot_offset_ratio = Vector2(0.5, 0.5)
-mouse_filter = 2
-texture = ExtResource("6_gt80q")
-stretch_mode = 3
-
-[node name="Path2D" type="Path2D" parent="SearchIcon" unique_id=692090257]
-position = Vector2(13.538464, 13.538462)
-scale = Vector2(0.15384617, 0.15384617)
+[node name="Path2D" type="Path2D" parent="." unique_id=692090257]
+position = Vector2(16, 16)
+scale = Vector2(0.15, 0.15)
 curve = SubResource("Curve2D_g2ywv")
 
-[node name="PathFollow2D" type="PathFollow2D" parent="SearchIcon/Path2D" unique_id=1044238085]
+[node name="PathFollow2D" type="PathFollow2D" parent="Path2D" unique_id=1044238085]
 position = Vector2(12, 32)
 rotation = -1.6668832
 
-[node name="RemoteTransform2D" type="RemoteTransform2D" parent="SearchIcon/Path2D/PathFollow2D" unique_id=1971791570]
-position = Vector2(30.173382, -21.202995)
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Path2D/PathFollow2D" unique_id=1971791570]
 rotation = 1.6668832
-remote_path = NodePath("../../../../Sprite2D")
+remote_path = NodePath("../../../SearchIcon")
 update_rotation = false
 update_scale = false
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=805152902]
-position = Vector2(18.800001, 20.4)
+[node name="SearchIcon" type="Sprite2D" parent="." unique_id=805152902]
+position = Vector2(17.8, 20.8)
 scale = Vector2(0.65, 0.65)
 texture = ExtResource("6_gt80q")
 offset = Vector2(16, 16)

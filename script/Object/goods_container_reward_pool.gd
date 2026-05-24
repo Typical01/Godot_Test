@@ -2363,5 +2363,5 @@ func create_config() -> Dictionary:
 	}
 	base_setting["容器"] = container
 	base_setting["仓库"] = []
-	base_setting["版本"] = "0.0.101"
+	base_setting["版本"] = "0.0.102"
 	return base_setting

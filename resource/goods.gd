@@ -67,6 +67,15 @@ func get_occupy_offsets() -> Array:
 			if shape[y][x] == 1:
 				offsets.append(Vector2(x, y))
 	return offsets
+	
+## 获取物品占用的大小
+func get_shape_size() -> Array:
+	var offsets = []
+	for y in range(shape.size()):
+		for x in range(shape[y].size()):
+			if shape[y][x] == 1:
+				offsets.append(0)
+	return offsets
 
 ## 获取旋转后物品的形状
 func rotated() -> Array:

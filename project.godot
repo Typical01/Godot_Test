@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="SearchSatisfaction"
-config/version="0.0.102"
+config/version="0.0.104"
 run/main_scene="uid://d256x7l6oxgqe"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 run/max_fps=144
@@ -23,12 +23,12 @@ config/icon="uid://dn6hsy6hdndff"
 
 [autoload]
 
-data_manage="*res://script/utils/data_manage.gd"
-coord_utils="*res://script/utils/coord_utils.gd"
-Global="*res://script/Global.gd"
-application_mutex="*uid://codc0rr45xtqv"
+data_manage="*uid://booewj6ing8gt"
 GlobalLogger="*uid://db5n8i0lqtjfg"
+coord_utils="*res://script/utils/coord_utils.gd"
+application_mutex="*uid://codc0rr45xtqv"
 input_recognizer="*uid://b010s0dxio86v"
+Global="*res://script/Global.gd"
 OverlayStateMonitor="*uid://df3yns1nhq6jg"
 goods_container_manage="*uid://j6gxecsmlj8r"
 

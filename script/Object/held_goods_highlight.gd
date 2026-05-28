@@ -1,9 +1,9 @@
-extends TextureRect
+extends ColorRect
 
-
+@export var default_show = false
 
 func _ready() -> void:
-	visible = false
+	visible = default_show
 
 func set_slot_size(dimensions: Vector2i) -> void:
 	custom_minimum_size = dimensions * Global.SLOT_SIZE

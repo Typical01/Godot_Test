@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://dyybgk5lg13ma"]
+
+[ext_resource type="Script" uid="uid://bku2rsx7ivt1t" path="res://script/object/value.gd" id="1_extne"]
+[ext_resource type="Texture2D" uid="uid://cy8jagcgmc7le" path="res://art/texture/ui/slot/哈夫币.png" id="1_lvwic"]
+
+[node name="Control" type="Control" unique_id=909651516]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_extne")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=604223615]
+custom_minimum_size = Vector2(260, 16)
+layout_mode = 1
+offset_right = 260.0
+offset_bottom = 31.0
+pivot_offset = Vector2(200, 0)
+theme_override_constants/separation = 2
+
+[node name="Value" type="TextureRect" parent="HBoxContainer" unique_id=140294553]
+layout_mode = 2
+texture = ExtResource("1_lvwic")
+expand_mode = 2
+
+[node name="LabelValue" type="Label" parent="HBoxContainer" unique_id=1253439687]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "0"

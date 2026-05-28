@@ -91,7 +91,7 @@ func allocate_multiple_rewards(quality: Quality = Quality.None, count: int = 10)
 
 ## ============================ 接口: 获取 =============================
 
-static func get_reward_data() -> Array:
+static func get_container_data() -> Array:
 	var reward_data = []
 	var container_data = quality_reward_data.get("容器")
 	for i in container_data.size():
@@ -130,6 +130,19 @@ func _get_random_quality() -> Quality:
 ## 获取: 概率列表
 func get_probabilitys() -> Array:
 	return probabilitys_data
+
+## 增加概率
+func add_probabilitys(add_quality: RewardPool.Quality, sub_quality: RewardPool.Quality, probability: float) -> bool:
+	var tmp_probabilitys_data = probabilitys_data.duplicate()
+	tmp_probabilitys_data[RewardPool.quality_to_index(add_quality)] += probability
+	tmp_probabilitys_data[RewardPool.quality_to_index(sub_quality)] -= probability
+	var sum = 0.0
+	for i in tmp_probabilitys_data.size():
+		sum += tmp_probabilitys_data[i]
+	if sum != 1.0:
+		return false
+	probabilitys_data = tmp_probabilitys_data
+	return true
 
 ## 获取: 指定奖励池的对应品质列表
 func get_qualitys_reward(reward_name: String, quality: Quality) -> Array:

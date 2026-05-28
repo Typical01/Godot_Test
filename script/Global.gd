@@ -1,23 +1,15 @@
 extends Node
 
 
-const SLOT_SIZE = 64
-const TEXTURE_SIZE = 64
-var H_SEPARATION = 0
-var V_SEPARATION = 0
+const SLOT_SIZE = 72
 
 var game_config: Dictionary
-var goods_container_reward_pool = null
+var input: InputRecognizer = InputRecognizer.new()
+var goods_container_reward_pool: GoodsContainerRewardPool = null
 
 
 func _ready() -> void:
 	load_setting()
-	#print("\n=== 测试普通奖励池 ===")
-	#var normal_reward = safe_box_reward_pool.allocate_single_reward()
-	#if normal_reward:
-		#for i in normal_reward:
-			#print("获得[%s]: %s (价值: %d)" % [\
-			#Goods.get_color_from_string(i.quality), i.name, i.value])
 
 func _exit_tree() -> void:
 	save_data()

@@ -1,0 +1,107 @@
+[gd_scene format=3 uid="uid://hve5i7dlvsho"]
+
+[ext_resource type="Script" uid="uid://v1p4sbghyfrb" path="res://script/object/item_simple_information.gd" id="1_bvxbo"]
+[ext_resource type="Texture2D" uid="uid://cnoueieisg747" path="res://art/texture/ui/slot/格子.png" id="2_6s55o"]
+[ext_resource type="Texture2D" uid="uid://cy8jagcgmc7le" path="res://art/texture/ui/slot/哈夫币.png" id="3_6pr7u"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bvxbo"]
+bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.36862746, 0.36862746, 0.36862746, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6s55o"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ovg48"]
+bg_color = Color(0.21568628, 0.21568628, 0.21568628, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b88fm"]
+bg_color = Color(0.29411766, 0.29411766, 0.29411766, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t8s18"]
+bg_color = Color(0.25490198, 0.25490198, 0.25490198, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_715jb"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_b88fm"]
+
+[node name="Info" type="Control" unique_id=664653840]
+unique_name_in_owner = true
+z_index = 10
+layout_mode = 3
+anchors_preset = 0
+pivot_offset = Vector2(10, 10)
+script = ExtResource("1_bvxbo")
+
+[node name="Control" type="PanelContainer" parent="." unique_id=255150701]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 80)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bvxbo")
+
+[node name="InfoBorder" type="ColorRect" parent="Control" unique_id=1818791469]
+self_modulate = Color(1, 1, 1, 0.95000005)
+layout_mode = 2
+color = Color(0.36862746, 0.36862746, 0.36862746, 1)
+
+[node name="ItemSimpleInformation" type="TextureRect" parent="Control" unique_id=853152978]
+unique_name_in_owner = true
+self_modulate = Color(0.627451, 0.627451, 0.627451, 0.78431374)
+layout_mode = 2
+texture = ExtResource("2_6s55o")
+
+[node name="PanelContainer" type="PanelContainer" parent="Control" unique_id=1266824059]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_6s55o")
+
+[node name="InfoContainer" type="VBoxContainer" parent="Control/PanelContainer" unique_id=1483616986]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GoodsName" type="Label" parent="Control/PanelContainer/InfoContainer" unique_id=673848599]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Test"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/PanelContainer/InfoContainer" unique_id=540803127]
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Value" type="TextureRect" parent="Control/PanelContainer/InfoContainer/HBoxContainer" unique_id=696968475]
+layout_mode = 2
+texture = ExtResource("3_6pr7u")
+stretch_mode = 3
+
+[node name="InfoValue" type="Label" parent="Control/PanelContainer/InfoContainer/HBoxContainer" unique_id=596756948]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "0"
+
+[node name="Sell" type="Button" parent="Control/PanelContainer/InfoContainer" unique_id=491995383]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_ovg48")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_b88fm")
+theme_override_styles/hover = SubResource("StyleBoxFlat_t8s18")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_715jb")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_b88fm")
+text = "出售"
+
+[connection signal="button_down" from="Control/PanelContainer/InfoContainer/Sell" to="." method="_on_sell_button_up"]

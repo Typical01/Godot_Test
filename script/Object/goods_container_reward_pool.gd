@@ -6,6 +6,7 @@ var config # 配置文件引用
 var container_probabilitys: Dictionary
 var container_data: Dictionary
 var goods_probabilitys: Dictionary ## 物品概率
+var goods_pool: Dictionary = {} # 物品池: key: 物品名 | value: 物品数据
 var reward_pools: Dictionary = {}
 
 
@@ -23,7 +24,6 @@ func init(_config) -> bool:
 		return false
 	set_goods_reward(goods_qualitys_reward)
 	#print("reward_pools: ", reward_pools)
-	test()
 	return true
 	
 ## 设置: 容器本身的概率
@@ -138,16 +138,16 @@ func extract_goods_reward_pool() -> Dictionary:
 	if not config is Dictionary or not config.has("物品"):
 		push_error("Json对象没有[物品]!")
 		return {}
-	var goods_type = config["物品"] # 容器分类
-	if not goods_type is Dictionary or goods_type.is_empty():
+	var goods_types = config["物品"] # 容器分类
+	if not goods_types is Dictionary or goods_types.is_empty():
 		push_error("Json对象[物品]没有数据!")
 		return {}
-	for key in goods_type.keys(): # "工艺藏品" = {"白": [{物品}...]}
+	for key_type in goods_types.keys(): # "工艺藏品" = {"白": [{物品}...]}
 		var quality_array = {}
-		var qualitys = goods_type[key] # {"白": [{物品}...]}
-		for key2 in qualitys.keys(): # "白": [{物品}...]
+		var qualitys = goods_types[key_type] # {"白": [{物品}...]}
+		for key_quality in qualitys.keys(): # "白": [{物品}...]
 			var goods_array = []
-			var goods_data_array = qualitys[key2] # [{物品}...]
+			var goods_data_array = qualitys[key_quality] # [{物品}...]
 			for i in goods_data_array.size():
 				var goods_data = goods_data_array[i] # {物品}
 				if not goods_data is Dictionary:
@@ -156,7 +156,7 @@ func extract_goods_reward_pool() -> Dictionary:
 				var goods_name: String = "extract_goods == null"
 				var goods_dimensions: Vector2i = Vector2i(0, 0)
 				var goods_value: int = 0
-				var goods_class: int = Goods.Type.None
+				var goods_type: int = Goods.Type.None
 				
 				# 提取物品数据
 				if goods_data.has("物品名称"):
@@ -171,18 +171,19 @@ func extract_goods_reward_pool() -> Dictionary:
 					if value is int or value is float:
 						goods_value = int(value)
 				if goods_data.has("物品类型"):
-					var class_value = goods_data["物品类型"]
-					if class_value is int:
-						goods_class = class_value
+					var type = goods_data["物品类型"]
+					if type is int:
+						goods_type = type
 				
 				# 创建物品对象
 				var goods = Goods.new()
-				var quality_enum: RewardPool.Quality = RewardPool.string_to_quality(key2)
-				goods.init(goods_name, quality_enum, goods_dimensions, goods_value, goods_class)
+				var quality_enum: RewardPool.Quality = RewardPool.string_to_quality(key_quality)
+				goods.init(goods_name, quality_enum, goods_dimensions, goods_value, goods_type)
 				#goods.output()
+				goods_pool.set(goods_name, goods)
 				goods_array.append(goods)
-			quality_array.set(key2, goods_array.duplicate())
-		goods_qualitys.set(key, quality_array.duplicate())
+			quality_array.set(key_quality, goods_array.duplicate())
+		goods_qualitys.set(key_type, quality_array.duplicate())
 	return goods_qualitys
 
 func allocate_single_reward_container(quality: RewardPool.Quality = RewardPool.Quality.None) -> Object:
@@ -198,7 +199,7 @@ func allocate_single_reward_container(quality: RewardPool.Quality = RewardPool.Q
 func allocate_single_reward_goods(container_name: String = "收纳袋", quality: RewardPool.Quality = RewardPool.Quality.None) -> Object:
 	var current_container = get_reward_pool(container_name)
 	if not current_container:
-		push_error("容器池 == null!")
+		push_error("[%s]current_container == null!" % [container_name])
 		return
 	#current_container.output()
 	var reward_object = current_container.allocate_single_reward(quality)
@@ -232,6 +233,9 @@ func get_container_types(container_name: String) -> Array:
 	return container_data.get(container_name, [])
 
 func create_config() -> Dictionary:	
+	# 基本设置对象
+	var base_setting: Dictionary = {}
+	
 	## 物品概率
 	var goods: Dictionary = {}
 	var container_class: Dictionary = {}
@@ -243,12 +247,14 @@ func create_config() -> Dictionary:
 		"物品名称": "非洲之心",
 		"物品类型": Goods.Type.CraftCollection,
 		"物品格数": [1, 1],
+		"物品品质": RewardPool.Quality.Orange,
 		"物品价值": 13145200
 	})
 	qualitys.append({
 		"物品名称": "海洋之泪",
 		"物品类型": Goods.Type.CraftCollection,
 		"物品格数": [1, 1],
+		"物品品质": RewardPool.Quality.Orange,
 		"物品价值": 20000000
 	})
 	container_class["橙"] = qualitys.duplicate()
@@ -258,6 +264,7 @@ func create_config() -> Dictionary:
 		"物品名称": "印象派名画",
 		"物品类型": Goods.Type.CraftCollection,
 		"物品格数": [3, 3],
+		"物品品质": RewardPool.Quality.Orange,
 		"物品价值": 8000000
 	})
 	qualitys.append({
@@ -571,6 +578,12 @@ func create_config() -> Dictionary:
 	container_class["红"] = qualitys.duplicate()
 	qualitys.clear()
 	
+	qualitys.append({
+		"物品名称": "高级咖啡豆",
+		"物品类型": Goods.Type.HomeItem,
+		"物品格数": [1, 2],
+		"物品价值": 500000
+	})
 	qualitys.append({
 		"物品名称": "香槟",
 		"物品类型": Goods.Type.HomeItem,
@@ -1562,6 +1575,12 @@ func create_config() -> Dictionary:
 	qualitys.clear()
 	
 	qualitys.append({
+		"物品名称": "火箭燃料",
+		"物品类型": Goods.Type.EnergyFuel,
+		"物品格数": [3, 4],
+		"物品价值": 5000000
+	})
+	qualitys.append({
 		"物品名称": "试制聚变供能单元",
 		"物品类型": Goods.Type.EnergyFuel,
 		"物品格数": [3, 3],
@@ -1579,9 +1598,21 @@ func create_config() -> Dictionary:
 		"物品格数": [3, 2],
 		"物品价值": 7000000
 	})
+	qualitys.append({
+		"物品名称": "G18",
+		"物品类型": Goods.Type.EnergyFuel,
+		"物品格数": [1, 2],
+		"物品价值": 20000
+	})
 	container_class["红"] = qualitys.duplicate()
 	qualitys.clear()
 	
+	qualitys.append({
+		"物品名称": "卫星通讯",
+		"物品类型": Goods.Type.EnergyFuel,
+		"物品格数": [2, 2],
+		"物品价值": 1000000
+	})
 	qualitys.append({
 		"物品名称": "高能瓦斯罐",
 		"物品类型": Goods.Type.EnergyFuel,
@@ -2289,14 +2320,8 @@ func create_config() -> Dictionary:
 	container_class.clear()
 
 
-	
-## ============================ 工艺藏品 =============================
 
-	# 基本设置对象
-	var base_setting: Dictionary = {}
-	# 货币
-	var values: int = 0
-	base_setting["货币"] = values
+## ============================ 其他 =============================
 	base_setting["物品"] = goods
 	
 	var container: Dictionary = {}
@@ -2331,9 +2356,9 @@ func create_config() -> Dictionary:
 		]
 	}
 	container["概率"] = {
-		"普通": [0.7, 0.25, 0.05, 0, 0, 0, 0],
-		"机密": [0.5, 0.4, 0.1, 0, 0, 0, 0],
-		"绝密": [0.2, 0.55, 0.25, 0, 0, 0, 0]
+		"普通": [0.8, 0.19, 0.01, 0, 0, 0, 0],
+		"机密": [0.6, 0.35, 0.05, 0, 0, 0, 0],
+		"绝密": [0.35, 0.55, 0.1, 0, 0, 0, 0]
 	}
 	container["物品概率"] = {
 		"收纳袋": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
@@ -2345,23 +2370,27 @@ func create_config() -> Dictionary:
 		"鸟窝": 			[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
 		"电脑机箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
 		
-		"登山包": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"旅行箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"工具柜": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"野外物资箱": 	[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"军用医疗包": 	[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"电脑": 			[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"小保险箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
+		"登山包": 		[0.0, 0.05, 0.1, 0.35, 0.389, 0.1, 0.01, 0.001],
+		"旅行箱": 		[0.0, 0.05, 0.1, 0.35, 0.389, 0.1, 0.01, 0.001],
+		"工具柜": 		[0.0, 0.05, 0.1, 0.35, 0.389, 0.1, 0.01, 0.001],
+		"野外物资箱": 	[0.0, 0.05, 0.1, 0.35, 0.389, 0.1, 0.01, 0.001],
+		"军用医疗包": 	[0.0, 0.05, 0.1, 0.35, 0.389, 0.1, 0.01, 0.001],
+		"电脑": 			[0.0, 0.05, 0.1, 0.35, 0.389, 0.1, 0.01, 0.001],
+		"小保险箱": 		[0.0, 0.05, 0.1, 0.35, 0.389, 0.1, 0.01, 0.001],
 		
-		"手提箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"高级储物箱": 	[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"医疗物资箱": 	[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"服务器": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"衣服": 			[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"航空箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
-		"保险箱": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003]
+		"手提箱": 		[0.0, 0.0, 0.05, 0.35, 0.389, 0.15, 0.05, 0.011],
+		"高级储物箱": 	[0.0, 0.0, 0.05, 0.35, 0.389, 0.15, 0.05, 0.011],
+		"医疗物资箱": 	[0.0, 0.0, 0.05, 0.35, 0.389, 0.15, 0.05, 0.011],
+		"服务器": 		[0.0, 0.0, 0.05, 0.35, 0.389, 0.15, 0.05, 0.011],
+		"衣服": 			[0.0, 0.0, 0.05, 0.35, 0.389, 0.15, 0.05, 0.011],
+		"航空箱": 		[0.0, 0.0, 0.05, 0.35, 0.389, 0.15, 0.05, 0.011],
+		"保险箱": 		[0.0, 0.0, 0.05, 0.35, 0.389, 0.15, 0.05, 0.011]
 	}
 	base_setting["容器"] = container
-	base_setting["仓库"] = []
-	base_setting["版本"] = "0.0.102"
+	
+	if not Global.game_config.has("货币"):
+		base_setting["货币"] = 0
+	if not Global.game_config.has("仓库"):
+		base_setting["仓库"] = []
+	base_setting["版本"] = "0.0.104"
 	return base_setting

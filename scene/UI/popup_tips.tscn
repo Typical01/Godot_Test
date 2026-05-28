@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cmn4x2ehjh4jf" path="res://script/ui/popup_tips.gd" id="1_yuhxa"]
 [ext_resource type="Theme" uid="uid://byjv8n55qfmeh" path="res://resource/flat_ligth_theme.tres" id="2_456b5"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dtoxs"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_456b5"]
 bg_color = Color(0.99607843, 0.99607843, 0.99607843, 1)
 border_width_left = 1
 border_width_top = 1
@@ -28,15 +28,17 @@ corner_radius_top_right = 32
 corner_radius_bottom_right = 32
 corner_radius_bottom_left = 32
 
-[node name="PopupTips" type="Panel" unique_id=1267811645]
-custom_minimum_size = Vector2(240, 60)
-offset_right = 240.0
-offset_bottom = 60.0
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_dtoxs")
+[node name="CanvasLayer" type="CanvasLayer" unique_id=2114355660]
 script = ExtResource("1_yuhxa")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=672476120]
+[node name="PopupTip" type="Panel" parent="." unique_id=1863867492]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 60)
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_456b5")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PopupTip" unique_id=672476120]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -45,26 +47,26 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 2
 
-[node name="Space" type="Control" parent="VBoxContainer" unique_id=1585503715]
+[node name="Space" type="Control" parent="PopupTip/VBoxContainer" unique_id=1585503715]
 custom_minimum_size = Vector2(0, 2)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=73022388]
+[node name="HBoxContainer" type="HBoxContainer" parent="PopupTip/VBoxContainer" unique_id=73022388]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="Space" type="Control" parent="VBoxContainer/HBoxContainer" unique_id=1746607017]
+[node name="Space" type="Control" parent="PopupTip/VBoxContainer/HBoxContainer" unique_id=1746607017]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Icon" type="TextureRect" parent="VBoxContainer/HBoxContainer" unique_id=1199860192]
+[node name="Icon" type="TextureRect" parent="PopupTip/VBoxContainer/HBoxContainer" unique_id=1199860192]
 unique_name_in_owner = true
 layout_mode = 2
 expand_mode = 2
 
-[node name="ItemName" type="Label" parent="VBoxContainer/HBoxContainer" unique_id=1657174343]
+[node name="ItemName" type="Label" parent="PopupTip/VBoxContainer/HBoxContainer" unique_id=1657174343]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -72,22 +74,22 @@ theme = ExtResource("2_456b5")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_yuhxa")
 text = "这是一个提示"
 
-[node name="Space3" type="Control" parent="VBoxContainer/HBoxContainer" unique_id=1187217176]
+[node name="Space3" type="Control" parent="PopupTip/VBoxContainer/HBoxContainer" unique_id=1187217176]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="TipsColor" type="Panel" parent="VBoxContainer/HBoxContainer" unique_id=1630858143]
+[node name="TipsColor" type="Panel" parent="PopupTip/VBoxContainer/HBoxContainer" unique_id=1630858143]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxFlat_yuhxa")
 
-[node name="Space2" type="Control" parent="VBoxContainer/HBoxContainer" unique_id=839888381]
+[node name="Space2" type="Control" parent="PopupTip/VBoxContainer/HBoxContainer" unique_id=839888381]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Space2" type="Control" parent="VBoxContainer" unique_id=1929011368]
+[node name="Space2" type="Control" parent="PopupTip/VBoxContainer" unique_id=1929011368]
 custom_minimum_size = Vector2(0, 2)
 layout_mode = 2
 mouse_filter = 2

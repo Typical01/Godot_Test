@@ -11,7 +11,7 @@ signal on_visible_range_changed(first: int, last: int) ## 可见范围变化
 
 ## 拖拽: 假定节点继承[Control], 包含函数[set_dray_hover]
 signal on_drag_start_item(index: int, data, global_mouse_position: Vector2) ## 拖拽开始
-signal on_drag_move_item(global_mouse_position: Vector2) ## 拖拽移动
+signal on_drag_move_item(index: int, global_mouse_position: Vector2) ## 拖拽移动
 signal on_drag_end_item(index: int, end_index: int) ## 拖拽结束
 
 ## ============================ 数据加载 =============================
@@ -43,7 +43,7 @@ var _last_visible_last: int = 0 ## 最后显示范围: 结束索引
 var _visible_rows: int = 0 ## 显示范围: 行数
 
 @export var columns: int = 1 ## 列数
-@export var item_size: Vector2i = Vector2i(0, 0) ## 项: 高度x宽度
+@export var item_size: Vector2i = Vector2i(64, 64) ## 项: 高度x宽度
 @export var buffer_rows: int = 0 ## 缓冲: 行数
 @export var drag_roll_rows: int = 1 ## 拖拽滚动触发的首尾行数
 @export var item_interval: int = 1 ## 项之间的间距
@@ -132,17 +132,10 @@ func _update_node_pool_size():
 		push_error("VListView: 节点模板为 null!")
 		return
 	
-	# 确定节点高/宽
-	if is_size_change:
-		if drag_node.size.y == 0 or \
-			drag_node.size.y < item_size.y:
-			drag_node.size.y = item_size.y
-		item_size.x = int(size.x / columns)
-		item_size.y = drag_node.size.y
 	#OverlayStateMonitor.push_overlay("item_size", item_size)
 	if drag_node:
 		drag_node.size = Vector2(item_size.x, item_size.y)
-	_visible_rows = ceil(size.y /item_size.y)
+	_visible_rows = ceil(size.y / item_size.y)
 	#OverlayStateMonitor.push_overlay("_visible_rows", _visible_rows)
 	node_pool_size = (_visible_rows + buffer_rows * 2) * columns
 	
@@ -183,7 +176,8 @@ func _setup_scroll_range():
 	var total_rows = ceil(float(data.size()) / columns)
 	var new_height = total_rows * item_size.y
 	
-	item_container.custom_minimum_size = Vector2(item_size.x, new_height)
+	item_container.custom_minimum_size = Vector2(item_size.x - 2, new_height - 2)
+	item_container.position = Vector2(1, 1)
 	#OverlayStateMonitor.push_overlay("item_container.custom_minimum_size", item_container.custom_minimum_size)
 	#OverlayStateMonitor.push_overlay("size", size)
 	#OverlayStateMonitor.push_overlay("data.size()", data.size())
@@ -200,7 +194,7 @@ func _update_visible_items(scroll_y: float = v_scroll_bar.value):
 	if not item_container:
 		return
 	# 计算可见范围(带缓冲)
-	var first_row = max(0, int(scroll_y / (item_size.y + item_interval)) - buffer_rows)
+	var first_row = max(0, int(scroll_y / item_size.y) - buffer_rows)
 	var first_index = first_row * columns
 	var last_row = first_row + _visible_rows + buffer_rows * 2
 	var last_index = min(data.size() - 1, (last_row + 1) * columns - 1)
@@ -264,14 +258,10 @@ func _update_index_item(index: int):
 
 ## 刷新指定项
 func _update_index_item_data(index: int, _data):
-	if index < 0 or index >= data.size():
-		push_error("VListView: _update_index_item: [%s] index < 0 or index >= data.size()!" % [index])
-		return
-	else:
-		var control = _get_control_at_index(index)
-		if control:
-			control.visible = true
-		on_entry_updated.emit(index, control, _data) # 数据范围变化
+	var control = _get_control_at_index(index)
+	if control:
+		control.visible = true
+	on_entry_updated.emit(index, control, _data) # 数据范围变化
 
 ## 限制拖拽节点的位置
 func clamp_drag_node_position(global_mouse_position: Vector2):
@@ -282,13 +272,13 @@ func clamp_drag_node_position(global_mouse_position: Vector2):
 			var rect = control.get_rect()
 			drag_node.position = rect.position
 	else:
-		drag_node.global_position = global_mouse_position - (drag_node.size / 2)
+		drag_node.position = global_mouse_position - (drag_node.size / 2)
 
 ## ============================ 数据接口 =============================
 
 ## 正在拖拽中时返回: true
 func get_draging() -> bool:
-	if drag_index >= 0 or drag_index == -2: return true 
+	if drag_index >= 0 and show_drag_node: return true 
 	else: return false
 
 ## 清空数据
@@ -393,7 +383,8 @@ func drag_start_item(global_mouse_position: Vector2 = get_global_mouse_position(
 	clamp_drag_node_position(global_mouse_position)
 
 ## 拖拽移动: 跟随鼠标并自动跟随滚动
-func drag_move_item(global_mouse_position: Vector2):
+func drag_move_item(global_mouse_position: Vector2 = get_global_mouse_position()):
+	var index = get_index_of_position(global_mouse_position)
 	clamp_drag_node_position(global_mouse_position)
 	## 鼠标处于视图 顶/底部时, 缓慢向上/下滚动视图
 	#global_mouse_position -= item_container.global_position
@@ -401,7 +392,7 @@ func drag_move_item(global_mouse_position: Vector2):
 		#v_scroll_bar.value -= 1
 	#if global_mouse_position.y > (_visible_rows - drag_roll_rows) * item_size.y:
 		#v_scroll_bar.value += 1
-	on_drag_move_item.emit(global_mouse_position)
+	on_drag_move_item.emit(index, global_mouse_position)
 
 ## 拖拽结束: 还原状态
 func drag_end_item(global_mouse_position: Vector2 = get_global_mouse_position()):
@@ -410,7 +401,8 @@ func drag_end_item(global_mouse_position: Vector2 = get_global_mouse_position())
 		drag_node.visible = false
 	if end_index != -1:
 		#move_item(drag_index, end_index)
-		on_drag_end_item.emit(drag_index, end_index, global_mouse_position)
+		pass
+	on_drag_end_item.emit(drag_index, end_index, global_mouse_position)
 	drag_index = -1
 
 
@@ -430,10 +422,11 @@ func refresh_entry(index: int):
 ## ============================ 工具 =============================
 
 ## 获取指定坐标的索引
-func get_index_of_position(_position: Vector2 = get_global_mouse_position()) -> int:
-	var container_pos = item_container.global_position
-	var relative_x = _position.x - container_pos.x
-	var relative_y = _position.y - container_pos.y
+func get_index_of_position(_global_position: Vector2 = get_global_mouse_position()) -> int:
+	var container_pos = item_container.global_position - global_position
+	var local_position = _global_position - global_position
+	var relative_x = local_position.x - container_pos.x
+	var relative_y = local_position.y - container_pos.y
 	# 边界检查
 	if relative_x < 0 or relative_x >= columns * item_size.x:
 		return -1
@@ -454,8 +447,8 @@ func _get_control_at_index(target_index: int) -> Control:
 	var row_offset = target_row - first_row
 	if row_offset < 0:
 		return null
-	# 在可见区域下方
 	var pool_index = row_offset * columns + target_col
+	# 在可见区域下方
 	if pool_index >= node_pool.size():
 		return null
 	return node_pool[pool_index]

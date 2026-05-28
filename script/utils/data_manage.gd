@@ -1,7 +1,16 @@
-extends Node
-class_name DataManage
+class_name DataManage extends CanvasLayer
 
 
+
+signal auto_save()
+
+
+
+@onready var auto_save_icon_node = $Tips/Icon
+@onready var auto_save_tips_node = $Tips
+var auto_save_tips_time: float = 2.0 # 秒
+var auto_save_timer: Timer = Timer.new()
+var auto_save_time: float = 15.0 # 秒
 
 var data_file : Dictionary = {} :
 	set(data):
@@ -20,10 +29,37 @@ var save_path = "user://game.json" :
 
 
 func _ready() -> void:
+	layer = 100
+	auto_save_timer.autostart = true # 自动启动
+	auto_save_timer.one_shot = false # 循环: 保存
+	auto_save_timer.wait_time = auto_save_time
+	auto_save_timer.timeout.connect(func():
+		#print("auto_save: %s" % [Time.get_datetime_string_from_system(false, true)])
+		auto_save_icon_node.visible = true
+		auto_save_tips_node.visible = true
+		get_tree().create_timer(auto_save_tips_time).timeout.connect(func():
+			auto_save_icon_node.visible = false
+			auto_save_tips_node.visible = false
+			)
+		auto_save.emit()
+		save_data_json()
+		)
+	
 	# 尝试加载；如果不存在就新建
 	if not load_data_json():
 		data_file = {}
 		save_data_json()
+	
+	auto_save_icon_node.visible = false
+	auto_save_tips_node.visible = false
+	add_child(auto_save_timer)
+
+func _process(delta: float) -> void:
+	if auto_save_icon_node:
+		auto_save_icon_node.rotation += delta * 4.0
+
+
+
 
 # 保存
 func save_data() -> void:

@@ -1,10 +1,6 @@
 extends Button
 
 
-signal on_set_search(global_position, is_search: bool)
-signal on_button_down(global_position)
-signal on_button_up(global_position)
-
 
 
 ## ============================ 变量 =============================
@@ -36,6 +32,9 @@ var search_background_node:
 var goods_name_node:
 	get():
 		return $GoodsName
+var highlight_node:
+	get():
+		return $Highlight
 var animation_player_node: AnimationPlayer:
 	get():
 		return $AnimationPlayer
@@ -48,19 +47,19 @@ var sound_stream = preload("res://art/sound/打开背包.wav")
 
 @export var goods_name: String = "null" ## 物品名称
 @export var goods_texture: Texture2D = null ## 物品纹理
-@export var slot_size: int = Global.SLOT_SIZE ## 物品槽大小
+var slot_size: int = Global.SLOT_SIZE ## 物品槽大小
 @export var quality: RewardPool.Quality = RewardPool.Quality.None ## 品质颜色
 @export var quality_color: Color = Color() ## 品质颜色
 @export var dimensions: Vector2i = Vector2i(1, 1) ## 物品规格
 var is_search = false ## 搜索物品播放完成
 var is_rotated = false ## 旋转物品
 var is_held = false ## 拿起物品
+var is_highlight = false ## 高光
 
 
 ## ============================ 基础实现 =============================
 
 func _ready() -> void:
-	#OverlayStateMonitor.push_overlay("id", [get_instance_id()])
 	pass
 	
 func _input(event: InputEvent) -> void:	
@@ -78,6 +77,13 @@ func get_goods_size() -> Vector2:
 
 func reset_animation():
 	animation_player_node.stop()
+
+# 显示: 名称
+func show_name(is_show: bool):
+	if is_show:
+		goods_name_node.visible = true
+	else:
+		goods_name_node.visible = false
 
 # 显示: 名称/品质
 func show_image_background(is_show: bool):
@@ -109,11 +115,9 @@ func show_status(code: int = 0):
 ##设置: 物品大小
 func set_goods_size(_size: Vector2 = get_goods_size()):
 	size = _size
-	#OverlayStateMonitor.clear()
-		
+	
 	quality_color_node.size = size
 	goods_texture_node.size = size
-	#OverlayStateMonitor.push_overlay("[%s]goods_texture_node.size" % [get_instance_id()], goods_texture_node.size)
 	if goods_name_node.size.x != size.x:
 		if size.x > slot_size:
 			goods_name_node.size.x = size.x
@@ -122,11 +126,11 @@ func set_goods_size(_size: Vector2 = get_goods_size()):
 	quality_border_node.size = size
 	search_background_rect_node.size = size
 	search_path_node.position = size / 2 - Vector2(16, 16)
-	
-	#OverlayStateMonitor.push_overlay("[%s]size" % [get_instance_id()], size)
-	#OverlayStateMonitor.push_overlay("[%s]dimensions" % [get_instance_id()], dimensions)
+	highlight_node.size = size
 
 ## ============================ 接口 =============================
+
+
 
 func set_data(data: Goods) -> void:
 	if not data:
@@ -145,6 +149,7 @@ func init_goods() -> void:
 	set_goods_size()
 	reset_animation()
 	show_status(1 if is_search else -1)
+	show_highlight(false)
 	
 	goods_texture_node.texture = goods_texture
 	goods_name_node.text = goods_name
@@ -186,7 +191,6 @@ func search() -> void:
 		await get_tree().create_timer(0.25).timeout
 	is_search = true
 	show_status(1)
-	on_set_search.emit(global_position, is_search)
 
 ## 拿起
 func piked_up() -> void:
@@ -195,7 +199,6 @@ func piked_up() -> void:
 	is_held = true
 	audio_player_node.play()
 	show_image_background(false)
-	on_button_down.emit(global_position)
 
 ## 放置
 func placed() -> void:
@@ -204,7 +207,6 @@ func placed() -> void:
 	audio_player_node.play()
 	show_image_background(true)
 	is_held = false
-	on_button_up.emit(global_position)
 
 ## 旋转
 func rotated() -> void:
@@ -222,15 +224,36 @@ func rotated() -> void:
 	#tween.kill()
 	#anchor_point = global_position - size / 2
 
+## 显示悬停效果
+func show_hover(is_hover: bool) -> void:
+	if is_hover:
+		highlight_node.self_modulate = Color(1, 1, 1, 0.2)
+		if not is_highlight:
+			highlight_node.visible = true
+	else:
+		if not is_highlight:
+			highlight_node.visible = false
+		highlight_node.self_modulate = Color(1, 1, 1, 1)
+
+## 显示高亮效果
+func show_highlight(is_show: bool = false) -> void:
+	is_highlight = is_show
+	if is_highlight:
+		highlight_node.visible = true
+	else:
+		highlight_node.visible = false
+
+
 
 ## ============================ 信号 =============================
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	if anim_name == "quality_border":
-		#is_search = true
-		#show_status(1)
+	if anim_name.is_empty():
 		pass
-	#OverlayStateMonitor.push_overlay("anim_name", anim_name)
 
 func _on_audio_stream_player_finished() -> void:
 	audio_player_node.stream = sound_stream
+
+func _on_toggled(toggled_on: bool) -> void:
+	#OverlayStateMonitor.push_overlay("toggled_on", toggled_on)
+	show_highlight(toggled_on)

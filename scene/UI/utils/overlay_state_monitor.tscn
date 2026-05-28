@@ -14,8 +14,12 @@ script = ExtResource("1_vk1up")
 is_performance = false
 
 [node name="Panel" type="PanelContainer" parent="." unique_id=479381955]
-offset_right = 40.0
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
 offset_bottom = 40.0
+grow_horizontal = 0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_vk1up")
 

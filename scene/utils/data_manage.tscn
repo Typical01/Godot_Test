@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://booewj6ing8gt"]
+
+[ext_resource type="Script" uid="uid://ctv10fp3l6j0c" path="res://script/utils/data_manage.gd" id="1_e0lfe"]
+[ext_resource type="Texture2D" uid="uid://d0ev8hauc0wyj" path="res://icon.svg" id="2_l72mc"]
+
+[node name="CanvasLayer" type="CanvasLayer" unique_id=1706834731]
+script = ExtResource("1_e0lfe")
+
+[node name="Tips" type="Label" parent="." unique_id=1060325338]
+anchors_preset = -1
+anchor_left = 0.95
+anchor_top = 0.95
+anchor_right = 0.95
+anchor_bottom = 0.95
+offset_left = -64.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_shadow_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 1
+theme_override_constants/shadow_outline_size = 4
+text = "保存中..."
+
+[node name="Icon" type="TextureRect" parent="Tips" unique_id=1195823885]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -16.0
+offset_top = -32.0
+offset_right = 16.0
+grow_horizontal = 2
+pivot_offset_ratio = Vector2(0.5, 0.5)
+texture = ExtResource("2_l72mc")
+expand_mode = 1

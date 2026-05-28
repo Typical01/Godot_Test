@@ -4,7 +4,22 @@
 [ext_resource type="PackedScene" uid="uid://dj8hl2rd62jg7" path="res://scene/object/item_goods.tscn" id="2_dccqe"]
 [ext_resource type="PackedScene" uid="uid://bggc353qyek66" path="res://scene/object/slot.tscn" id="4_jn1jv"]
 [ext_resource type="PackedScene" uid="uid://sy2iet4kp0po" path="res://scene/object/held_goods_highlight.tscn" id="4_k4abw"]
+[ext_resource type="Texture2D" uid="uid://b86each471pl3" path="res://art/texture/ui/slot/容器名.png" id="5_m7tdx"]
+[ext_resource type="Texture2D" uid="uid://d0ev8hauc0wyj" path="res://icon.svg" id="6_36nn2"]
+[ext_resource type="Texture2D" uid="uid://cucnim26pify5" path="res://art/texture/ui/slot/搜索图标.png" id="6_jto7c"]
 [ext_resource type="PackedScene" uid="uid://bqau8wo5ooslc" path="res://scene/ui/utils/v_list_view.tscn" id="7_y03jg"]
+
+[sub_resource type="Curve2D" id="Curve2D_vc5ui"]
+bake_interval = 1.0
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 12, 32, -21.93003, -0.024439983, 21.93003, 0.024439983, 32, 12, 0, 0, 0, 0, 52, 32, 22.077188, 0, -22.077188, 0, 32, 52, 0, 0, 0, 0, 12, 32)
+}
+point_count = 5
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_m7tdx"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m7tdx"]
+bg_color = Color(0.29748532, 0.29748532, 0.29748532, 0.90000004)
 
 [node name="GoodsContainer" type="Control" unique_id=2123018299]
 custom_minimum_size = Vector2(320, 320)
@@ -14,39 +29,127 @@ offset_right = 200.0
 offset_bottom = 100.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-mouse_filter = 2
+mouse_filter = 1
 script = ExtResource("1_we6yu")
 slot_grid_scene = ExtResource("4_jn1jv")
 goods_grid_scene = ExtResource("2_dccqe")
 highlight_scene = ExtResource("4_k4abw")
 
-[node name="SlotGrid" parent="." unique_id=1175102371 instance=ExtResource("7_y03jg")]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=349325314]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="Control" parent="VBoxContainer" unique_id=524465231]
+clip_contents = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/PanelContainer" unique_id=1271162539]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 64.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_m7tdx")
+
+[node name="Path2D" type="Path2D" parent="VBoxContainer/PanelContainer" unique_id=629684860]
+position = Vector2(7.999999, 12)
+scale = Vector2(0.15, 0.15)
+curve = SubResource("Curve2D_vc5ui")
+
+[node name="PathFollow2D" type="PathFollow2D" parent="VBoxContainer/PanelContainer/Path2D" unique_id=1536728850]
 unique_name_in_owner = true
-layout_mode = 0
+position = Vector2(12, 32)
+rotation = -1.6668832
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="VBoxContainer/PanelContainer/Path2D/PathFollow2D" unique_id=486553366]
+rotation = 1.6668832
+remote_path = NodePath("../../../SearchIcon")
+update_rotation = false
+update_scale = false
+
+[node name="SearchIcon" type="Sprite2D" parent="VBoxContainer/PanelContainer" unique_id=238769494]
+unique_name_in_owner = true
+position = Vector2(9.799999, 16.8)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("6_jto7c")
+offset = Vector2(16, 16)
+
+[node name="ContainerName" type="Label" parent="VBoxContainer/PanelContainer" unique_id=1020708879]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 40.0
+offset_top = -10.5
+offset_right = 122.0
+offset_bottom = 10.5
+grow_vertical = 2
+theme_override_font_sizes/font_size = 14
+text = "正在搜索中..."
+
+[node name="Grid" type="PanelContainer" parent="VBoxContainer" unique_id=854696030]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_m7tdx")
+
+[node name="Background" type="Panel" parent="VBoxContainer/Grid" unique_id=2093037645]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_m7tdx")
+
+[node name="SlotGrid" parent="VBoxContainer/Grid" unique_id=1175102371 instance=ExtResource("7_y03jg")]
+unique_name_in_owner = true
+layout_mode = 2
 mouse_filter = 2
+mouse_behavior_recursive = 1
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 0
 buffer_rows = 1
 
-[node name="GoodsGrid" parent="." unique_id=727001819 instance=ExtResource("7_y03jg")]
+[node name="GoodsGrid" parent="VBoxContainer/Grid" unique_id=727001819 instance=ExtResource("7_y03jg")]
 unique_name_in_owner = true
 z_index = 1
-layout_mode = 0
+layout_mode = 2
 mouse_filter = 2
 mouse_behavior_recursive = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 0
 buffer_rows = 4
 is_size_change = false
 aligning = false
 show_drag_node = false
 default_node_visible = false
 
-[connection signal="on_data_fill" from="SlotGrid" to="." method="_on_slot_grid_on_data_fill"]
-[connection signal="on_node_init" from="SlotGrid" to="." method="_on_slot_grid_on_node_init"]
-[connection signal="mouse_entered" from="GoodsGrid" to="." method="_on_goods_grid_mouse_entered"]
-[connection signal="on_data_fill" from="GoodsGrid" to="." method="_on_goods_grid_on_data_fill"]
-[connection signal="on_drag_end_item" from="GoodsGrid" to="." method="_on_goods_grid_on_drag_end_item"]
-[connection signal="on_drag_move_item" from="GoodsGrid" to="." method="_on_goods_grid_on_drag_move_item"]
-[connection signal="on_drag_start_item" from="GoodsGrid" to="." method="_on_goods_grid_on_drag_start_item"]
-[connection signal="on_entry_connect_callback" from="GoodsGrid" to="." method="_on_goods_grid_on_entry_connect_callback"]
-[connection signal="on_entry_disconnect_callback" from="GoodsGrid" to="." method="_on_goods_grid_on_entry_disconnect_callback"]
-[connection signal="on_entry_updated" from="GoodsGrid" to="." method="_on_goods_grid_on_entry_updated"]
-[connection signal="on_node_init" from="GoodsGrid" to="." method="_on_goods_grid_on_node_init"]
-[connection signal="on_v_value_changed" from="GoodsGrid" to="." method="_on_goods_grid_on_v_value_changed"]
+[node name="MousePosition" type="TextureRect" parent="." unique_id=692925506]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 0
+mouse_filter = 2
+texture = ExtResource("6_36nn2")
+expand_mode = 1
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
+[connection signal="on_data_fill" from="VBoxContainer/Grid/SlotGrid" to="." method="_on_slot_grid_on_data_fill"]
+[connection signal="on_node_init" from="VBoxContainer/Grid/SlotGrid" to="." method="_on_slot_grid_on_node_init"]
+[connection signal="mouse_entered" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_mouse_entered"]
+[connection signal="on_data_fill" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_data_fill"]
+[connection signal="on_drag_end_item" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_drag_end_item"]
+[connection signal="on_drag_move_item" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_drag_move_item"]
+[connection signal="on_drag_start_item" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_drag_start_item"]
+[connection signal="on_entry_connect_callback" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_entry_connect_callback"]
+[connection signal="on_entry_disconnect_callback" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_entry_disconnect_callback"]
+[connection signal="on_entry_updated" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_entry_updated"]
+[connection signal="on_node_init" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_node_init"]
+[connection signal="on_v_value_changed" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_v_value_changed"]

@@ -1,14 +1,19 @@
 [gd_scene format=3 uid="uid://da1dptr1blh0s"]
 
+[ext_resource type="Texture2D" uid="uid://cpidjmwk3i7ea" path="res://art/texture/ui/container/保险箱.png" id="1_i8psy"]
 [ext_resource type="Script" uid="uid://dnkjkhiu4tj5q" path="res://script/ui/buy_container.gd" id="1_jelhe"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1ttic"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6fwtw"]
 
 [node name="BuyContainer" type="Button" unique_id=1484439949]
 offset_right = 8.0
 offset_bottom = 8.0
-mouse_filter = 1
+theme_override_styles/normal = SubResource("StyleBoxEmpty_1ttic")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_6fwtw")
+icon = ExtResource("1_i8psy")
 script = ExtResource("1_jelhe")
 
 [connection signal="button_down" from="." to="." method="_on_button_down"]
 [connection signal="button_up" from="." to="." method="_on_button_up"]
-[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
-[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

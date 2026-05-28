@@ -2,29 +2,99 @@
 
 [ext_resource type="Script" uid="uid://der1sm1jrdd2m" path="res://script/ui/container_shop.gd" id="1_x5bey"]
 [ext_resource type="PackedScene" uid="uid://da1dptr1blh0s" path="res://scene/ui/buy_container.tscn" id="2_c7mab"]
+[ext_resource type="Shader" uid="uid://o7h3b2w0y4a3" path="res://shader/voiceprint_bar.gdshader" id="3_eqw26"]
+[ext_resource type="Script" uid="uid://ckqrkk4be18yb" path="res://script/object/thrower.gd" id="4_22264"]
+[ext_resource type="PackedScene" uid="uid://xk8cn281i66g" path="res://scene/ui/popup_tips.tscn" id="4_eqw26"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hh5pr"]
+shader = ExtResource("3_eqw26")
+shader_parameter/frequency = 20.0
+shader_parameter/intansity = 1.2
+shader_parameter/speed = 2.0
+shader_parameter/outer_breath_speed = 2.0
+shader_parameter/inner_breath_speed = 10.0
+shader_parameter/color1 = Color(0, 0.75, 0, 1)
+shader_parameter/color2 = Color(0.75, 0.75, 0.75, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_22264"]
 
 [node name="Control" type="Control" unique_id=2143487260]
 layout_mode = 3
-anchors_preset = 0
+anchor_left = 0.02
+anchor_top = 0.01
+anchor_right = 0.98
+anchor_bottom = 0.99
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_x5bey")
 buy_container_scene = ExtResource("2_c7mab")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=377326158]
-custom_minimum_size = Vector2(260, 500)
-layout_mode = 0
-offset_top = 100.0
-offset_right = 200.0
-offset_bottom = 700.0
+custom_minimum_size = Vector2(180, 240)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -120.0
+offset_right = 160.0
+offset_bottom = 120.0
+grow_vertical = 2
 
 [node name="Panel" type="Panel" parent="PanelContainer" unique_id=127525770]
 layout_mode = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer" unique_id=448834405]
 layout_mode = 2
+mouse_behavior_recursive = 2
 theme_override_constants/scrollbar_h_separation = 16
 
 [node name="ShopList" type="VBoxContainer" parent="PanelContainer/ScrollContainer" unique_id=770777849]
-unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="BuyContainer" parent="PanelContainer/ScrollContainer/ShopList" unique_id=851021035 instance=ExtResource("2_c7mab")]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 24
+text = "普通"
+icon = null
+
+[node name="SeekRect" type="ColorRect" parent="." unique_id=561998584]
+material = SubResource("ShaderMaterial_hh5pr")
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.00003
+offset_right = 200.0
+offset_bottom = 64.0
+grow_horizontal = 2
+
+[node name="GoodsContainer" parent="SeekRect" unique_id=1484439949 instance=ExtResource("2_c7mab")]
+visible = false
+layout_mode = 0
+offset_right = 128.0
+offset_bottom = 128.0
+scale = Vector2(0.5, 0.5)
+
+[node name="Panel" type="Panel" parent="." unique_id=333543657]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_22264")
+
+[node name="Thrower" type="Node2D" parent="Panel" unique_id=1459322331]
+position = Vector2(414.40002, 16)
+script = ExtResource("4_22264")
+
+[node name="PopupTips" parent="." unique_id=1267811645 instance=ExtResource("4_eqw26")]
+visible = false
+item_name = "没钱不要硬玩!"

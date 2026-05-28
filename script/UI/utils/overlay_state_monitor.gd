@@ -24,6 +24,7 @@ func _ready() -> void:
 		timer_node.stop()
 		visible = false
 	_update_performance()
+	layer = 100
 	print("OverlayStateMonitor 启动.")
 
 func set_columns(_columns: int = 1):

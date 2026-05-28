@@ -44,8 +44,8 @@ static func quality_to_value(_quality: RewardPool.Quality) -> int:
 		RewardPool.Quality.White:
 			return 0
 		RewardPool.Quality.Green:
-			return 300000
-		RewardPool.Quality.Blue:
 			return 800000
+		RewardPool.Quality.Blue:
+			return 2400000
 		_:
 			return 0

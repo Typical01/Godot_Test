@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="SearchSatisfaction"
-config/version="0.0.104"
+config/version="0.0.105"
 run/main_scene="uid://d256x7l6oxgqe"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 run/max_fps=144

@@ -10,7 +10,7 @@ signal auto_save()
 @onready var auto_save_tips_node = $Tips
 var auto_save_tips_time: float = 2.0 # 秒
 var auto_save_timer: Timer = Timer.new()
-var auto_save_time: float = 15.0 # 秒
+var auto_save_time: float = 30.0 # 秒
 
 var data_file : Dictionary = {} :
 	set(data):

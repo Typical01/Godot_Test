@@ -24,7 +24,7 @@ func show_info(data: Goods = null, is_show: bool = true):
 		return
 	set_container_size()
 	visible = true
-	%InfoValue.text = str(data.value)
+	%InfoValue.text = Goods.format_number_with_commas(data.value)
 	%GoodsName.text = data.name
 
 func set_container_size():

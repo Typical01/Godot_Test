@@ -29,6 +29,7 @@ var value: int = 0
 var goods_data: Goods = null ## 物品
 var drag_node = null
 var store: Array = [] ## 仓库: 物品数据
+var keys: Array = [] ## 仓库: 物品数据
 var container_pool: Array = [] ## 容器池
 
 
@@ -55,6 +56,7 @@ func _ready() -> void:
 	value_node.set_value(value)
 	
 	data_manage.auto_save.connect(save_store_data)
+	data_manage.auto_save.connect(save_keys_data)
 
 
 
@@ -119,8 +121,11 @@ func on_move(_global_position: Vector2):
 	OverlayStateMonitor.push_overlay("on_move", _global_position)
 	#move.emit(_global_position)
 	set_drag_node_position(_global_position)
-	return
+	#return
 	var container: GoodsGrid = has_global_points(_global_position)
+	if not container:
+		OverlayStateMonitor.push_overlay("current_container", "null")
+	
 	if container != current_container:
 		last_container = current_container
 	if last_container: 
@@ -129,7 +134,8 @@ func on_move(_global_position: Vector2):
 		OverlayStateMonitor.push_overlay("last_container", "null")
 	
 	current_container = container
-	OverlayStateMonitor.push_overlay("current_container", current_container.container_name)
+	if current_container: 
+		OverlayStateMonitor.push_overlay("current_container", current_container.container_name)
 
 
 
@@ -146,6 +152,7 @@ func init(_drag_node):
 	
 	# 读取: 仓库物品
 	read_store_data()
+	read_keys_data()
 
 func set_goods_data(goods: Goods = null) -> void:
 	goods_data = goods
@@ -202,6 +209,9 @@ func shift_goods_to(_container_name: String, goods: Goods, index: int = -1, targ
 			continue
 		if not target_container_name.is_empty() and container.container_name != target_container_name:
 			continue
+		if goods.type == Goods.Type.KeyCar:
+			if container.container_name != "钥匙卡包":
+				continue
 		goods.search = true
 		if container.add_item(goods, index) != -1:
 			container.save_goods_data()
@@ -227,6 +237,55 @@ func del_value(number: int) -> bool:
 	return true
 
 
+func set_container_probability() -> void:
+	var goods_keys_container = find_item("钥匙卡包")
+	if not goods_keys_container: return
+	
+	var reward_container_pools = []
+	var container_probabilitys = Global.goods_container_reward_pool.container_probabilitys
+	for key in container_probabilitys.keys():
+		var reward_container_pool = Global.goods_container_reward_pool.get_reward_pool(key)
+		reward_container_pool.reset_probabilitys()
+		reward_container_pools.append(reward_container_pool)
+	
+	var slot_data = goods_keys_container.slot_data
+	for i in slot_data.size():
+		var goods = slot_data[i]
+		if not goods: continue
+		if goods.type != Goods.Type.KeyCar: continue
+		
+		for reward_container_pool in reward_container_pools:
+			match (goods.quality):
+				RewardPool.Quality.Blue: # 蓝卡: 低级容器权重[-]
+					reward_container_pool.sub_probabilitys(
+						RewardPool.Quality.White, int(10000 * 0.1), 10000)
+				RewardPool.Quality.Purple: # 紫卡: 中级容器权重[+]
+					reward_container_pool.sub_probabilitys(
+						RewardPool.Quality.White, int(10000 * 0.02), 10000)
+					reward_container_pool.add_probabilitys(
+						RewardPool.Quality.Green, int(10000 * 0.1), 10000)
+				RewardPool.Quality.Pink: # 金卡: 高级容器权重[+]
+					reward_container_pool.sub_probabilitys(
+						RewardPool.Quality.White, int(10000 * 0.05), 10000)
+					reward_container_pool.sub_probabilitys(
+						RewardPool.Quality.Green, int(10000 * 0.02), 10000)
+					reward_container_pool.add_probabilitys(
+						RewardPool.Quality.Blue, int(10000 * 0.05), 10000)
+				RewardPool.Quality.Red: # 红卡: 高级容器权重[+]
+					reward_container_pool.sub_probabilitys(
+						RewardPool.Quality.White, int(10000 * 0.1), 10000)
+					reward_container_pool.sub_probabilitys(
+						RewardPool.Quality.Green, int(10000 * 0.05), 10000)
+					reward_container_pool.add_probabilitys(
+						RewardPool.Quality.Blue, int(10000 * 0.1), 10000)
+				RewardPool.Quality.Orange: # 红卡: 高级容器权重[+]
+					reward_container_pool.sub_probabilitys(
+						RewardPool.Quality.White, int(10000 * 0.2), 10000)
+					reward_container_pool.sub_probabilitys(
+						RewardPool.Quality.Green, int(10000 * 0.1), 10000)
+					reward_container_pool.add_probabilitys(
+						RewardPool.Quality.Blue, int(10000 * 0.2), 10000)
+		
 
 func read_store_data():
 	if store.is_empty():
@@ -243,6 +302,21 @@ func read_store_data():
 					tmp_goods.search = true
 					store.append(tmp_goods)
 
+func read_keys_data():
+	if keys.is_empty():
+		if Global.game_config.has("钥匙卡包"):
+			var store_goods_names = Global.game_config.get("钥匙卡包", null)
+			if not store_goods_names is Array:
+				push_error("[钥匙卡包]不是 Array!")
+				return
+			var goods_pool: Dictionary = Global.goods_container_reward_pool.goods_pool
+			for i in store_goods_names.size():
+				var store_goods_data: Goods = goods_pool.get(store_goods_names[i], null)
+				if store_goods_data:
+					var tmp_goods = store_goods_data.duplicate()
+					tmp_goods.search = true
+					keys.append(tmp_goods)
+
 func save_store_data():
 	var store_goods_name = []
 	for i in store.size():
@@ -252,6 +326,16 @@ func save_store_data():
 			continue
 		store_goods_name.append(data.name)
 	Global.game_config.set("仓库", store_goods_name)
+
+func save_keys_data():
+	var store_goods_name = []
+	for i in keys.size():
+		var data = keys[i]
+		if not data:
+			push_error("data == null!")
+			continue
+		store_goods_name.append(data.name)
+	Global.game_config.set("钥匙卡包", store_goods_name)
 
 
 

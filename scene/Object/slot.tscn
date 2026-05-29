@@ -3,31 +3,26 @@
 [ext_resource type="Texture2D" uid="uid://co7x7b320sn5s" path="res://art/texture/ui/slot/格子2.png" id="1_s8y2l"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s8y2l"]
-bg_color = Color(1, 1, 1, 0)
-border_width_left = 1
-border_width_top = 1
+bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.33361515, 0.33361515, 0.33361515, 0.45000002)
-shadow_color = Color(0, 0, 0, 0.5)
+border_color = Color(0.29748532, 0.29748532, 0.29748532, 0.75000006)
 shadow_size = 1
 
-[node name="SlotBackground" type="Button" unique_id=1256827381]
+[node name="SlotBackground" type="Panel" unique_id=1073091002]
 self_modulate = Color(1, 1, 1, 0.92156863)
 clip_contents = true
 custom_minimum_size = Vector2(72, 72)
-offset_right = 63.0
-offset_bottom = 63.0
+offset_right = 72.0
+offset_bottom = 72.0
 mouse_filter = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_s8y2l")
+theme_override_styles/panel = SubResource("StyleBoxFlat_s8y2l")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1959724202]
 self_modulate = Color(1, 1, 1, 0.5)
-custom_minimum_size = Vector2(70, 70)
+custom_minimum_size = Vector2(72, 72)
 layout_mode = 0
-offset_left = 1.0
-offset_top = 1.0
-offset_right = 61.0
-offset_bottom = 61.0
+offset_right = 72.0
+offset_bottom = 72.0
 texture = ExtResource("1_s8y2l")
 expand_mode = 1

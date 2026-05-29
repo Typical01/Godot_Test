@@ -31,3 +31,10 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "0"
+
+[node name="AddValue" type="Button" parent="HBoxContainer" unique_id=913378395]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+"
+
+[connection signal="button_up" from="HBoxContainer/AddValue" to="." method="_on_add_value_button_up"]

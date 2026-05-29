@@ -1,7 +1,9 @@
 extends CanvasLayer
 
 @onready var goods_store_node: GoodsGrid = %GoodsStore
+@onready var goods_keys_node: GoodsGrid = %GoodsKeys
 @onready var show_store_node = %ShowStore
+@onready var show_keys_node = %ShowKeys
 
 @export var is_search = false
 @export var search_count = 50
@@ -28,3 +30,12 @@ func _on_show_store_button_up() -> void:
 	else: # 隐藏
 		show_store_node.rotation_degrees = 90.0
 		tween.tween_property(goods_store_node, "position:x", goods_store_node.position.x + goods_store_node.size.x, 0.5)
+
+func _on_show_keys_button_up() -> void:
+	var tween = create_tween()
+	if show_keys_node.rotation_degrees == 90.0: # 显示
+		show_keys_node.rotation_degrees = -90.0
+		tween.tween_property(goods_keys_node, "position:x", goods_keys_node.position.x - goods_keys_node.size.x, 0.5)
+	else: # 隐藏
+		tween.tween_property(goods_keys_node, "position:x", goods_keys_node.position.x + goods_keys_node.size.x, 0.5)
+		show_keys_node.rotation_degrees = 90.0

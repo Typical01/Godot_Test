@@ -32,6 +32,7 @@ static var quality_reward_data: Dictionary = {} ## 品质奖励
 	#}
 #}
 var probabilitys_data: Array = [] ## 概率
+var init_probabilitys_data: Array = [] ## 初始概率
 
 ## ============================ 基础实现 =============================
 
@@ -51,6 +52,7 @@ func init(reward_pool_name: String, reward_types_name: Array, probabilitys: Arra
 		push_error("RewardPool: [%s]概率数组无效, 使用默认值: %s!" % [reward_pool_name, probabilitys])
 	#print("probabilitys: ", probabilitys)
 	probabilitys_data = probabilitys.duplicate()
+	init_probabilitys_data = probabilitys.duplicate()
 	return true
 
 func add_qualitys_reward(quality_reward: Dictionary) -> bool:
@@ -110,20 +112,19 @@ static func get_quality_random() -> int:
 
 ## 获取: 随机品质
 func _get_random_quality() -> Quality:
-	var probabilities = get_probabilitys()
-	if probabilities.is_empty():
+	if probabilitys_data.is_empty():
 		push_error("概率数组 == null!")
 		return Quality.None
 	
 	var rand_value = randf()
 	var cumulative = 0.0 # 累计奖励阈值
-	for i in range(probabilities.size()):
-		#print("probabilities: [%s | %s](%s)" % [i, probabilities[i], rand_value])
-		if probabilities[i] == 0.0:
+	for i in range(probabilitys_data.size()):
+		#print("probabilitys_data: [%s | %s](%s)" % [i, probabilitys_data[i], rand_value])
+		if probabilitys_data[i] == 0.0:
 			continue
-		cumulative += probabilities[i]
+		cumulative += probabilitys_data[i]
 		if rand_value <= cumulative:
-			#print("probabilities: ", quality_to_string(index_to_quality(i)))
+			#print("probabilitys_data: ", quality_to_string(index_to_quality(i)))
 			return index_to_quality(i)
 	return Quality.None
 
@@ -131,16 +132,32 @@ func _get_random_quality() -> Quality:
 func get_probabilitys() -> Array:
 	return probabilitys_data
 
-## 增加概率
-func add_probabilitys(add_quality: RewardPool.Quality, sub_quality: RewardPool.Quality, probability: float) -> bool:
+func reset_probabilitys():
+	probabilitys_data = init_probabilitys_data
+
+## 增加概率: 整数权重
+## sub_quality: 需要增加的品质
+## weight: 需要增加的权重
+## base: 权重基准(默认[10000], 得到整数权重)
+func add_probabilitys(add_quality: RewardPool.Quality, weight: int, base: int = 10000) -> bool:
+	if add_quality == RewardPool.Quality.None: return false
 	var tmp_probabilitys_data = probabilitys_data.duplicate()
-	tmp_probabilitys_data[RewardPool.quality_to_index(add_quality)] += probability
-	tmp_probabilitys_data[RewardPool.quality_to_index(sub_quality)] -= probability
-	var sum = 0.0
-	for i in tmp_probabilitys_data.size():
-		sum += tmp_probabilitys_data[i]
-	if sum != 1.0:
-		return false
+	var tmp_weights: Array = probabilitys_to_weights(tmp_probabilitys_data, base)
+	tmp_weights[add_quality] += weight
+	tmp_probabilitys_data = weights_to_probabilitys(tmp_weights)
+	probabilitys_data = tmp_probabilitys_data
+	return true
+
+## 减少概率: 整数权重
+## sub_quality: 需要减少的品质
+## weight: 需要减少的权重
+## base: 权重基准(默认[10000], 得到整数权重)
+func sub_probabilitys(sub_quality: RewardPool.Quality, weight: int, base: int = 10000) -> bool:
+	if sub_quality == RewardPool.Quality.None: return false
+	var tmp_probabilitys_data = probabilitys_data.duplicate()
+	var tmp_weights: Array = probabilitys_to_weights(tmp_probabilitys_data, base)
+	tmp_weights[sub_quality] -= weight
+	tmp_probabilitys_data = weights_to_probabilitys(tmp_weights)
 	probabilitys_data = tmp_probabilitys_data
 	return true
 
@@ -158,6 +175,36 @@ func get_qualitys_reward(reward_name: String, quality: Quality) -> Array:
 			object = reward[keys_array[keys_array.size() - 1]] # 补小蓝
 			#print("get_qualitys_reward: 补小蓝", keys_array[keys_array.size() - 1])
 	return object
+
+## 概率数组 -> 权重数组(整数)
+## probabilitys: [0.6, 0.25, 0.1, 0.05]
+## base: 权重基准(默认[10000], 得到整数权重)
+## return: [6000, 2500, 1000, 500]
+func probabilitys_to_weights(_probabilitys: Array, base: int = 10000) -> Array:
+	var weights = []
+	for p in _probabilitys:
+		weights.append(int(p * base))
+	# 修正浮点误差: 确保总和为 base
+	var total = 0
+	for w in weights:
+		total += w
+	if total != base:
+		weights[0] += base - total
+	return weights
+	
+## 权重数组(整数) -> 概率数组
+## probabilitys: [6000, 2500, 1000, 500]
+## return: [0.6, 0.25, 0.1, 0.05]
+func weights_to_probabilitys(_weights: Array) -> Array:
+	var total = 0.0
+	for w in _weights:
+		total += w
+	
+	# 转为: 概率(浮点数)
+	var _probabilitys = []
+	for w in _weights:
+		_probabilitys.append(w / total)
+	return _probabilitys
 
 ## 字符串 转 品质
 static func string_to_quality(quality_name: String) -> Quality:

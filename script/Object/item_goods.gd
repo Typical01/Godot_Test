@@ -116,15 +116,15 @@ func show_status(code: int = 0):
 func set_goods_size(_size: Vector2 = get_goods_size()):
 	size = _size
 	
-	quality_color_node.size = size
-	goods_texture_node.size = size
+	#quality_color_node.size = size
+	#goods_texture_node.size = size
 	if goods_name_node.size.x != size.x:
 		if size.x > slot_size:
 			goods_name_node.size.x = size.x
 		else:
 			goods_name_node.size.x = 54
-	quality_border_node.size = size
-	search_background_rect_node.size = size
+	#quality_border_node.size = size
+	#search_background_rect_node.size = size
 	search_path_node.position = size / 2 - Vector2(16, 16)
 	highlight_node.size = size
 
@@ -181,9 +181,9 @@ func search() -> void:
 	# 淡出（从不透明到透明）
 	#if quality >= RewardPool.Quality.Purple:
 	quality_border_node.self_modulate.a = 1
-	quality_color_node.self_modulate.a = 0.75
+	quality_color_node.self_modulate.a = 1.0
 	tween2.tween_property(quality_border_node, "self_modulate:a", 0.18, 0.25)
-	tween2.tween_property(quality_color_node, "self_modulate:a", 0.18, 0.25)
+	tween2.tween_property(quality_color_node, "self_modulate:a", 0.18, 0.5)
 	tween2.tween_property(goods_texture_node, "scale", Vector2(1, 1), 0.1)
 	if quality >= RewardPool.Quality.Purple:
 		show_status(1)
@@ -255,5 +255,4 @@ func _on_audio_stream_player_finished() -> void:
 	audio_player_node.stream = sound_stream
 
 func _on_toggled(toggled_on: bool) -> void:
-	#OverlayStateMonitor.push_overlay("toggled_on", toggled_on)
 	show_highlight(toggled_on)

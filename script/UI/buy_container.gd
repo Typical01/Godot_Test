@@ -47,12 +47,15 @@ func open() -> void:
 			open_container.emit(container_name, false)
 
 func _on_long_press():
+	if not is_can_open: return
 	draging = true
 
 func _on_button_down() -> void:
+	if not is_can_open: return
 	press_timer.start()
 
 func _on_button_up() -> void:
 	open()
+	if not is_can_open: return
 	press_timer.stop()
 	draging = false

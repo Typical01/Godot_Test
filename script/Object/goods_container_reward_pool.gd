@@ -156,7 +156,7 @@ func extract_goods_reward_pool() -> Dictionary:
 				var goods_name: String = "extract_goods == null"
 				var goods_dimensions: Vector2i = Vector2i(0, 0)
 				var goods_value: int = 0
-				var goods_type: int = Goods.Type.None
+				var goods_type: Goods.Type = Goods.Type.None
 				
 				# 提取物品数据
 				if goods_data.has("物品名称"):
@@ -172,7 +172,7 @@ func extract_goods_reward_pool() -> Dictionary:
 						goods_value = int(value)
 				if goods_data.has("物品类型"):
 					var type = goods_data["物品类型"]
-					if type is int:
+					if type is int or type is float:
 						goods_type = type
 				
 				# 创建物品对象
@@ -2392,5 +2392,7 @@ func create_config() -> Dictionary:
 		base_setting["货币"] = 0
 	if not Global.game_config.has("仓库"):
 		base_setting["仓库"] = []
-	base_setting["版本"] = "0.0.104"
+	if not Global.game_config.has("钥匙卡包"):
+		base_setting["钥匙卡包"] = []
+	base_setting["版本"] = "0.0.105"
 	return base_setting

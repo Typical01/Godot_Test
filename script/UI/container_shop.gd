@@ -25,7 +25,7 @@ func init() -> void:
 		var new_buy_container_button: BuyContainerButton = buy_container_node.duplicate()
 		new_buy_container_button.is_can_open = false
 		new_buy_container_button.visible = true
-		new_buy_container_button.text = "%s[%s]" % [key, str(GoodsContainer.quality_to_value(GoodsContainer.string_to_type(key)))]
+		new_buy_container_button.text = "%s[%s]" % [key, Goods.format_number_with_commas(GoodsContainer.quality_to_value(GoodsContainer.string_to_type(key)))]
 		new_buy_container_button.container_name = key
 		new_buy_container_button.buy_container.connect(on_buy_container)
 		shop_list_node.add_child(new_buy_container_button)
@@ -47,6 +47,7 @@ func on_buy_container(container_name: String):
 	seek_rect_node.visible = true
 	
 	var goods_container_reward_pool: RewardPool = Global.goods_container_reward_pool.get_reward_pool(container_name)
+	OverlayStateMonitor.push_overlay(container_name, goods_container_reward_pool.probabilitys_data)
 	var number = clampi(randi() % 8, 4, 8)
 	for i in number:
 		var goods_container: GoodsContainer = goods_container_reward_pool.allocate_single_reward()
@@ -62,8 +63,8 @@ func on_buy_container(container_name: String):
 		var flyable = FlyableComponent.new()
 		new_goods_container_button.add_child(flyable)
 		panel_node.add_child(new_goods_container_button)
-		tween.tween_property(new_goods_container_button, "global_position:x", seek_rect_node.global_position.x, 0.5)
-		await get_tree().create_timer(0.5).timeout
+		tween.tween_property(new_goods_container_button, "global_position:x", seek_rect_node.global_position.x, 0.05)
+		await get_tree().create_timer(0.05).timeout
 		thrower_node.throw_target(new_goods_container_button)
 	
 	panel_node.self_modulate.a = 0.0

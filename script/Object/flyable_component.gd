@@ -3,8 +3,8 @@ class_name FlyableComponent
 
 ## 抛射参数
 @export var friction: float = 800.0           # 摩擦力（像素/秒²）
-@export var bounce_factor: float = 0.6        # 边界反弹系数
-@export var bound_margin: int = 20            # 距离窗口边缘的最小距离
+@export var bounce_factor: float = 0.4        # 边界反弹系数
+@export var bound_margin: int = 5            # 距离窗口边缘的最小距离
 @export var destroy_out_of_bounds: bool = true   # 超出边界是否销毁
 @export var out_of_bounds_timeout: float = 2.0   # 超出边界多久后销毁
 @export var auto_return: bool = false          # 停止后是否自动归位

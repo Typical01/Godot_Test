@@ -43,6 +43,12 @@ func _ready() -> void:
 	custom_minimum_size = dimensions * slot_size
 	
 	background_node.visible = show_background
+	if highlight_scene:
+		highlight_node = highlight_scene.instantiate()
+		highlight_node.z_index = 2
+		background_node.add_child(highlight_node)
+	else:
+		push_error("highlight_scene == null!")
 	
 	read_goods_data() # 读取: 仓库物品
 
@@ -119,11 +125,6 @@ func _on_goods_grid_on_data_fill(self_node: VListView) -> void:
 	self_node.custom_minimum_size = custom_minimum_size
 	self_node.columns = dimensions.x
 	self_node.fill_item(null, dimensions.x * dimensions.y)
-	if highlight_scene:
-		highlight_node = highlight_scene.instantiate()
-		self_node.add_child(highlight_node)
-	else:
-		push_error("highlight_scene == null!")
 	goods_container_manage.init(self_node.drag_node.duplicate())
 	goods_container_manage.add_item(self)
 
@@ -159,41 +160,14 @@ func _on_goods_grid_on_drag_start_item(index: int, data: Goods, global_mouse_pos
 	if not data.search: # 未搜索物品无法交互
 		return
 	
-	%MousePosition.position = global_mouse_position
-	goods_container_manage.set_drag_node_position(global_mouse_position)
-	goods_container_manage.show_drag_node(true)
-	
-	highlight_node.set_slot_size(data.dimensions)
-	
 	#var control = goods_grid_node._get_control_at_index(data.index)
 	#if control:
 		#control.show_name(false)
 	
-	var start_index = get_slot_from_center_position(global_mouse_position, data.dimensions)
+	goods_container_manage.set_drag_node_position(global_mouse_position)
+	goods_container_manage.show_drag_node(true)
 	
-	var new_position = get_coords_from_slot_index(start_index)
-	var offset = Vector2(0, int(goods_grid_node.v_scroll_bar.value) % slot_size)
-	highlight_node.global_position = new_position - offset
-	
-	var target_slots = get_current_index_occupy_slot(data, start_index)
-	var data_slots = get_current_index_occupy_slot(data)
-	var old_datas = item_is_places(target_slots, data, data_slots)
-	if old_datas[0] == -1:
-		highlight_node.color_change(false)
-	elif old_datas[0] == 2: # 重新选择位置填入
-		var old_data_old_slots = old_datas[1] # 旧物品: 旧槽位
-		var old_data_old_index: int = old_data_old_slots[0][0] # 旧物品: 旧索引
-		var old_item: Goods = slot_data[old_data_old_index] # 目标槽位物品
-		var pass_indexs = data_slots.duplicate()
-		var exclude_indexs = target_slots.duplicate()
-		var old_data_new_index = attempt_to_place_item(old_item, -1, false, pass_indexs, exclude_indexs)
-		if old_data_new_index == -1:
-			highlight_node.color_change(false)
-		else:
-			highlight_node.color_change(true)
-	else:
-		highlight_node.color_change(true)
-	highlight_node.visible = true
+	show_highlight(data, global_mouse_position)
 
 func _on_goods_grid_on_drag_move_item(index: int, global_mouse_position: Vector2) -> void:
 	var data = goods_container_manage.goods_data
@@ -201,36 +175,11 @@ func _on_goods_grid_on_drag_move_item(index: int, global_mouse_position: Vector2
 	if container != self: 
 		highlight_node.color_change(false)
 		return
-	
 	if not data: 
 		return
 	
-	var start_index = get_slot_from_center_position(global_mouse_position, data.dimensions)
 	goods_container_manage.show_drag_node(true)
-	OverlayStateMonitor.push_overlay("drag_move: global_mouse_position", global_mouse_position)
-	
-	var new_position = get_coords_from_slot_index(start_index)
-	var offset = Vector2(0, int(goods_grid_node.v_scroll_bar.value) % slot_size)
-	highlight_node.global_position = new_position - offset
-	
-	var target_slots = get_current_index_occupy_slot(data, index)
-	var data_slots = get_current_index_occupy_slot(data)
-	var old_datas = item_is_places(target_slots, data, data_slots)
-	if old_datas[0] == -1:
-		highlight_node.color_change(false)
-	elif old_datas[0] == 2: # 重新选择位置填入
-		var old_data_old_slots = old_datas[1] # 旧物品: 旧槽位
-		var old_data_old_index: int = old_data_old_slots[0][0] # 旧物品: 旧索引
-		var old_item: Goods = slot_data[old_data_old_index] # 目标槽位物品
-		var pass_indexs = data_slots.duplicate()
-		var exclude_indexs = target_slots.duplicate()
-		var old_data_new_index = attempt_to_place_item(old_item, -1, false, pass_indexs, exclude_indexs)
-		if old_data_new_index == -1:
-			highlight_node.color_change(false)
-		else:
-			highlight_node.color_change(true)
-	else:
-		highlight_node.color_change(true)
+	show_highlight(data, global_mouse_position)
 
 func _on_goods_grid_on_drag_end_item(index: int, end_index: int, global_mouse_position: Vector2) -> void:
 	var data = goods_container_manage.goods_data
@@ -240,6 +189,7 @@ func _on_goods_grid_on_drag_end_item(index: int, end_index: int, global_mouse_po
 	#var control = goods_grid_node._get_control_at_index(data.index)
 	#if control:
 		#control.show_name(true)
+	end_index = get_slot_from_center_position(global_mouse_position, data.dimensions)
 	if not try_place_goods(end_index, data):
 		pass
 	
@@ -323,6 +273,9 @@ func add_item(data: Goods, index: int = -1) -> int:
 	if successful == -1:
 		#push_error("添加[%s][%s]失败!" % [index, data.name])
 		return -1
+	if container_name == "钥匙卡包":
+		if data.type == Goods.Type.KeyCar:
+			goods_container_manage.set_container_probability()
 	return successful
 
 func remove_item(index: int) -> bool:
@@ -331,7 +284,12 @@ func remove_item(index: int) -> bool:
 		push_error("[%s]移除物品失败!" % [index])
 		return false
 	var slot_array = get_current_index_occupy_slot(data, index)
-	return remove_slot_data(index, data, slot_array)
+	if not remove_slot_data(index, data, slot_array):
+		return false
+	if container_name == "钥匙卡包":
+		if data.type == Goods.Type.KeyCar:
+			goods_container_manage.set_container_probability()
+	return true
 
 func clear(call_back: Callable = Callable()) -> void:
 	if searching: return
@@ -367,6 +325,9 @@ func sells(call_back: Callable = Callable()) -> bool:
 			is_successful = false
 			continue
 		if data.index == i:
+			if data.type == Goods.Type.KeyCar:
+				move_slot_data_keys(data.index, data)
+				continue
 			if data.quality >= RewardPool.Quality.Red:
 				move_slot_data_store(data.index, data)
 			else:
@@ -378,31 +339,56 @@ func sells(call_back: Callable = Callable()) -> bool:
 	return is_successful
 
 func read_goods_data(_read: Callable = Callable()):
-	if container_name != "仓库": return # 只读取[仓库]物品
-	var store = goods_container_manage.store
-	for i in store.size():
-		var goods_data: Goods = store[i]
-		if not goods_data:
-			continue
-		#print("read_goods_data: %s" % [goods_data.name])
-		add_item(goods_data)
-		if _read:
-			_read.call(goods_data.name)
+	# 只读取[仓库/钥匙卡包]物品
+	if container_name == "仓库":
+		var store = goods_container_manage.store
+		for i in store.size():
+			var goods_data: Goods = store[i]
+			if not goods_data:
+				continue
+			#print("read_goods_data: %s" % [goods_data.name])
+			add_item(goods_data)
+			if _read:
+				_read.call(goods_data.name)
+	elif container_name == "钥匙卡包":
+		var keys = goods_container_manage.keys
+		for i in keys.size():
+			var goods_data: Goods = keys[i]
+			if not goods_data:
+				continue
+			#print("read_goods_data: %s" % [goods_data.name])
+			add_item(goods_data)
+			if _read:
+				_read.call(goods_data.name)
 
 func save_goods_data(_save: Callable = Callable()):
-	if container_name != "仓库": return # 只保存[仓库]物品
-	goods_container_manage.store.clear() # 清空
-	
-	for i in slot_data.size():
-		var goods_data: Goods = slot_data[i]
-		if not goods_data:
-			continue
-		if i == goods_data.index:
-			#print("save_goods_data: %s" % [goods_data.name])
-			goods_container_manage.store.append(goods_data)
-			if _save:
-				_save.call(goods_data.name)
-	goods_container_manage.save_store_data()
+	# 只保存[仓库/钥匙卡包]物品
+	if container_name == "仓库":
+		goods_container_manage.store.clear() # 清空
+		
+		for i in slot_data.size():
+			var goods_data: Goods = slot_data[i]
+			if not goods_data:
+				continue
+			if i == goods_data.index:
+				#print("save_goods_data: %s" % [goods_data.name])
+				goods_container_manage.store.append(goods_data)
+				if _save:
+					_save.call(goods_data.name)
+		goods_container_manage.save_store_data()
+	elif container_name == "钥匙卡包":
+		goods_container_manage.keys.clear() # 清空
+		
+		for i in slot_data.size():
+			var goods_data: Goods = slot_data[i]
+			if not goods_data:
+				continue
+			if i == goods_data.index:
+				#print("save_goods_data: %s" % [goods_data.name])
+				goods_container_manage.keys.append(goods_data)
+				if _save:
+					_save.call(goods_data.name)
+		goods_container_manage.save_keys_data()
 
 
 
@@ -542,6 +528,17 @@ func move_slot_data_store(index: int, data: Goods) -> void:
 		return
 	remove_slot_data(index, data, get_current_index_occupy_slot(data, index))
 	if not goods_container_manage.shift_goods_to(container_name, data, -1, "仓库"):
+		#push_error("移动物品时, 原容器中删除物品[%s][%s]失败!" % [index, data.name])
+		add_slot_data(index, data, get_current_index_occupy_slot(data, index))
+	save_goods_data()
+	
+func move_slot_data_keys(index: int, data: Goods) -> void:
+	if container_name == "钥匙卡包": return
+	if not data: 
+		push_error("data == null!")
+		return
+	remove_slot_data(index, data, get_current_index_occupy_slot(data, index))
+	if not goods_container_manage.shift_goods_to(container_name, data, -1, "钥匙卡包"):
 		#push_error("移动物品时, 原容器中删除物品[%s][%s]失败!" % [index, data.name])
 		add_slot_data(index, data, get_current_index_occupy_slot(data, index))
 	save_goods_data()
@@ -762,3 +759,40 @@ func _to_index(x: int, y: int) -> int:
 ## 索引 -> 坐标
 func _to_coord(index: int) -> Vector2:
 	return Vector2(index % dimensions.x, float(index) / dimensions.x)
+
+func show_highlight(data: Goods, global_mouse_position: Vector2):
+	highlight_node.set_slot_size(data.dimensions)
+	
+	# 当前的中心坐标
+	var new_position: Vector2 = global_mouse_position - background_node.global_position - (highlight_node.size / 2)
+	# 垂直滚动偏移
+	var offset = Vector2(0, int(goods_grid_node.v_scroll_bar.value) % slot_size)
+	new_position = round((new_position - offset) / slot_size)
+	new_position = new_position * slot_size
+	highlight_node.position = new_position
+	OverlayStateMonitor.push_overlay("new_position", new_position)
+	
+	# 获取首槽位: 显示是否可以放入鼠标位置
+	var start_index = get_slot_from_center_position(global_mouse_position, data.dimensions)
+	if start_index != -1:
+		var target_slots = get_current_index_occupy_slot(data, start_index)
+		var data_slots = get_current_index_occupy_slot(data)
+		var old_datas = item_is_places(target_slots, data, data_slots)
+		if old_datas[0] == -1:
+			highlight_node.color_change(false)
+		elif old_datas[0] == 2: # 重新选择位置填入
+			var old_data_old_slots = old_datas[1] # 旧物品: 旧槽位
+			var old_data_old_index: int = old_data_old_slots[0][0] # 旧物品: 旧索引
+			var old_item: Goods = slot_data[old_data_old_index] # 目标槽位物品
+			var pass_indexs = data_slots.duplicate()
+			var exclude_indexs = target_slots.duplicate()
+			var old_data_new_index = attempt_to_place_item(old_item, -1, false, pass_indexs, exclude_indexs)
+			if old_data_new_index == -1:
+				highlight_node.color_change(false)
+			else:
+				highlight_node.color_change(true)
+		else:
+			highlight_node.color_change(true)
+	else:
+		highlight_node.color_change(false)
+	highlight_node.visible = true

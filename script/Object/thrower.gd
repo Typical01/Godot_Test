@@ -8,7 +8,7 @@ class_name Thrower
 @export var swing_range: float = 10.0  # 左右各30度
 
 ## 摆动速度（度/秒）
-@export var swing_speed: float = 1.0
+@export var swing_speed: float = 10.0
 
 ## 基准方向（向下）
 @export var base_direction: Vector2 = Vector2.DOWN
@@ -61,8 +61,8 @@ func throw_target(target: Control) -> void:
 	# 使用当前摆动方向
 	var number = randf()
 	while(number < 0.5):
-		number *= 2
-	flyable.launch(current_direction, initial_speed * (clampf(number, 0.0, 0.9)))
+		number *= 1.2
+	flyable.launch(current_direction, initial_speed * (clampf(number, 0.0, 0.75)))
 
 
 ## 手动抛射（指定特定方向，忽略摆动）
@@ -73,8 +73,8 @@ func throw_target_with_direction(target: Control, direction: Vector2) -> void:
 		target.add_child(flyable)
 	var number = randf()
 	while(number < 0.5):
-		number *= 2
-	flyable.launch(direction.normalized(), initial_speed * (clampf(number, 0.0, 0.9)))
+		number *= 1.2
+	flyable.launch(direction.normalized(), initial_speed * (clampf(number, 0.0, 0.75)))
 
 
 ## 可视化调试（在编辑器中显示方向箭头）

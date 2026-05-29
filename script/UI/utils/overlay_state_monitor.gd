@@ -15,7 +15,7 @@ extends CanvasLayer
 		return $Timer
 
 @export var is_performance: bool = true
-@export var is_editor: bool = OS.has_feature("editor")
+@export var is_editor: bool = true#OS.has_feature("editor")
 var monitors: Dictionary = {}
 
 

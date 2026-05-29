@@ -8,15 +8,13 @@
 [ext_resource type="Texture2D" uid="uid://cucnim26pify5" path="res://art/texture/ui/slot/搜索图标.png" id="6_gt80q"]
 [ext_resource type="Shader" uid="uid://jcurfejmlm26" path="res://shader/boder.gdshader" id="8_drnxo"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_drnxo"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k4u65"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gqkdw"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0ym4v"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gt80q"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drnxo"]
+bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.36862746, 0.36862746, 0.36862746, 0.7490196)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2bcxa"]
 
@@ -57,6 +55,12 @@ _data = {
 &"quality_border": SubResource("Animation_djc1i")
 }
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m62xi"]
+bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.29748532, 0.29748532, 0.29748532, 0.5)
+
 [sub_resource type="Curve2D" id="Curve2D_g2ywv"]
 bake_interval = 1.0
 _data = {
@@ -78,11 +82,11 @@ offset_right = 64.0
 offset_bottom = 64.0
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
-theme_override_styles/normal = SubResource("StyleBoxEmpty_drnxo")
-theme_override_styles/pressed = SubResource("StyleBoxEmpty_k4u65")
-theme_override_styles/hover = SubResource("StyleBoxEmpty_gqkdw")
-theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_0ym4v")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_gt80q")
+theme_override_styles/normal = SubResource("StyleBoxFlat_drnxo")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_drnxo")
+theme_override_styles/hover = SubResource("StyleBoxFlat_drnxo")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_drnxo")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_drnxo")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_2bcxa")
 toggle_mode = true
 script = ExtResource("1_m62xi")
@@ -98,17 +102,23 @@ stream = ExtResource("2_drnxo")
 [node name="QualityColor" type="ColorRect" parent="." unique_id=600624522]
 self_modulate = Color(0.8509804, 0, 0, 0.18039216)
 custom_minimum_size = Vector2(72, 72)
-layout_mode = 0
-offset_right = 64.0
-offset_bottom = 64.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 
 [node name="GoodsTexture" type="TextureRect" parent="." unique_id=1109956902]
 custom_minimum_size = Vector2(72, 72)
-layout_mode = 0
-offset_right = 64.0
-offset_bottom = 64.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 texture = ExtResource("3_g2ywv")
@@ -124,16 +134,19 @@ offset_bottom = 34.0
 theme_override_colors/font_shadow_color = Color(0.101960786, 0.101960786, 0.101960786, 1)
 theme_override_constants/line_spacing = -4
 theme_override_constants/shadow_outline_size = 1
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 12
 text = "非洲之心海洋之泪"
 autowrap_mode = 1
 
 [node name="QualityBorder" type="TextureRect" parent="." unique_id=796381760]
 self_modulate = Color(1, 0, 0, 1)
 custom_minimum_size = Vector2(72, 72)
-layout_mode = 0
-offset_right = 64.0
-offset_bottom = 64.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 pivot_offset_ratio = Vector2(0.5, 0.5)
 mouse_filter = 2
 texture = ExtResource("4_gqkdw")
@@ -141,9 +154,12 @@ texture = ExtResource("4_gqkdw")
 [node name="SearchBackgroundRect" type="ColorRect" parent="." unique_id=1528426914]
 clip_contents = true
 custom_minimum_size = Vector2(72, 72)
-layout_mode = 0
-offset_right = 64.0
-offset_bottom = 64.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 color = Color(1, 1, 1, 0)
 
@@ -154,6 +170,17 @@ offset_right = 256.0
 offset_bottom = 256.0
 mouse_filter = 2
 texture = ExtResource("5_0ym4v")
+
+[node name="Panel" type="Panel" parent="SearchBackgroundRect" unique_id=1325990980]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_m62xi")
 
 [node name="Path2D" type="Path2D" parent="." unique_id=692090257]
 position = Vector2(16, 16)
@@ -184,7 +211,6 @@ offset_right = 64.0
 offset_bottom = 64.0
 mouse_filter = 2
 
-[connection signal="resized" from="." to="." method="_on_resized"]
 [connection signal="toggled" from="." to="." method="_on_toggled"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
 [connection signal="finished" from="AudioStreamPlayer" to="." method="_on_audio_stream_player_finished"]

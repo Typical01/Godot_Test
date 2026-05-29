@@ -1601,7 +1601,7 @@ func create_config() -> Dictionary:
 	qualitys.append({
 		"物品名称": "G18",
 		"物品类型": Goods.Type.EnergyFuel,
-		"物品格数": [1, 2],
+		"物品格数": [2, 1],
 		"物品价值": 20000
 	})
 	container_class["红"] = qualitys.duplicate()

@@ -204,6 +204,7 @@ texture = ExtResource("6_gt80q")
 offset = Vector2(16, 16)
 
 [node name="Highlight" type="ColorRect" parent="." unique_id=798765189]
+z_index = 10
 material = SubResource("ShaderMaterial_m62xi")
 custom_minimum_size = Vector2(72, 72)
 layout_mode = 0

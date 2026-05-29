@@ -15,9 +15,9 @@ class_name GoodsGrid extends Control
 @onready var search_icon_node: Sprite2D = %SearchIcon
 @onready var container_name_node: Label = %ContainerName
 @onready var background_node: Panel = %Background
-@export var slot_grid_scene: PackedScene ## 场景: 槽位列表
-@export var goods_grid_scene: PackedScene ## 场景: 物品列表
-@export var highlight_scene: PackedScene ## 场景: 物品列表
+@export var slot_grid_scene: PackedScene ## 场景: 槽位
+@export var goods_grid_scene: PackedScene ## 场景: 物品
+@export var highlight_scene: PackedScene ## 场景: 高光
 
 @export var container_name: String = "容器"
 var highlight_node = null
@@ -26,7 +26,7 @@ var slot_size: int = Global.SLOT_SIZE ## 物品槽大小
 
 var searching = false
 @export var show_background = true
-@onready var slot_data = goods_grid_node.data
+@onready var slot_data = goods_grid_node.datas
 var item_sum: Dictionary = {}
 var button_groups = ButtonGroup.new()
 
@@ -72,7 +72,7 @@ func _on_goods_single_click_up(_global_position):
 		return
 	OverlayStateMonitor.push_overlay("goods_data", data.name)
 	if data.search:
-		var control = goods_grid_node._get_control_at_index(data.index)
+		var control = goods_grid_node.get_control_from_index(data.index)
 		if not control: 
 			control = button_groups.get_pressed_button()
 			if control: 
@@ -111,7 +111,7 @@ func _on_goods_drag_end(_global_position):
 func _on_slot_grid_on_data_fill(self_node) -> void:
 	self_node.item_size = Vector2i(slot_size, slot_size)
 	self_node.set_template(slot_grid_scene)
-	self_node.custom_minimum_size = custom_minimum_size
+	#self_node.custom_minimum_size = custom_minimum_size
 	self_node.columns = dimensions.x
 	self_node.fill_item(null, dimensions.x * dimensions.y)
 
@@ -122,7 +122,7 @@ func _on_goods_grid_on_v_value_changed(value) -> void:
 func _on_goods_grid_on_data_fill(self_node: VListView) -> void:
 	self_node.item_size = Vector2i(slot_size, slot_size)
 	self_node.set_template(goods_grid_scene)
-	self_node.custom_minimum_size = custom_minimum_size
+	#self_node.custom_minimum_size = custom_minimum_size
 	self_node.columns = dimensions.x
 	self_node.fill_item(null, dimensions.x * dimensions.y)
 	goods_container_manage.init(self_node.drag_node.duplicate())
@@ -132,22 +132,19 @@ func _on_goods_grid_on_node_init(control) -> void:
 	button_groups.allow_unpress = true
 	control.button_group = button_groups
 
-func _on_goods_grid_on_entry_connect_callback(control: Variant) -> void:
+func _on_goods_grid_on_item_connect_callback(control: Variant) -> void:
 	if control == null: 
 		push_error("control == null!")
 		return
 
-func _on_goods_grid_on_entry_disconnect_callback(control: Variant) -> void:
+func _on_goods_grid_on_item_disconnect_callback(control: Variant) -> void:
 	if control == null: 
 		push_error("control == null!")
 		return
 
-func _on_goods_grid_on_entry_updated(index: int, control, data) -> void:
-	if not control:
-		#push_error("[%s]control == null!" % [index])
-		return
+func _on_goods_grid_on_item_updated(index: int, control, data) -> void:
+	if not control: return
 	if not data or index != data.index:
-		control.set_goods_size(Vector2(slot_size, slot_size))
 		control.visible = false
 		return
 	control.set_data(data)
@@ -160,7 +157,7 @@ func _on_goods_grid_on_drag_start_item(index: int, data: Goods, global_mouse_pos
 	if not data.search: # 未搜索物品无法交互
 		return
 	
-	#var control = goods_grid_node._get_control_at_index(data.index)
+	#var control = goods_grid_node.get_control_from_index(data.index)
 	#if control:
 		#control.show_name(false)
 	
@@ -186,7 +183,7 @@ func _on_goods_grid_on_drag_end_item(index: int, end_index: int, global_mouse_po
 	highlight_node.visible = false
 	if not data:
 		return
-	#var control = goods_grid_node._get_control_at_index(data.index)
+	#var control = goods_grid_node.get_control_from_index(data.index)
 	#if control:
 		#control.show_name(true)
 	end_index = get_slot_from_center_position(global_mouse_position, data.dimensions)
@@ -257,7 +254,7 @@ func get_search_items(container_name: String, is_search = false, number = clampi
 			if index == 0: continue
 			var data: Goods = slot_data[i]
 			quality = slot_data[i].quality
-			var node = goods_grid_node._get_control_at_index(i)
+			var node = goods_grid_node.get_control_from_index(i)
 			if not node:
 				continue
 			node.search()

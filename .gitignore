@@ -25,3 +25,5 @@ Desktop.ini
 # .import/
 
 /build/
+*.apk
+*.exe

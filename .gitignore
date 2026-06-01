@@ -1,3 +1,27 @@
-# Godot 4+ specific ignores
+# Godot 4+ 必须忽略 (缓存和编译生成文件)
 .godot/
-/android/
+*.translation
+
+# 导出配置 (若涉及敏感信息或Godot 4.0以下请取消注释)
+# export_presets.cfg
+# export.cfg
+
+# C# (Mono) 相关
+.mono/
+data_*/
+mono_crash.*.json
+
+# IDE 配置 (根据你用的编辑器选择)
+.vscode/
+.idea/
+.vs/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 如果团队决定不提交 .import/，取消下面这行注释
+# .import/
+
+/build/

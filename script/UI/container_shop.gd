@@ -2,9 +2,9 @@ extends Control
 
 
 
-@onready var shop_list_node = $PanelContainer/ScrollContainer/ShopList
+@onready var shop_list_node = $"PanelContainer/VBoxContainer/TabBar/跑刀/ShopList"
 @onready var goods_container_node = $SeekRect/GoodsContainer
-@onready var buy_container_node = $PanelContainer/ScrollContainer/ShopList/BuyContainer
+@onready var buy_container_node = $"PanelContainer/VBoxContainer/TabBar/跑刀/ShopList/BuyContainer"
 @onready var seek_rect_node = $SeekRect
 @onready var panel_node = $Panel
 @onready var popup_tips_node = $PopupTips

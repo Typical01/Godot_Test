@@ -232,10 +232,7 @@ func get_goods_reward_random() -> String:
 func get_container_types(container_name: String) -> Array:
 	return container_data.get(container_name, [])
 
-func create_config() -> Dictionary:	
-	# 基本设置对象
-	var base_setting: Dictionary = {}
-	
+func create_config(_config: Dictionary) -> void:
 	## 物品概率
 	var goods: Dictionary = {}
 	var container_class: Dictionary = {}
@@ -2322,7 +2319,7 @@ func create_config() -> Dictionary:
 
 
 ## ============================ 其他 =============================
-	base_setting["物品"] = goods
+	_config["物品"] = goods
 	
 	var container: Dictionary = {}
 	container["品质"] = {
@@ -2350,15 +2347,17 @@ func create_config() -> Dictionary:
 			{"名称": "高级储物箱", "类型": [Goods.Type.Electronic, Goods.Type.ToolMaterial, Goods.Type.HomeItem]},
 			{"名称": "服务器", "类型": [Goods.Type.Electronic]},
 			{"名称": "医疗物资箱", "类型": [Goods.Type.Medical]},
-			{"名称": "衣服", "类型": [Goods.Type.KeyCar]},
 			{"名称": "航空箱", "类型": [Goods.Type.EnergyFuel, Goods.Type.ToolMaterial]},
 			{"名称": "保险箱", "类型": [Goods.Type.CraftCollection]}
+		],
+		"紫": [
+			{"名称": "衣服", "类型": [Goods.Type.KeyCar]}
 		]
 	}
 	container["概率"] = {
-		"普通": [0.8, 0.19, 0.01, 0, 0, 0, 0],
-		"机密": [0.6, 0.35, 0.05, 0, 0, 0, 0],
-		"绝密": [0.35, 0.55, 0.1, 0, 0, 0, 0]
+		"普通": [0.8, 0.15, 0.049, 0.001, 0, 0, 0],
+		"机密": [0.55, 0.30, 0.145, 0.005, 0, 0, 0],
+		"绝密": [0.3, 0.55, 0.14, 0.01, 0, 0, 0]
 	}
 	container["物品概率"] = {
 		"收纳袋": 		[0.043, 0.103, 0.15, 0.45, 0.2, 0.05, 0.0037, 0.0003],
@@ -2386,13 +2385,12 @@ func create_config() -> Dictionary:
 		"航空箱": 		[0.0, 0.0, 0.05, 0.35, 0.389, 0.15, 0.05, 0.011],
 		"保险箱": 		[0.0, 0.0, 0.05, 0.35, 0.389, 0.15, 0.05, 0.011]
 	}
-	base_setting["容器"] = container
+	_config["容器"] = container
 	
 	if not Global.game_config.has("货币"):
-		base_setting["货币"] = 0
+		_config["货币"] = 0
 	if not Global.game_config.has("仓库"):
-		base_setting["仓库"] = []
+		_config["仓库"] = []
 	if not Global.game_config.has("钥匙卡包"):
-		base_setting["钥匙卡包"] = []
-	base_setting["版本"] = "0.0.105"
-	return base_setting
+		_config["钥匙卡包"] = []
+	_config["版本"] = "0.0.106"

@@ -15,6 +15,7 @@ class_name GoodsGrid extends Control
 @onready var search_icon_node: Sprite2D = %SearchIcon
 @onready var container_name_node: Label = %ContainerName
 @onready var background_node: Panel = %Background
+@onready var panel_container_node: Control = %PanelContainer
 @export var slot_grid_scene: PackedScene ## 场景: 槽位
 @export var goods_grid_scene: PackedScene ## 场景: 物品
 @export var highlight_scene: PackedScene ## 场景: 高光
@@ -24,11 +25,10 @@ var highlight_node = null
 var slot_size: int = Global.SLOT_SIZE ## 物品槽大小
 @export var dimensions: Vector2i = Vector2i(5, 5) ## 网格大小: X,Y
 
-var searching = false
-@export var show_background = true
-@onready var slot_data = goods_grid_node.datas
+var searching: bool = false
+@export var show_background: bool = true
+@onready var slot_data = []
 var item_sum: Dictionary = {}
-var button_groups = ButtonGroup.new()
 
 
 
@@ -36,11 +36,6 @@ var button_groups = ButtonGroup.new()
 
 func _ready() -> void:
 	set_container_state(false)
-	OverlayStateMonitor.is_performance = false
-	
-	slot_data.resize(dimensions.x * dimensions.y)
-	slot_data.fill(null)
-	custom_minimum_size = dimensions * slot_size
 	
 	background_node.visible = show_background
 	if highlight_scene:
@@ -50,6 +45,7 @@ func _ready() -> void:
 	else:
 		push_error("highlight_scene == null!")
 	
+	slot_data = goods_grid_node.datas
 	read_goods_data() # 读取: 仓库物品
 
 
@@ -63,18 +59,18 @@ func _process(delta: float) -> void:
 ## ============================ 回调 =============================
 
 func _on_goods_single_click_up(_global_position):
-	#OverlayStateMonitor.push_overlay("_on_goods_single_click_down", _global_position)
 	var container = goods_container_manage.has_global_points(position)
 	if container != self: return
 	var index = get_slot_index_from_coords(_global_position)
 	var data: Goods = slot_data[index]
 	if not data:
+		goods_container_manage.show_info(null, false)
 		return
 	OverlayStateMonitor.push_overlay("goods_data", data.name)
 	if data.search:
 		var control = goods_grid_node.get_control_from_index(data.index)
 		if not control: 
-			control = button_groups.get_pressed_button()
+			control = goods_container_manage.button_groups.get_pressed_button()
 			if control: 
 				control.button_pressed = false
 			return
@@ -82,7 +78,6 @@ func _on_goods_single_click_up(_global_position):
 		goods_container_manage.show_info(data, true)
 
 func _on_goods_double_click(_global_position):
-	#OverlayStateMonitor.push_overlay("_on_goods_double_click", _global_position)
 	var index = get_slot_index_from_coords(_global_position)
 	var data = slot_data[index]
 	if not data: return
@@ -91,82 +86,72 @@ func _on_goods_double_click(_global_position):
 	goods_container_manage.set_goods_data(null)
 
 func _on_goods_drag_start(_global_position):
-	#OverlayStateMonitor.push_overlay("_on_goods_drag_start", _global_position)
 	goods_container_manage.show_info(null, false)
-	goods_grid_node.drag_start_item(_global_position)
+	goods_grid_node.drag_start(_global_position)
 
 func _on_goods_drag_move(_global_position):
-	#OverlayStateMonitor.push_overlay("_on_goods_drag_move", _global_position)
-	goods_grid_node.drag_move_item(_global_position)
+	goods_grid_node.drag_move(_global_position)
 
 func _on_goods_drag_end(_global_position):
-	#OverlayStateMonitor.push_overlay("_on_goods_drag_end", _global_position)
-	goods_grid_node.drag_end_item(_global_position)
+	goods_grid_node.drag_end(_global_position)
 
 
 
 ## ============================ 回调 =============================
 
 ## 创建: 槽位
-func _on_slot_grid_on_data_fill(self_node) -> void:
+func _on_slot_grid_data_fill(self_node) -> void:
 	self_node.item_size = Vector2i(slot_size, slot_size)
-	self_node.set_template(slot_grid_scene)
-	#self_node.custom_minimum_size = custom_minimum_size
+	self_node.item_name = container_name + "[Slot]"
 	self_node.columns = dimensions.x
 	self_node.fill_item(null, dimensions.x * dimensions.y)
-
-func _on_goods_grid_on_v_value_changed(value) -> void:
-	slot_grid_node.v_scroll_bar.value = value
+	self_node.set_template(slot_grid_scene)
 
 ## 创建: 槽位
-func _on_goods_grid_on_data_fill(self_node: VListView) -> void:
+func _on_goods_grid_data_fill(self_node: VListView) -> void:
 	self_node.item_size = Vector2i(slot_size, slot_size)
-	self_node.set_template(goods_grid_scene)
-	#self_node.custom_minimum_size = custom_minimum_size
+	self_node.item_name = container_name
 	self_node.columns = dimensions.x
 	self_node.fill_item(null, dimensions.x * dimensions.y)
+	self_node.set_template(goods_grid_scene)
 	goods_container_manage.init(self_node.drag_node.duplicate())
 	goods_container_manage.add_item(self)
 
-func _on_goods_grid_on_node_init(control) -> void:
-	button_groups.allow_unpress = true
-	control.button_group = button_groups
+func _on_goods_grid_v_value_changed(value) -> void:
+	if slot_grid_node:
+		slot_grid_node.v_scroll_bar.value = value
 
-func _on_goods_grid_on_item_connect_callback(control: Variant) -> void:
-	if control == null: 
-		push_error("control == null!")
-		return
+func _on_goods_grid_item_init(control) -> void:
+	control.button_group = goods_container_manage.button_groups
 
-func _on_goods_grid_on_item_disconnect_callback(control: Variant) -> void:
-	if control == null: 
-		push_error("control == null!")
-		return
+func _on_goods_grid_item_connect_callback(control: Variant) -> void:
+	pass
 
-func _on_goods_grid_on_item_updated(index: int, control, data) -> void:
+func _on_goods_grid_item_disconnect_callback(control: Variant) -> void:
+	pass
+
+func _on_goods_grid_item_updated(index: int, control, data) -> void:
 	if not control: return
 	if not data or index != data.index:
 		control.visible = false
 		return
+	
 	control.set_data(data)
 	control.visible = true
 
-func _on_goods_grid_on_drag_start_item(index: int, data: Goods, global_mouse_position: Vector2) -> void:
+func _on_goods_grid_drag_start_item(index: int, data: Goods, global_mouse_position: Vector2) -> void:
 	goods_container_manage.set_goods_data(data)
 	if not data:
 		return
 	if not data.search: # 未搜索物品无法交互
 		return
 	
-	#var control = goods_grid_node.get_control_from_index(data.index)
-	#if control:
-		#control.show_name(false)
-	
 	goods_container_manage.set_drag_node_position(global_mouse_position)
 	goods_container_manage.show_drag_node(true)
 	
 	show_highlight(data, global_mouse_position)
 
-func _on_goods_grid_on_drag_move_item(index: int, global_mouse_position: Vector2) -> void:
+func _on_goods_grid_drag_move_item(index: int, global_mouse_position: Vector2) -> void:
 	var data = goods_container_manage.goods_data
 	var container = goods_container_manage.current_container
 	if container != self: 
@@ -178,15 +163,13 @@ func _on_goods_grid_on_drag_move_item(index: int, global_mouse_position: Vector2
 	goods_container_manage.show_drag_node(true)
 	show_highlight(data, global_mouse_position)
 
-func _on_goods_grid_on_drag_end_item(index: int, end_index: int, global_mouse_position: Vector2) -> void:
+func _on_goods_grid_drag_end_item(index: int, end_index: int, global_mouse_position: Vector2) -> void:
 	var data = goods_container_manage.goods_data
 	highlight_node.visible = false
 	if not data:
 		return
-	#var control = goods_grid_node.get_control_from_index(data.index)
-	#if control:
-		#control.show_name(true)
 	end_index = get_slot_from_center_position(global_mouse_position, data.dimensions)
+	OverlayStateMonitor.push_overlay("end_index", end_index)
 	if not try_place_goods(end_index, data):
 		pass
 	
@@ -257,8 +240,15 @@ func get_search_items(container_name: String, is_search = false, number = clampi
 			var node = goods_grid_node.get_control_from_index(i)
 			if not node:
 				continue
-			node.search()
-			await get_tree().create_timer(Goods.get_quality_time(quality)).timeout # 等待动画
+			
+			# 大于搜索等级
+			if quality >= goods_container_manage.search_level:
+				node.search()
+				await get_tree().create_timer(Goods.get_quality_time(quality)).timeout # 等待动画
+				data.search = true
+			else:
+				node.is_search = true
+				node.show_status(1)
 			data.search = true
 	
 	set_container_state(false)
@@ -296,9 +286,7 @@ func clear(call_back: Callable = Callable()) -> void:
 		if data and i == data.index:
 			if call_back: # 出售物品
 				call_back.call(data)
-	slot_data.resize(dimensions.x * dimensions.y)
-	goods_grid_node.fill_item(null)
-	slot_data.fill(null)
+	goods_grid_node.fill_item(null, dimensions.x * dimensions.y)
 
 func sell(data: Goods = null, call_back: Callable = Callable()) -> Variant:
 	#if searching: return
@@ -311,7 +299,7 @@ func sell(data: Goods = null, call_back: Callable = Callable()) -> Variant:
 	save_goods_data()
 	return data
 
-func sells(call_back: Callable = Callable()) -> bool:
+func sells(_sell: Callable = Callable()) -> bool:
 	#if searching: return
 	var is_successful = true
 	for i in slot_data.size():
@@ -329,8 +317,8 @@ func sells(call_back: Callable = Callable()) -> bool:
 				move_slot_data_store(data.index, data)
 			else:
 				remove_item(data.index)
-				if call_back: # 出售物品
-					call_back.call(data.value)
+				if _sell: # 出售物品
+					_sell.call(data.value)
 					#save.emit(self)
 	save_goods_data()
 	return is_successful
@@ -711,6 +699,16 @@ func get_slot_from_center_position(coords: Vector2, data_dimensions: Vector2i) -
 	coords -= item_offset_position
 	return get_slot_index_from_coords(coords)
 
+func get_center_position_from_start_position(coords: Vector2, data_dimensions: Vector2i) -> Vector2:
+	var item_offset_position = Vector2(0, 0)
+	var offset_slot_scale = roundi(float(slot_size) / 2)
+	if data_dimensions.x > 1:
+		item_offset_position.x = offset_slot_scale * (data_dimensions.x - 1)
+	if data_dimensions.y > 1:
+		item_offset_position.y = offset_slot_scale * (data_dimensions.y - 1)
+	coords -= item_offset_position
+	return coords
+
 ## 获取: 首槽位 > 中心坐标
 func get_center_position_from_slot(index: int, data_dimensions: Vector2i) -> Vector2:
 	if not canfine(index, data_dimensions):
@@ -726,9 +724,12 @@ func get_center_position_from_slot(index: int, data_dimensions: Vector2i) -> Vec
 func get_slot_index_from_coords(coords: Vector2) -> int:
 	if not has_global_point(coords):
 		return -1
-	var local = coords - goods_grid_node.global_position
-	local /= slot_size
-	var index = _to_index(local.x, local.y)
+	
+	var local_pos = coords - goods_grid_node.global_position
+	# 滚动偏移
+	local_pos.y += goods_grid_node.v_scroll_bar.value
+	local_pos /= slot_size
+	var index = _to_index(local_pos.x, local_pos.y)
 	if not canfine(index):
 		return -1
 	return index
@@ -742,7 +743,7 @@ func get_coords_from_slot_index(index: int) -> Vector2:
 
 ## 坐标是否在指定范围
 func has_global_point(_global_position: Vector2) -> bool:
-	var global_rect = Rect2(global_position, size)
+	var global_rect = Rect2(global_position, goods_grid_node.item_container_node.size)
 	return global_rect.abs().has_point(_global_position)
 
 ## 边界检查: 坐标
@@ -760,14 +761,7 @@ func _to_coord(index: int) -> Vector2:
 func show_highlight(data: Goods, global_mouse_position: Vector2):
 	highlight_node.set_slot_size(data.dimensions)
 	
-	# 当前的中心坐标
-	var new_position: Vector2 = global_mouse_position - background_node.global_position - (highlight_node.size / 2)
-	# 垂直滚动偏移
-	var offset = Vector2(0, int(goods_grid_node.v_scroll_bar.value) % slot_size)
-	new_position = round((new_position - offset) / slot_size)
-	new_position = new_position * slot_size
-	highlight_node.position = new_position
-	OverlayStateMonitor.push_overlay("new_position", new_position)
+	highlight_node.position = get_highlight_position(global_mouse_position)
 	
 	# 获取首槽位: 显示是否可以放入鼠标位置
 	var start_index = get_slot_from_center_position(global_mouse_position, data.dimensions)
@@ -793,3 +787,24 @@ func show_highlight(data: Goods, global_mouse_position: Vector2):
 	else:
 		highlight_node.color_change(false)
 	highlight_node.visible = true
+
+func get_highlight_position(global_mouse_position: Vector2) -> Vector2:
+	var local_pos = global_mouse_position - goods_grid_node.global_position
+	var scroll_value = goods_grid_node.v_scroll_bar.value
+	
+	# 屏幕坐标 → 内容坐标（加完整滚动值）
+	var content_y = local_pos.y + scroll_value
+	var content_x = local_pos.x
+	
+	# 取整得到全局行列
+	var col = floor(content_x / slot_size)
+	var row = floor(content_y / slot_size)
+	
+	# 内容坐标 → 屏幕坐标（减完整滚动值）
+	var grid_screen_x = col * slot_size
+	var grid_screen_y = row * slot_size - scroll_value
+	
+	return Vector2(
+		grid_screen_x + (slot_size - highlight_node.size.x) / 2,
+		grid_screen_y + (slot_size - highlight_node.size.y) / 2
+	)

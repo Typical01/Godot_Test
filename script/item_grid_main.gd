@@ -1,5 +1,6 @@
 extends CanvasLayer
 
+@onready var goods_search_node: GoodsGrid = %GoodsSearch
 @onready var goods_store_node: GoodsGrid = %GoodsStore
 @onready var goods_keys_node: GoodsGrid = %GoodsKeys
 @onready var show_store_node = %ShowStore
@@ -16,11 +17,11 @@ func _ready() -> void:
 	pass
 
 func _on_show_search_container():
-	%GoodsContainer.visible = true
+	goods_search_node.visible = true
 
 func _on_sell_button_up() -> void:
-	if %GoodsContainer.sells(goods_container_manage.add_value):
-		%GoodsContainer.visible = false
+	if goods_search_node.sells(goods_container_manage.add_value):
+		goods_search_node.visible = false
 
 func _on_show_store_button_up() -> void:
 	var tween = create_tween()

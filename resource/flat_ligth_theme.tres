@@ -144,6 +144,11 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 corner_detail = 6
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+shadow_size = 1
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tqs7q"]
 content_margin_left = 4.0
@@ -156,6 +161,11 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 corner_detail = 6
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+shadow_size = 1
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y56yw"]
 content_margin_left = 4.0
@@ -168,6 +178,11 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 corner_detail = 6
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+shadow_size = 1
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ufclq"]
 content_margin_left = 0.0
@@ -459,6 +474,11 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 corner_detail = 6
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+shadow_size = 1
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y0365"]
 content_margin_left = 4.0
@@ -471,6 +491,11 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 corner_detail = 6
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+shadow_size = 1
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ntqdb"]
 content_margin_left = 4.0
@@ -483,6 +508,11 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 corner_detail = 6
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+shadow_size = 1
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e618d"]
 content_margin_left = 4.0

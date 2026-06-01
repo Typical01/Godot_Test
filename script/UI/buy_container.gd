@@ -40,7 +40,7 @@ func open() -> void:
 	if not container_grid.searching:
 		if container_grid.is_empty():
 			open_container.emit(container_name, true)
-			var number = clampi(randi() % 2, 1, 2) if container_name == "衣服" else clampi(randi() % 6, 1, 6)
+			var number = clampi(randi() % 6, 1, 6) if container_name != "衣服" else clampi(randi() % 2, 1, 1)
 			container_grid.get_search_items(container_name, false, number)
 			queue_free()
 		else:

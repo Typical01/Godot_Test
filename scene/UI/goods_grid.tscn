@@ -43,6 +43,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PanelContainer" type="Control" parent="VBoxContainer" unique_id=524465231]
+unique_name_in_owner = true
 clip_contents = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
@@ -96,6 +97,7 @@ theme_override_font_sizes/font_size = 14
 text = "正在搜索中..."
 
 [node name="Grid" type="PanelContainer" parent="VBoxContainer" unique_id=854696030]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_m7tdx")
@@ -106,38 +108,49 @@ clip_contents = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_m7tdx")
 
-[node name="SlotGrid" parent="VBoxContainer/Grid" unique_id=1175102371 instance=ExtResource("7_y03jg")]
+[node name="SlotGrid" parent="VBoxContainer/Grid/Background" unique_id=1175102371 instance=ExtResource("7_y03jg")]
 unique_name_in_owner = true
 z_index = 1
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
-mouse_behavior_recursive = 1
-horizontal_scroll_mode = 0
-vertical_scroll_mode = 0
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 3
 buffer_rows = 1
-aligning = false
 show_drag_node = false
 
-[node name="GoodsGrid" parent="VBoxContainer/Grid" unique_id=727001819 instance=ExtResource("7_y03jg")]
+[node name="GoodsGrid" parent="VBoxContainer/Grid/Background" unique_id=727001819 instance=ExtResource("7_y03jg")]
 unique_name_in_owner = true
 z_index = 2
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 mouse_behavior_recursive = 2
 buffer_rows = 4
-aligning = false
 show_drag_node = false
 
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
-[connection signal="on_data_fill" from="VBoxContainer/Grid/SlotGrid" to="." method="_on_slot_grid_on_data_fill"]
-[connection signal="mouse_entered" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_mouse_entered"]
-[connection signal="on_data_fill" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_data_fill"]
-[connection signal="on_drag_end_item" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_drag_end_item"]
-[connection signal="on_drag_move_item" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_drag_move_item"]
-[connection signal="on_drag_node_init" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_node_init"]
-[connection signal="on_drag_start_item" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_drag_start_item"]
-[connection signal="on_item_connect_callback" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_item_connect_callback"]
-[connection signal="on_item_disconnect_callback" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_item_disconnect_callback"]
-[connection signal="on_item_updated" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_item_updated"]
-[connection signal="on_v_value_changed" from="VBoxContainer/Grid/GoodsGrid" to="." method="_on_goods_grid_on_v_value_changed"]
+[connection signal="data_fill" from="VBoxContainer/Grid/Background/SlotGrid" to="." method="_on_slot_grid_data_fill"]
+[connection signal="data_fill" from="VBoxContainer/Grid/Background/GoodsGrid" to="." method="_on_goods_grid_data_fill"]
+[connection signal="drag_end_item" from="VBoxContainer/Grid/Background/GoodsGrid" to="." method="_on_goods_grid_drag_end_item"]
+[connection signal="drag_move_item" from="VBoxContainer/Grid/Background/GoodsGrid" to="." method="_on_goods_grid_drag_move_item"]
+[connection signal="drag_start_item" from="VBoxContainer/Grid/Background/GoodsGrid" to="." method="_on_goods_grid_drag_start_item"]
+[connection signal="item_connect_callback" from="VBoxContainer/Grid/Background/GoodsGrid" to="." method="_on_goods_grid_item_connect_callback"]
+[connection signal="item_disconnect_callback" from="VBoxContainer/Grid/Background/GoodsGrid" to="." method="_on_goods_grid_item_disconnect_callback"]
+[connection signal="item_init" from="VBoxContainer/Grid/Background/GoodsGrid" to="." method="_on_goods_grid_item_init"]
+[connection signal="item_updated" from="VBoxContainer/Grid/Background/GoodsGrid" to="." method="_on_goods_grid_item_updated"]
+[connection signal="mouse_entered" from="VBoxContainer/Grid/Background/GoodsGrid" to="." method="_on_goods_grid_mouse_entered"]
+[connection signal="v_value_changed" from="VBoxContainer/Grid/Background/GoodsGrid" to="." method="_on_goods_grid_v_value_changed"]

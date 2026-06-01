@@ -22,20 +22,25 @@ var value_node: Value = preload("res://scene/object/value.tscn").instantiate()
 var info_node: ItemSimpleInformation = preload("res://scene/object/info.tscn").instantiate()
 
 
+var button_groups = ButtonGroup.new()
 
 var current_container: GoodsGrid = null ## 当前容器
 var last_container: GoodsGrid = null ## 最后的容器
 var value: int = 0
 var goods_data: Goods = null ## 物品
 var drag_node = null
+var container_pool: Array = [] ## 容器池
+
+var search_level: int = RewardPool.Quality.Red
 var store: Array = [] ## 仓库: 物品数据
 var keys: Array = [] ## 仓库: 物品数据
-var container_pool: Array = [] ## 容器池
 
 
 
 func _ready() -> void:
 	layer = 2
+	
+	button_groups.allow_unpress = true
 	
 	input_recognizer.single_click_down.connect(on_single_click_down)
 	input_recognizer.single_click_up.connect(on_single_click_up)
@@ -57,18 +62,13 @@ func _ready() -> void:
 	
 	data_manage.auto_save.connect(save_store_data)
 	data_manage.auto_save.connect(save_keys_data)
+	data_manage.auto_save.connect(Global.save_data)
 
 
 
 func on_single_click_down(global_position: Vector2):
 	var container: GoodsGrid = has_global_points(global_position)
 	if not container:
-		return
-	#container._on_goods_single_click_down(global_position)
-
-func on_single_click_up(global_position: Vector2):
-	var container: GoodsGrid = has_global_points(global_position)
-	if not container: 
 		set_goods_data(null)
 		OverlayStateMonitor.push_overlay("current_container", "null")
 		return
@@ -81,6 +81,12 @@ func on_single_click_up(global_position: Vector2):
 	
 	current_container = container
 	OverlayStateMonitor.push_overlay("current_container", current_container.container_name)
+	#container._on_goods_single_click_down(global_position)
+
+func on_single_click_up(global_position: Vector2):
+	var container: GoodsGrid = has_global_points(global_position)
+	if not container: 
+		return
 	container._on_goods_single_click_up(global_position)
 
 func on_double_click(global_position: Vector2):

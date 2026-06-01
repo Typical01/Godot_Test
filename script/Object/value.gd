@@ -3,7 +3,7 @@ class_name Value extends Control
 
 
 func _ready() -> void:
-	%AddValue.visible = true#OS.has_feature("editor")
+	%AddValue.visible = OS.has_feature("editor")
 
 func set_value(number: int) -> void:
 	%LabelValue.text = Goods.format_number_with_commas(number)

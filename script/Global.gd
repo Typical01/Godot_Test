@@ -9,7 +9,7 @@ var goods_container_reward_pool: GoodsContainerRewardPool = null
 
 
 func _ready() -> void:
-	load_setting()
+	load_setting(false)
 
 func _exit_tree() -> void:
 	save_data()
@@ -30,7 +30,7 @@ func load_setting(create_config: bool = false):
 	game_config = data_manage.data_file
 	goods_container_reward_pool = GoodsContainerRewardPool.new()
 	if create_config: # 强制创建新配置
-		game_config = goods_container_reward_pool.create_config()
+		goods_container_reward_pool.create_config(game_config)
 		save_data()
 	
 	var version = game_config.get("版本", "")
@@ -40,7 +40,7 @@ func load_setting(create_config: bool = false):
 	print("版本: ", version)
 	if game_config.is_empty() or not game_config.has("容器")or not game_config.has("物品") or version != project_varsion:
 		print("Global: game_config == null!")
-		game_config = goods_container_reward_pool.create_config()
+		goods_container_reward_pool.create_config(game_config)
 		save_data()
 		if not goods_container_reward_pool.init(game_config):
 			return
